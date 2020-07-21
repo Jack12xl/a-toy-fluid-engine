@@ -1,7 +1,7 @@
 import yaml
 import os
 from utils import read_cfg
-from config import stable_fluid_cfg as m_cfg
+from .config import stable_fluid_cfg as m_cfg
 
 
 # CONFIG_DIR = './config'
