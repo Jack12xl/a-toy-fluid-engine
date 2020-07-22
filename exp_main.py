@@ -1,8 +1,8 @@
 import yaml
 import os
 from utils import read_cfg
-from .config import stable_fluid_cfg as m_cfg
-
+import config.stable_fluid_cfg as m_cfg
+from src.Scheme import EulerScheme
 
 # CONFIG_DIR = './config'
 # YAML_BASENAME = 'stable_fluid.yaml'
@@ -12,6 +12,7 @@ from .config import stable_fluid_cfg as m_cfg
 if __name__ == '__main__':
     # m_cfg = read_cfg(YAML_PATH)
 
+    s = EulerScheme(m_cfg.scheme_setting)
     print(m_cfg.debug)
     # for section in m_cfg:
     #     print(section)
