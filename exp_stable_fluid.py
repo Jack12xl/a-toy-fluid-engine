@@ -182,12 +182,12 @@ def step(mouse_data):
 
     apply_impulse(velocities_pair.cur, dyes_pair.cur, mouse_data)
 
-    # divergence(velocities_pair.cur)
-    # for _ in range(p_jacobi_iters):
-    #     pressure_jacobi(pressures_pair.cur, pressures_pair.nxt)
-    #     pressures_pair.swap()
-    #
-    # subtract_gradient(velocities_pair.cur, pressures_pair.cur)
+    divergence(velocities_pair.cur)
+    for _ in range(p_jacobi_iters):
+        pressure_jacobi(pressures_pair.cur, pressures_pair.nxt)
+        pressures_pair.swap()
+
+    subtract_gradient(velocities_pair.cur, pressures_pair.cur)
     fill_color_v3(dyes_pair.cur)
     # fill_color_s(velocity_divs)
     # fill_color_v2(velocities_pair.cur)

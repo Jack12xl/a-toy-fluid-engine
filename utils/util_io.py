@@ -11,10 +11,10 @@ def read_cfg( cfg_dir : str ):
     return cfg
 
 class MouseDataGen(object):
-    def __init__(self, res):
+    def __init__(self, cfg):
         self.prev_mouse = None
         self.prev_color = None
-        self.res = res
+        self.cfg = cfg
 
     def __call__(self, gui):
         # [0:2]: normalized delta direction
@@ -22,7 +22,7 @@ class MouseDataGen(object):
         # [4:7]: color
         mouse_data = np.array([0] * 8, dtype=np.float32)
         if gui.is_pressed(ti.GUI.LMB):
-            mxy = vec2_npf32(gui.get_cursor_pos()) * self.res
+            mxy = vec2_npf32(gui.get_cursor_pos()) * self.cfg.res
             if self.prev_mouse is None:
                 self.prev_mouse = mxy
                 # Set lower bound to 0.3 to prevent too dark colors
