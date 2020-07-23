@@ -14,6 +14,10 @@ inv_force_radius = 1.0 / force_radius
 inv_dye_denom = 4.0 / (res[0] / 15.0)**2
 f_strength_dt = f_strength * dt
 
+poisson_pressure_alpha = - dx * dx
+poisson_pressure_beta  = 0.25
+
+
 scheme_setting = dict(
     dim = dim,
     res = res,

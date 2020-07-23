@@ -11,6 +11,7 @@ import taichi as ti
 
 if __name__ == '__main__':
     # m_cfg = read_cfg(YAML_PATH)
+    ti.init(arch=ti.cpu, debug=True)
 
     cfg_dict = m_cfg.scheme_setting
     s = EulerScheme(m_cfg)
@@ -25,8 +26,6 @@ if __name__ == '__main__':
                 break
             elif e.key == 'p':
                 paused = not paused
-            elif e.key == 'd':
-                debug = not debug
 
         if not paused:
             mouse_data = md_gen(gui)

@@ -26,8 +26,8 @@ class Grid():
         # assure integer
         i, j = int(u), int(v)
         # clamp
-        i = clamp(i, 0, self.cfg.res[0])
-        j = clamp(j, 0, self.cfg.res[1])
+        i = clamp(i, 0, self.cfg.res[0] - 1)
+        j = clamp(j, 0, self.cfg.res[1] - 1)
 
         return qf[i, j]
 
@@ -55,3 +55,53 @@ class Grid():
 
         return lerp(lerp(a, b, fu), lerp(c, d, fu), fv)
 
+    @ti.kernel
+    def calDivergence(self, vf: ti.template(), vd: ti.template()):
+        for i, j in vf:
+            vl = self.sample(vf, i - 1, j)[0]
+            vr = self.sample(vf, i + 1, j)[0]
+            vb = self.sample(vf, i, j - 1)[1]
+            vt = self.sample(vf, i, j + 1)[1]
+            vc = self.sample(vf, i, j)
+            # boundary
+            #TODO
+            if i == 0:
+                vl = -vc[0]
+            if i == self.cfg.res[0] - 1:
+                vr = -vc[0]
+            if j == 0:
+                vb = -vc[1]
+            if j == self.cfg.res[1] - 1:
+                vt = -vc[1]
+            vd[i, j] = (vr - vl + vt - vb) * self.cfg.half_inv_dx
+
+
+    @ti.kernel
+    def Jacobi_Step(self, pf: ti.template(), new_pf: ti.template(), p_divs: ti.template(), ):
+        for i, j in pf:
+            pl = self.sample(pf, i - 1, j)
+            pr = self.sample(pf, i + 1, j)
+            pb = self.sample(pf, i, j - 1)
+            pt = self.sample(pf, i, j + 1)
+            div = p_divs[i, j]
+            new_pf[i, j] = (pl + pr + pb + pt + self.cfg.poisson_pressure_alpha * div) * self.cfg.poisson_pressure_beta
+
+    def Jacobi_run_pressure(self):
+        for _ in range(self.cfg.p_jacobi_iters):
+            self.Jacobi_Step(self.p_pair.cur, self.p_pair.nxt, self.v_divs)
+            self.p_pair.swap()
+
+
+    @ti.kernel
+    def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
+        for i, j in vf:
+            pl = self.sample(pf, i - 1, j)
+            pr = self.sample(pf, i + 1, j)
+            pb = self.sample(pf, i, j - 1)
+            pt = self.sample(pf, i, j + 1)
+
+            vf[i, j] = self.sample(vf, i, j) - \
+                       self.cfg.half_inv_dx * ti.Vector([pr - pl, pt - pb])
+
+    def subtract_gradient_pressure(self):
+        self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)

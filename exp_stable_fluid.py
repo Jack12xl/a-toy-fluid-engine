@@ -18,7 +18,7 @@ debug = False
 
 assert res > 2
 
-ti.init(arch=ti.gpu,debug=True)
+ti.init(arch=ti.cpu,debug=True)
 
 _velocities = ti.Vector(2, dt=ti.f32, shape=(res, res))
 _new_velocities = ti.Vector(2, dt=ti.f32, shape=(res, res))

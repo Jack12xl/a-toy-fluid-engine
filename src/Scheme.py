@@ -61,5 +61,10 @@ class EulerScheme():
 
         # add impulse
         self.apply_impulse(self.grid.v_pair.cur, self.grid.dye_pair.cur, mouse_data)
+        self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
+
+        self.grid.Jacobi_run_pressure()
+
+        self.grid.subtract_gradient_pressure()
 
         self.fill_color(self.grid.dye_pair.cur)
