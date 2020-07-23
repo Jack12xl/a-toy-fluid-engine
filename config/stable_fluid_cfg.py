@@ -9,6 +9,11 @@ f_strength = 10000.0
 dye_decay = 0.99
 debug = False
 
+force_radius = res[0] / 3.0
+inv_force_radius = 1.0 / force_radius
+inv_dye_denom = 4.0 / (res[0] / 15.0)**2
+f_strength_dt = f_strength * dt
+
 scheme_setting = dict(
     dim = dim,
     res = res,
@@ -21,5 +26,10 @@ scheme_setting = dict(
     f_strength = f_strength,
     dye_decay = dye_decay,
     debug = debug,
+
+    force_radius = force_radius,
+    inv_force_radius = inv_force_radius,
+    inv_dye_denom = inv_dye_denom,
+    f_strength_dt = f_strength * dt
 
 )
