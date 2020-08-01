@@ -77,18 +77,27 @@ class Grid():
 
 
     @ti.kernel
-    def Jacobi_Step(self, pf: ti.template(), new_pf: ti.template(), p_divs: ti.template(), ):
+    def Jacobi_Step(self, pf: ti.template(), new_pf: ti.template(), p_divs: ti.template()):
         for i, j in pf:
             pl = self.sample(pf, i - 1, j)
             pr = self.sample(pf, i + 1, j)
             pb = self.sample(pf, i, j - 1)
             pt = self.sample(pf, i, j + 1)
             div = p_divs[i, j]
-            new_pf[i, j] = (pl + pr + pb + pt + self.cfg.poisson_pressure_alpha * div) * self.cfg.poisson_pressure_beta
+            new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
 
     def Jacobi_run_pressure(self):
+        self.cfg.jacobi_alpha = self.cfg.poisson_pressure_alpha
+        self.cfg.jacobi_beta = self.cfg.poisson_pressure_beta
         for _ in range(self.cfg.p_jacobi_iters):
-            self.Jacobi_Step(self.p_pair.cur, self.p_pair.nxt, self.v_divs)
+            self.Jacobi_Step(self.p_pair.cur, self.p_pair.nxt, self.v_divs,)
+            self.p_pair.swap()
+
+    def Jacobi_run_viscosity(self):
+        self.cfg.jacobi_alpha = self.cfg.poisson_viscosity_alpha
+        self.cfg.jacobi_beta = self.cfg.poisson_viscosity_beta
+        for _ in range(self.cfg.p_jacobi_iters):
+            self.Jacobi_Step(self.p_pair.cur, self.p_pair.nxt, self.v_divs, )
             self.p_pair.swap()
 
 

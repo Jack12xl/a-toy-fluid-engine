@@ -13,9 +13,21 @@ class EulerScheme():
 
     @ti.kernel
     def advect_q(self, vf: ti.template(), qf: ti.template(), new_qf: ti.template()):
+        '''
+
+        :param vf: velocity field
+        :param qf:
+        :param new_qf:
+        :return:
+        '''
         for i, j in vf:
             coord = ( ti.Vector([i,j]) + 0.5 ) * self.cfg.dx - vf[i, j] * self.cfg.dt
             new_qf[i,j] = self.grid.interpolate_value(qf, coord)
+
+    @ti.kernel
+    def diffusion(self, vf: ti.template(), ):
+
+        pass
 
     @ti.kernel
     def project(self):
@@ -26,6 +38,12 @@ class EulerScheme():
         for i, j in vf:
             v = vf[i, j]
             self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), abs(v[2])])
+
+    @ti.kernel
+    def fill_color_2d(self, vf: ti.template()):
+        for i, j in vf:
+            v = vf[i, j]
+            self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), 0.25])
 
     @ti.kernel
     def apply_impulse(self, vf: ti.template(), dyef: ti.template(),
@@ -64,7 +82,9 @@ class EulerScheme():
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
         self.grid.Jacobi_run_pressure()
+        self.grid.Jacobi_run_viscosity()
 
         self.grid.subtract_gradient_pressure()
 
         self.fill_color(self.grid.dye_pair.cur)
+        # self.fill_color_2d(self.grid.v_pair.cur)
