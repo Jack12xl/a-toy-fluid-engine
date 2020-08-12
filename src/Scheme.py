@@ -1,7 +1,7 @@
 from .Grid import Grid
 import taichi as ti
 import numpy as np
-
+from config import VisualizeEnum, SceneEnum
 
 @ti.data_oriented
 class EulerScheme():
@@ -78,7 +78,10 @@ class EulerScheme():
         self.grid.dye_pair.swap()
 
         # add impulse
-        self.apply_impulse(self.grid.v_pair.cur, self.grid.dye_pair.cur, mouse_data)
+        if (self.cfg.SceneType == SceneEnum.MouseDragDye):
+            self.apply_impulse(self.grid.v_pair.cur, self.grid.dye_pair.cur, mouse_data)
+        elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
+            pass
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
         self.grid.Jacobi_run_pressure()
@@ -86,5 +89,7 @@ class EulerScheme():
 
         self.grid.subtract_gradient_pressure()
 
-        self.fill_color(self.grid.dye_pair.cur)
-        # self.fill_color_2d(self.grid.v_pair.cur)
+        if (self.cfg.VisualType == VisualizeEnum.Velocity):
+            self.fill_color_2d(self.grid.v_pair.cur)
+        elif (self.cfg.VisualType == VisualizeEnum.Dye):
+            self.fill_color(self.grid.dye_pair.cur)

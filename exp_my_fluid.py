@@ -13,10 +13,10 @@ if __name__ == '__main__':
     # m_cfg = read_cfg(YAML_PATH)
     ti.init(arch=ti.gpu, debug=m_cfg.debug)
 
-    cfg_dict = m_cfg.scheme_setting
+    # cfg_dict = m_cfg.scheme_setting
     s = EulerScheme(m_cfg)
 
-    gui = ti.GUI('Stable-Fluid', tuple(cfg_dict['res']))
+    gui = ti.GUI('Stable-Fluid', tuple(m_cfg.res))
     md_gen = MouseDataGen(m_cfg)
     paused = False
     while True:

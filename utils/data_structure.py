@@ -5,4 +5,3 @@ class TexPair:
 
     def swap(self):
         self.cur, self.nxt = self.nxt, self.cur
-

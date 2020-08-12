@@ -1,4 +1,5 @@
 import taichi as ti
+from .class_cfg import SceneEnum, VisualizeEnum
 
 dim = 2
 res = [600, 600]
@@ -26,22 +27,25 @@ poisson_viscosity_beta = 1.0 / (poisson_viscosity_alpha + 4)
 jacobi_alpha = poisson_pressure_alpha
 jacobi_beta = poisson_pressure_beta
 
-scheme_setting = dict(
-    dim = dim,
-    res = res,
-    dx = dx,
-    inv_dx = inv_dx,
-    half_inv_dx = half_inv_dx,
+SceneType = SceneEnum.MouseDragDye
+VisualType = VisualizeEnum.Dye
 
-    dt = dt,
-    p_jacobi_iters = p_jacobi_iters,
-    f_strength = f_strength,
-    dye_decay = dye_decay,
-    debug = debug,
-
-    force_radius = force_radius,
-    inv_force_radius = inv_force_radius,
-    inv_dye_denom = inv_dye_denom,
-    f_strength_dt = f_strength * dt
-
-)
+# scheme_setting = dict(
+#     dim = dim,
+#     res = res,
+#     dx = dx,
+#     inv_dx = inv_dx,
+#     half_inv_dx = half_inv_dx,
+#
+#     dt = dt,
+#     p_jacobi_iters = p_jacobi_iters,
+#     f_strength = f_strength,
+#     dye_decay = dye_decay,
+#     debug = debug,
+#
+#     force_radius = force_radius,
+#     inv_force_radius = inv_force_radius,
+#     inv_dye_denom = inv_dye_denom,
+#     f_strength_dt = f_strength * dt
+#
+# )
