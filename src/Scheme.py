@@ -46,8 +46,8 @@ class EulerScheme():
             self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), 0.25])
 
     @ti.kernel
-    def apply_impulse(self, vf: ti.template(), dyef: ti.template(),
-                      imp_data: ti.ext_arr()):
+    def apply_mouse_input_and_render(self, vf: ti.template(), dyef: ti.template(),
+                                     imp_data: ti.ext_arr()):
 
         for i, j in vf:
             mdir = ti.Vector([imp_data[0], imp_data[1]])
@@ -70,18 +70,47 @@ class EulerScheme():
             dc *= self.cfg.dye_decay
             dyef[i, j] = dc
 
+    # @ti.kernel
+    # def render_dye(self):
+    #     # add dye
+    #
+    #     for i, j in self.grid.dye_pair.cur:
+    #         dc = self.grid.dye_pair.cur[i, j]
+    #         # TODO what the hell is this?
+    #         if mdir.norm() > 0.5:
+    #             dc += ti.exp(-d2 * self.cfg.inv_dye_denom) * ti.Vector(
+    #                 [imp_data[4], imp_data[5], imp_data[6]])
+    #         dc *= self.cfg.dye_decay
+    #         self.grid.dye_pair.cur[i, j] = dc
+    #     pass
+    @ti.kernel
+    def add_fixed_force_and_render(self, vf: ti.template()):
+        for i, j in vf:
+            dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
+            d2 = dx * dx + dy * dy
+            momentum = self.cfg.direct_X_f * ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity_dt
+            vf[i, j] += momentum
 
-    def step(self, mouse_data:np.array):
+            dc = self.grid.dye_pair.cur[i, j]
+            dc += ti.exp( - d2 * self.cfg.inv_dye_denom) * self.cfg.fluid_color
+            dc *= self.cfg.dye_decay
+            self.grid.dye_pair.cur[i, j] = min(dc, self.cfg.fluid_color)
+
+
+
+    def step(self, ext_input:np.array):
         self.advect_q(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
         self.advect_q(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
         self.grid.v_pair.swap()
         self.grid.dye_pair.swap()
 
-        # add impulse
+
         if (self.cfg.SceneType == SceneEnum.MouseDragDye):
-            self.apply_impulse(self.grid.v_pair.cur, self.grid.dye_pair.cur, mouse_data)
+            # add impulse from mouse
+            self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.dye_pair.cur, ext_input)
         elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
-            pass
+            self.add_fixed_force_and_render(self.grid.v_pair.cur)
+
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
         self.grid.Jacobi_run_pressure()
