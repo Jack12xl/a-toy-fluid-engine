@@ -21,7 +21,7 @@ f_strength_dt = f_strength * dt
 poisson_pressure_alpha = ti.static(- dx * dx)
 poisson_pressure_beta  = ti.static(0.25)
 
-dynamic_viscosity_coefficient = 0.01
+dynamic_viscosity_coefficient = 500
 poisson_viscosity_alpha = ti.static(dx * dx ) / (dt * dynamic_viscosity_coefficient )
 poisson_viscosity_beta = 1.0 / (poisson_viscosity_alpha + 4)
 

@@ -6,9 +6,9 @@ class Grid():
     def __init__(self, cfg, ):
         self.cfg = cfg
 
-        self.v = ti.Vector(cfg.dim,  dt=ti.f32, shape=cfg.res)
-        self.new_v = ti.Vector(cfg.dim, dt=ti.f32, shape=cfg.res)
-        self.v_divs = ti.var(dt=ti.f32, shape=cfg.res)
+        self.v = ti.Vector.field(cfg.dim,  dtype=ti.f32, shape=cfg.res)
+        self.new_v = ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res)
+        self.v_divs = ti.field(dtype=ti.f32, shape=cfg.res)
 
         self.p = ti.var(dt=ti.f32, shape=cfg.res)
         self.new_p = ti.var(dt=ti.f32, shape=cfg.res)
@@ -114,3 +114,8 @@ class Grid():
 
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
+
+    def reset(self):
+        self.v_pair.cur.fill(ti.Vector([0, 0]))
+        self.p_pair.cur.fill(0.0)
+        self.dye_pair.cur.fill(ti.Vector([0, 0, 0]))
