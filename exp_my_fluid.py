@@ -1,5 +1,3 @@
-import yaml
-import os
 import utils
 import config.stable_fluid_fixed as m_cfg
 from src.Scheme import EulerScheme
@@ -16,6 +14,8 @@ if __name__ == '__main__':
     gui = ti.GUI('Stable-Fluid', tuple(m_cfg.res))
     md_gen = utils.MouseDataGen(m_cfg)
     paused = False
+
+    frame_count = 0
     while True:
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
@@ -33,3 +33,13 @@ if __name__ == '__main__':
         img = s.clr_bffr.to_numpy()
         gui.set_image(img)
         gui.show()
+
+
+        if (m_cfg.bool_save):
+                if (frame_count <= m_cfg.save_frame_length):
+                    m_cfg.video_manager.write_frame(img)
+                else:
+                    m_cfg.video_manager.make_video(gif=True, mp4=False)
+                    # m_cfg.video_manager.get_output_filename(".mp4")
+                    m_cfg.video_manager.get_output_filename(".gif")
+        frame_count += 1
