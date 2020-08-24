@@ -1,1 +1,2 @@
 from .AbstractSolver import AdvectionSolver
+from .AdvectionSolver import SemiLagrangeOrder, SemiLagrangeSolver

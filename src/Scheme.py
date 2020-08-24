@@ -2,6 +2,7 @@ from .Grid import Grid
 import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum
+from src import SemiLagrangeSolver
 
 @ti.data_oriented
 class EulerScheme():
@@ -10,6 +11,7 @@ class EulerScheme():
         self.grid = Grid(cfg)
 
         self.clr_bffr = ti.Vector(3, dt=ti.f32, shape=cfg.res)
+        self.advection_solver = SemiLagrangeSolver(cfg, self.grid)
 
     @ti.kernel
     def advect_q(self, vf: ti.template(), qf: ti.template(), new_qf: ti.template()):
@@ -100,8 +102,10 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
-        self.advect_q(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
-        self.advect_q(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
+        # self.advect_q(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
+        # self.advect_q(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
         self.grid.v_pair.swap()
         self.grid.dye_pair.swap()
 

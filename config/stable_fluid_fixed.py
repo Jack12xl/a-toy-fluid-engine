@@ -1,6 +1,7 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum
 import numpy as np
+from src import SemiLagrangeOrder
 
 dim = 2
 res = [600, 600]
@@ -38,3 +39,6 @@ source_x = ti.static(res[0] / 2)
 source_y = ti.static(0)
 
 VisualType = VisualizeEnum.Dye
+
+# Advection
+semi_order = SemiLagrangeOrder.RK_1

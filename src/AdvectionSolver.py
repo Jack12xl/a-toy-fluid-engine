@@ -1,9 +1,9 @@
-from src import AdvectionSolver, Grid
+from src import AdvectionSolver
 import taichi as ti
 from enum import Enum
 
 
-class Order(Enum):
+class SemiLagrangeOrder(Enum):
     RK_1 = 1
     RK_2 = 2
     RK_3 = 3
@@ -11,26 +11,26 @@ class Order(Enum):
 @ti.data_oriented
 class SemiLagrangeSolver(AdvectionSolver):
 
-    def __init__(self, cfg, intpltr: Grid):
+    def __init__(self, cfg, intpltr):
         super().__init__(cfg)
-        self.RK = cfg.RK
+        self.RK = cfg.semi_order
         self.interpolator = intpltr
 
     @ti.func
     def backtrace(self,
                   vel_field: ti.template(),
-                  I: ti.Vector) :
+                  I) :
         # TODO abstract grid
 
         # position in cell center grid
         p = ( I  + 0.5 ) * self.cfg.dx
 
-        if ti.static(self.RK == Order.RK_1):
+        if ti.static(self.RK == SemiLagrangeOrder.RK_1):
             p -= self.cfg.dt * vel_field[I]
-        elif ti.static(self.RK == Order.RK_2):
+        elif ti.static(self.RK == SemiLagrangeOrder.RK_2):
             mid_p = p - 0.5 * self.cfg.dt * vel_field[I]
             p -= self.cfg.dt * self.interpolator.interpolate_value(vel_field, mid_p)
-        elif ti.static(self.RK == Order.RK_3):
+        elif ti.static(self.RK == SemiLagrangeOrder.RK_3):
             v1 = vel_field[I]
             p1 = p - 0.5 * self.cfg.dt * v1
 

@@ -1,5 +1,6 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum
+from src import SemiLagrangeOrder
 
 dim = 2
 res = [600, 600]
@@ -29,6 +30,9 @@ jacobi_beta = poisson_pressure_beta
 
 SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Dye
+
+# Advection
+semi_order = SemiLagrangeOrder.RK_1
 
 # scheme_setting = dict(
 #     dim = dim,
