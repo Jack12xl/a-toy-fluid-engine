@@ -21,7 +21,7 @@ f_strength_dt = f_strength * dt
 poisson_pressure_alpha = ti.static(- dx * dx)
 poisson_pressure_beta  = ti.static(0.25)
 
-dynamic_viscosity_coefficient = 0.001
+dynamic_viscosity_coefficient = 0.1
 poisson_viscosity_alpha = ti.static(dx * dx ) / (dt * dynamic_viscosity_coefficient )
 poisson_viscosity_beta = 1.0 / (poisson_viscosity_alpha + 4)
 
@@ -32,7 +32,7 @@ SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Dye
 
 # Advection
-semi_order = SemiLagrangeOrder.RK_1
+semi_order = SemiLagrangeOrder.RK_3
 
 # scheme_setting = dict(
 #     dim = dim,

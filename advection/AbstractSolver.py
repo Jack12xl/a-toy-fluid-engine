@@ -8,5 +8,5 @@ class AdvectionSolver(metaclass = ABCMeta):
         self.cfg = cfg
 
     @abstractmethod
-    def advect(self, vec_field, q_cur, q_nxt):
+    def advect(self, vec_field, q_cur, q_nxt, dt):
         pass

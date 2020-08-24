@@ -104,8 +104,8 @@ class EulerScheme():
     def step(self, ext_input:np.array):
         # self.advect_q(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
         # self.advect_q(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, self.cfg.dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt, self.cfg.dt)
         self.grid.v_pair.swap()
         self.grid.dye_pair.swap()
 
