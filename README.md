@@ -27,13 +27,14 @@ Implement reference:
 Here we try diffierent advection schemes:
 
 implement reference: [offcial tutorial](https://www.bilibili.com/video/BV1ZK411H7Hc?p=4)
+framework reference: [Efficient and Conservative Fluids with Bidirectional Mapping](https://github.com/ziyinq/Bimocq#efficient-and-conservative-fluids-with-bidirectional-mapping)
 ##### Semi-Lagragian 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk1.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk2.gif" height="384px"></a> 
 
 Left: rk = 1, Right: rk = 2.
 
-##### MacCormack
+##### [MacCormack](https://link.springer.com/article/10.1007/s10915-007-9166-4)
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/mc-rk1.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/mc-rk2.gif" height="384px"></a> 
 
@@ -41,5 +42,6 @@ Left: rk = 1, Right: rk = 2.
 
 
 
-
+#### Problem to solve:
+Why fluid would bend...
 
