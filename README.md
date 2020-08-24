@@ -27,7 +27,9 @@ Implement reference:
 Here we try diffierent advection schemes:
 
 implement reference: [offcial tutorial](https://www.bilibili.com/video/BV1ZK411H7Hc?p=4)
+
 framework reference: [Efficient and Conservative Fluids with Bidirectional Mapping](https://github.com/ziyinq/Bimocq#efficient-and-conservative-fluids-with-bidirectional-mapping)
+
 ##### Semi-Lagragian 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk1.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk2.gif" height="384px"></a> 
