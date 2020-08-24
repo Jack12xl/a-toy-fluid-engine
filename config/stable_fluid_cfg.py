@@ -1,6 +1,6 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum
-from advection import SemiLagrangeOrder
+from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
 
 dim = 2
 res = [600, 600]
@@ -11,7 +11,7 @@ dt = 0.03
 p_jacobi_iters = 30
 f_strength = 10000.0
 dye_decay = 0.99
-debug = False
+debug = True
 
 force_radius = res[0] / 3.0
 inv_force_radius = 1.0 / force_radius
@@ -33,6 +33,8 @@ VisualType = VisualizeEnum.Dye
 
 # Advection
 semi_order = SemiLagrangeOrder.RK_3
+advection_solver = MacCormackSolver
+macCormack_clipping = True
 
 # scheme_setting = dict(
 #     dim = dim,

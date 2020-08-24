@@ -32,6 +32,11 @@ class Grid():
         return qf[i, j]
 
     @ti.func
+    def incell2grid(self, phy_coord:ti.template()) -> ti.template():
+        grid_coord = phy_coord / self.cfg.dx - 0.5
+        return grid_coord.cast(ti.i32)
+
+    @ti.func
     def interpolate_value(self, values, phy_coord):
         '''
         get corresponding value given physical coordinate
@@ -54,6 +59,19 @@ class Grid():
         d = self.sample(values, iu + 1.5, iv + 1.5)
 
         return lerp(lerp(a, b, fu), lerp(c, d, fu), fv)
+
+    @ti.func
+    def sample_minmax(self, vf, p):
+        u, v = p
+        s, t = u - 0.5, v - 0.5
+        # floor
+        iu, iv = int(s), int(t)
+        a = self.sample(vf, iu + 0.5, iv + 0.5)
+        b = self.sample(vf, iu + 1.5, iv + 0.5)
+        c = self.sample(vf, iu + 0.5, iv + 1.5)
+        d = self.sample(vf, iu + 1.5, iv + 1.5)
+        return min(a, b, c, d), max(a, b, c, d)
+
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):

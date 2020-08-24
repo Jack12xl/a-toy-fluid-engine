@@ -1,7 +1,8 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum
 import numpy as np
-from advection import SemiLagrangeOrder
+from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
+
 
 dim = 2
 res = [600, 600]
@@ -41,4 +42,6 @@ source_y = ti.static(0)
 VisualType = VisualizeEnum.Dye
 
 # Advection
-semi_order = SemiLagrangeOrder.RK_1
+semi_order = SemiLagrangeOrder.RK_2
+advection_solver = MacCormackSolver
+macCormack_clipping = True

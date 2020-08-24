@@ -2,7 +2,7 @@ from .Grid import Grid
 import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum
-from advection import SemiLagrangeSolver
+from advection import SemiLagrangeSolver, MacCormackSolver
 
 @ti.data_oriented
 class EulerScheme():
@@ -11,7 +11,7 @@ class EulerScheme():
         self.grid = Grid(cfg)
 
         self.clr_bffr = ti.Vector(3, dt=ti.f32, shape=cfg.res)
-        self.advection_solver = SemiLagrangeSolver(cfg, self.grid)
+        self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
 
     @ti.kernel
     def advect_q(self, vf: ti.template(), qf: ti.template(), new_qf: ti.template()):
