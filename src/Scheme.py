@@ -20,9 +20,10 @@ class EulerScheme():
         :param new_qf:
         :return:
         '''
-        for i, j in vf:
-            coord = ( ti.Vector([i,j]) + 0.5 ) * self.cfg.dx - vf[i, j] * self.cfg.dt
-            new_qf[i,j] = self.grid.interpolate_value(qf, coord)
+        for I in ti.grouped(vf):
+            # RK 1 backtrace
+            coord = ( I + 0.5 ) * self.cfg.dx - vf[I] * self.cfg.dt
+            new_qf[I] = self.grid.interpolate_value(qf, coord)
 
     @ti.kernel
     def diffusion(self, vf: ti.template(), ):

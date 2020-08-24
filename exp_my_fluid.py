@@ -1,7 +1,7 @@
 import yaml
 import os
 from utils import read_cfg, MouseDataGen
-import config.stable_fluid_fixed as m_cfg
+import config.stable_fluid_cfg as m_cfg
 from src.Scheme import EulerScheme
 import taichi as ti
 # CONFIG_DIR = './config'
