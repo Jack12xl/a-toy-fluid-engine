@@ -1,7 +1,6 @@
-from src import AdvectionSolver
 import taichi as ti
 from enum import Enum
-
+from .AbstractSolver import AdvectionSolver
 
 class SemiLagrangeOrder(Enum):
     RK_1 = 1

@@ -1,7 +1,7 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum
 import numpy as np
-from src import SemiLagrangeOrder
+from advection import SemiLagrangeOrder
 
 dim = 2
 res = [600, 600]

@@ -2,7 +2,7 @@ from .Grid import Grid
 import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum
-from src import SemiLagrangeSolver
+from advection import SemiLagrangeSolver
 
 @ti.data_oriented
 class EulerScheme():
