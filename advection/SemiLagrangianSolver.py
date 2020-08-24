@@ -44,16 +44,24 @@ class SemiLagrangeSolver(AdvectionSolver):
 
         return p
 
+    @ti.func
+    def advect_func(self,
+                    vec_field: ti.template(),
+                    q_cur: ti.template(),
+                    q_nxt: ti.template(),
+                    dt: ti.template()):
+        for I in ti.grouped(vec_field):
+            # get predicted position
+            coord = self.backtrace(vec_field, I, dt)
+            # sample its speed
+            q_nxt[I] = self.interpolator.interpolate_value(q_cur, coord)
+
     @ti.kernel
     def advect(self,
                vec_field: ti.template(),
                q_cur: ti.template(),
                q_nxt: ti.template(),
                dt: ti.template() ):
+        self.advect_func(vec_field, q_cur, q_nxt, dt)
 
-        for I in ti.grouped(vec_field):
-            # get predicted position
-            coord = self.backtrace(vec_field, I, dt)
-            # sample its speed
-            q_nxt[I] = self.interpolator.interpolate_value(q_cur, coord)
 
