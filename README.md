@@ -30,11 +30,13 @@ implement reference: [offcial tutorial](https://www.bilibili.com/video/BV1ZK411H
 ##### Semi-Lagragian 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk1.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk2.gif" height="384px"></a> 
+
 Left: rk = 1, Right: rk = 2.
 
 ##### MacCormack
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/mc-rk1.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/mc-rk2.gif" height="384px"></a> 
+
 Left: rk = 1, Right: rk = 2.
 
 
