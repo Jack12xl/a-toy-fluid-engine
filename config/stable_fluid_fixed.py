@@ -1,5 +1,5 @@
 import taichi as ti
-from .class_cfg import SceneEnum, VisualizeEnum
+from .class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import numpy as np
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
 import os
@@ -42,12 +42,12 @@ source_y = ti.static(0)
 VisualType = VisualizeEnum.Dye
 
 # Advection
-semi_order = SemiLagrangeOrder.RK_1
+semi_order = SemiLagrangeOrder.RK_2
 advection_solver = SemiLagrangeSolver
 macCormack_clipping = True
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 save_frame_length = 240
 save_root = './tmp_result'
 file_name = 'SemiLagrange-RK1'
@@ -56,4 +56,6 @@ video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,
                                 automatic_build=False)
 
+## run Scheme
+run_scheme = SchemeType.Advection_Projection
 

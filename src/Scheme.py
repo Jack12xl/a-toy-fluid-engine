@@ -13,19 +13,15 @@ class EulerScheme():
         self.clr_bffr = ti.Vector(3, dt=ti.f32, shape=cfg.res)
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
 
-    @ti.kernel
-    def advect_q(self, vf: ti.template(), qf: ti.template(), new_qf: ti.template()):
-        '''
 
-        :param vf: velocity field
-        :param qf:
-        :param new_qf:
-        :return:
-        '''
-        for I in ti.grouped(vf):
-            # RK 1 backtrace
-            coord = ( I + 0.5 ) * self.cfg.dx - vf[I] * self.cfg.dt
-            new_qf[I] = self.grid.interpolate_value(qf, coord)
+    def advect(self, dt):
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt, dt)
+        self.grid.v_pair.swap()
+        self.grid.dye_pair.swap()
+
+    def externalForce(self, dt):
+
 
     @ti.kernel
     def diffusion(self, vf: ti.template(), ):
@@ -73,19 +69,7 @@ class EulerScheme():
             dc *= self.cfg.dye_decay
             dyef[i, j] = dc
 
-    # @ti.kernel
-    # def render_dye(self):
-    #     # add dye
-    #
-    #     for i, j in self.grid.dye_pair.cur:
-    #         dc = self.grid.dye_pair.cur[i, j]
-    #         # TODO what the hell is this?
-    #         if mdir.norm() > 0.5:
-    #             dc += ti.exp(-d2 * self.cfg.inv_dye_denom) * ti.Vector(
-    #                 [imp_data[4], imp_data[5], imp_data[6]])
-    #         dc *= self.cfg.dye_decay
-    #         self.grid.dye_pair.cur[i, j] = dc
-    #     pass
+
     @ti.kernel
     def add_fixed_force_and_render(self, vf: ti.template()):
         for i, j in vf:
@@ -99,15 +83,15 @@ class EulerScheme():
             dc *= self.cfg.dye_decay
             self.grid.dye_pair.cur[i, j] = min(dc, self.cfg.fluid_color)
 
+    def render_frame(self):
+        if (self.cfg.VisualType == VisualizeEnum.Velocity):
+            self.fill_color_2d(self.grid.v_pair.cur)
+        elif (self.cfg.VisualType == VisualizeEnum.Dye):
+            self.fill_color(self.grid.dye_pair.cur)
 
 
     def step(self, ext_input:np.array):
-        # self.advect_q(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt)
-        # self.advect_q(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, self.cfg.dt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt, self.cfg.dt)
-        self.grid.v_pair.swap()
-        self.grid.dye_pair.swap()
+        self.advect(self.cfg.dt)
 
 
         if (self.cfg.SceneType == SceneEnum.MouseDragDye):
@@ -123,10 +107,9 @@ class EulerScheme():
 
         self.grid.subtract_gradient_pressure()
 
-        if (self.cfg.VisualType == VisualizeEnum.Velocity):
-            self.fill_color_2d(self.grid.v_pair.cur)
-        elif (self.cfg.VisualType == VisualizeEnum.Dye):
-            self.fill_color(self.grid.dye_pair.cur)
+        self.render_frame()
+
+
 
     def reset(self):
         self.grid.reset()

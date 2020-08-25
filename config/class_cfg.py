@@ -15,3 +15,6 @@ class VisualizeEnum(Enum):
     Velocity = 1
     pass
 
+class SchemeType(Enum):
+    Advection_Projection = 0
+    Advection_Reflection = 1
