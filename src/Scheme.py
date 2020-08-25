@@ -1,8 +1,7 @@
 from .Grid import Grid
 import taichi as ti
 import numpy as np
-from config import VisualizeEnum, SceneEnum
-from advection import SemiLagrangeSolver, MacCormackSolver
+from config import VisualizeEnum, SceneEnum, SchemeType
 
 @ti.data_oriented
 class EulerScheme():
@@ -32,8 +31,6 @@ class EulerScheme():
 
         self.grid.Jacobi_run_pressure()
         self.grid.Jacobi_run_viscosity()
-
-        self.grid.subtract_gradient_pressure()
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):
@@ -97,14 +94,17 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
-        self.advect(self.cfg.dt)
+        if (self.cfg.run_scheme == SchemeType.Advection_Projection):
+            self.advect(self.cfg.dt)
+            self.externalForce(ext_input, self.cfg.dt)
+            self.project()
+            self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
 
-        self.externalForce(ext_input, self.cfg.dt)
-
-        self.project()
+        elif (self.cfg.run_scheme == SchemeType.Advection_Reflection):
+            self.advect(self.cfg.half_dt)
+            self.externalForce(ext_input, self.cfg.half_dt)
 
         self.render_frame()
-
     def reset(self):
         self.grid.reset()
         self.clr_bffr.fill(ti.Vector([0, 0, 0]))
