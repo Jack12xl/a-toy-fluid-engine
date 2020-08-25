@@ -20,17 +20,20 @@ class EulerScheme():
         self.grid.v_pair.swap()
         self.grid.dye_pair.swap()
 
-    def externalForce(self, dt):
+    def externalForce(self, ext_input, dt):
+        if (self.cfg.SceneType == SceneEnum.MouseDragDye):
+            # add impulse from mouse
+            self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.dye_pair.cur, ext_input, dt)
+        elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
+            self.add_fixed_force_and_render(self.grid.v_pair.cur, dt)
 
-
-    @ti.kernel
-    def diffusion(self, vf: ti.template(), ):
-
-        pass
-
-    @ti.kernel
     def project(self):
-        pass
+        self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
+
+        self.grid.Jacobi_run_pressure()
+        self.grid.Jacobi_run_viscosity()
+
+        self.grid.subtract_gradient_pressure()
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):
@@ -46,7 +49,8 @@ class EulerScheme():
 
     @ti.kernel
     def apply_mouse_input_and_render(self, vf: ti.template(), dyef: ti.template(),
-                                     imp_data: ti.ext_arr()):
+                                     imp_data: ti.ext_arr(),
+                                     dt: ti.template()):
 
         for i, j in vf:
             mdir = ti.Vector([imp_data[0], imp_data[1]])
@@ -57,7 +61,7 @@ class EulerScheme():
             # ref: https://developer.download.nvidia.cn/books/HTML/gpugems/gpugems_ch38.html
             # apply the force
             factor = ti.exp(-d2 * self.cfg.inv_force_radius)
-            momentum = mdir * self.cfg.f_strength_dt * factor
+            momentum = mdir * self.cfg.f_strength * dt * factor
 
             vf[i, j] += momentum
             # add dye
@@ -71,11 +75,13 @@ class EulerScheme():
 
 
     @ti.kernel
-    def add_fixed_force_and_render(self, vf: ti.template()):
+    def add_fixed_force_and_render(self,
+                                   vf: ti.template(),
+                                   dt: ti.template()):
         for i, j in vf:
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
-            momentum = self.cfg.direct_X_f * ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity_dt
+            momentum = (self.cfg.direct_X_force * ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity) * dt
             vf[i, j] += momentum
 
             dc = self.grid.dye_pair.cur[i, j]
@@ -93,23 +99,11 @@ class EulerScheme():
     def step(self, ext_input:np.array):
         self.advect(self.cfg.dt)
 
+        self.externalForce(ext_input, self.cfg.dt)
 
-        if (self.cfg.SceneType == SceneEnum.MouseDragDye):
-            # add impulse from mouse
-            self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.dye_pair.cur, ext_input)
-        elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
-            self.add_fixed_force_and_render(self.grid.v_pair.cur)
-
-        self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
-
-        self.grid.Jacobi_run_pressure()
-        self.grid.Jacobi_run_viscosity()
-
-        self.grid.subtract_gradient_pressure()
+        self.project()
 
         self.render_frame()
-
-
 
     def reset(self):
         self.grid.reset()

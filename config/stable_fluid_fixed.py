@@ -33,9 +33,9 @@ jacobi_beta = poisson_pressure_beta
 SceneType = SceneEnum.ShotFromBottom
 fluid_color = ti.Vector(list(np.random.rand(3) * 0.7 + 0.3))
 
-f_gravity_dt = ti.static(9.8 * dt)
+f_gravity = ti.static(9.8)
 fluid_shot_direction = ti.Vector([0.0, 1.0])
-direct_X_f = f_strength_dt * fluid_shot_direction
+direct_X_force = f_strength * fluid_shot_direction
 source_x = ti.static(res[0] / 2)
 source_y = ti.static(0)
 
