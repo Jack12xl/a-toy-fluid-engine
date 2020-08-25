@@ -2,6 +2,7 @@ from .Grid import Grid
 import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType
+import utils
 
 @ti.data_oriented
 class EulerScheme():
@@ -31,6 +32,7 @@ class EulerScheme():
 
         self.grid.Jacobi_run_pressure()
         self.grid.Jacobi_run_viscosity()
+
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):
@@ -101,8 +103,23 @@ class EulerScheme():
             self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
 
         elif (self.cfg.run_scheme == SchemeType.Advection_Reflection):
+            # ref: https://github.com/ShaneFX/GAMES201/blob/master/HW01/Smoke3d/smoke_3D.py
             self.advect(self.cfg.half_dt)
             self.externalForce(ext_input, self.cfg.half_dt)
+            utils.copy_ti_field(self.grid.tmp_v, self.grid.v_pair.cur)
+            # cur_v = tmp_v = u^{~1/2}, in Fig.2 in advection-reflection solver paper
+
+            self.project()
+            self.grid.subtract_gradient(self.grid.tmp_v, self.grid.p_pair.cur)
+            # after projection, tmp_v = u^{1/2}, cur_v = u^{~1/2}
+            utils.reflect(self.grid.v_pair.cur, self.grid.tmp_v)
+
+            self.advect(self.cfg.half_dt)
+            self.externalForce(ext_input, self.cfg.half_dt)
+            self.project()
+            self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
+
+
 
         self.render_frame()
     def reset(self):

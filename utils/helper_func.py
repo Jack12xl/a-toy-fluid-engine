@@ -28,6 +28,20 @@ def npNormalize(a, order=2, axis=0):
     # l2[l2 == 0] = 1
     return a / l2
 
+@ti.kernel
+def copy_ti_field( dst: ti.template(),
+                   trgt:ti.template()):
+    for I in ti.grouped(dst):
+        dst[I] = trgt[I]
+
+@ti.kernel
+def reflect(to_be_reflected:ti.template(),
+            mid_point: ti.template()):
+    for (I) in ti.grouped(to_be_reflected):
+        to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
+
+
+
 if __name__ == '__main__':
     A = np.array([[0,0],[0,0]])
     print(A)

@@ -51,12 +51,12 @@ macCormack_clipping = True
 bool_save = False
 save_frame_length = 240
 save_root = './tmp_result'
-file_name = 'SemiLagrange-RK1'
+file_name = 'SemiLagrange-RK2'
 save_path = os.path.join(save_root, file_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,
                                 automatic_build=False)
 
 ## run Scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 

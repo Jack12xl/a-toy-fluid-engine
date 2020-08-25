@@ -9,6 +9,7 @@ class Grid():
         self.v = ti.Vector.field(cfg.dim,  dtype=ti.f32, shape=cfg.res)
         self.new_v = ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res)
         self.v_divs = ti.field(dtype=ti.f32, shape=cfg.res)
+        self.tmp_v = ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res)
 
         self.p = ti.var(dt=ti.f32, shape=cfg.res)
         self.new_p = ti.var(dt=ti.f32, shape=cfg.res)
