@@ -46,7 +46,7 @@ Left: rk = 1, Right: rk = 2.
 
 Both running in RK=2.
 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-mc-rk1.gif" height="384px"></a> 
+<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-sl-rk2.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-mc-rk2.gif" height="384px"></a> 
 
 Left: Semi-lagrangion, Right: MacCormack
