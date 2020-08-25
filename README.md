@@ -42,8 +42,15 @@ Left: rk = 1, Right: rk = 2.
 
 Left: rk = 1, Right: rk = 2.
 
+##### [Advection-Reflection](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiAtZeogrfrAhWIvpQKHRdjAuEQtwIwAXoECAkQAQ&url=https%3A%2F%2Fjzehnder.me%2Fpublications%2FadvectionReflection%2F&usg=AOvVaw12RvEOOxqcZ0C7h5urs7f1)
 
+Both running in RK=2.
 
-#### Problem to solve:
+<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-mc-rk1.gif" height="384px"></a> 
+<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-mc-rk2.gif" height="384px"></a> 
+
+Left: Semi-lagrangion, Right: MacCormack
+
+#### Current problem:
 Why fluid would bend...
 

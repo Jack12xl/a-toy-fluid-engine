@@ -51,7 +51,7 @@ macCormack_clipping = True
 bool_save = False
 save_frame_length = 240
 save_root = './tmp_result'
-file_name = 'SemiLagrange-RK2'
+file_name = 'Reflection-SemiLagrangian-RK2'
 save_path = os.path.join(save_root, file_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,
