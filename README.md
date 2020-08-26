@@ -63,7 +63,7 @@ Left: Semi-lagrangion, Right: MacCormack
 
 Above is all about jacobi iteration projection solver
 
-##### [Red-Black Gauss Sedial projection](https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf)
+##### [Red-Black Gauss Seidel projection](https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf)
 
 Both run in RK=2, with advection-projection scheme.
 
