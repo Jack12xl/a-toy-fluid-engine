@@ -7,25 +7,6 @@ class JacobiProjectionSolver(ProjectionSolver):
     def __init__(self, cfg, grid):
         super().__init__(cfg, grid)
 
-    @ti.kernel
-    def calDivergence(self, vf: ti.template(), vd: ti.template()):
-        for i, j in vf:
-            vl = self.sample(vf, i - 1, j)[0]
-            vr = self.sample(vf, i + 1, j)[0]
-            vb = self.sample(vf, i, j - 1)[1]
-            vt = self.sample(vf, i, j + 1)[1]
-            vc = self.sample(vf, i, j)
-            # boundary
-            # TODO
-            if i == 0:
-                vl = -vc[0]
-            if i == self.cfg.res[0] - 1:
-                vr = -vc[0]
-            if j == 0:
-                vb = -vc[1]
-            if j == self.cfg.res[1] - 1:
-                vt = -vc[1]
-            vd[i, j] = (vr - vl + vt - vb) * self.cfg.half_inv_dx
 
     @ti.kernel
     def Jacobi_Step(self, pf: ti.template(), new_pf: ti.template(), p_divs: ti.template()):
