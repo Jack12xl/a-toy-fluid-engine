@@ -2,6 +2,7 @@ import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import numpy as np
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
+from projection import JacobiProjectionSolver
 import os
 
 dim = 2
@@ -47,6 +48,9 @@ semi_order = SemiLagrangeOrder.RK_2
 advection_solver = SemiLagrangeSolver
 macCormack_clipping = True
 
+#Projection
+projection_solver = JacobiProjectionSolver
+
 # save to video(gif)
 bool_save = False
 save_frame_length = 240
@@ -58,5 +62,5 @@ video_manager = ti.VideoManager(output_dir=save_path,
                                 automatic_build=False)
 
 ## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 

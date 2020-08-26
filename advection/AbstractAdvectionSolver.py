@@ -1,5 +1,4 @@
 from abc import ABCMeta , abstractmethod
-import taichi as ti
 
 class AdvectionSolver(metaclass = ABCMeta):
 

@@ -1,16 +1,16 @@
 import taichi as ti
 from enum import Enum
-from .AbstractSolver import AdvectionSolver
+from .AbstractAdvectionSolver import AdvectionSolver
 from .SemiLagrangianSolver import SemiLagrangeSolver
 
 @ti.data_oriented
 class MacCormackSolver(AdvectionSolver):
 
-    def __init__(self, cfg, intpltr):
+    def __init__(self, cfg, grid):
         super().__init__(cfg)
         self.RK = cfg.semi_order
-        self.grid = intpltr
-        self.subsolver = SemiLagrangeSolver(cfg, intpltr)
+        self.grid = grid
+        self.subsolver = SemiLagrangeSolver(cfg, grid)
 
     @ti.func
     def advect_func(self,

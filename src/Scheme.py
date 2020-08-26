@@ -12,7 +12,7 @@ class EulerScheme():
 
         self.clr_bffr = ti.Vector(3, dt=ti.f32, shape=cfg.res)
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
-
+        self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, dt)
@@ -30,8 +30,8 @@ class EulerScheme():
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
-        self.grid.Jacobi_run_pressure()
-        self.grid.Jacobi_run_viscosity()
+        self.projection_solver.runPressure()
+        self.projection_solver.runViscosity()
 
 
     @ti.kernel
