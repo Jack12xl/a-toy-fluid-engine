@@ -11,11 +11,11 @@ class Grid():
         self.v_divs = ti.field(dtype=ti.f32, shape=cfg.res)
         self.tmp_v = ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res)
 
-        self.p = ti.var(dt=ti.f32, shape=cfg.res)
-        self.new_p = ti.var(dt=ti.f32, shape=cfg.res)
+        self.p = ti.field(dtype=ti.f32, shape=cfg.res)
+        self.new_p = ti.field(dtype=ti.f32, shape=cfg.res)
 
-        self.dye_bffr = ti.Vector(3, dt=ti.f32, shape=cfg.res)
-        self.new_dye_bffr = ti.Vector(3, dt=ti.f32, shape=cfg.res)
+        self.dye_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
+        self.new_dye_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
 
         self.v_pair = TexPair(self.v, self.new_v)
         self.p_pair = TexPair(self.p, self.new_p)
