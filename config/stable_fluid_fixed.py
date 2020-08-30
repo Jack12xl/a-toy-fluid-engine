@@ -1,57 +1,24 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum, SchemeType
-import numpy as np
-from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
-from projection import JacobiProjectionSolver, RedBlackGaussSedialProjectionSolver
 import os
-from utils import get_variable_from_module
+from utils import set_attribute_from_cfg
+import sys
 
-# dim = 2
-# res = [600, 600]
-# dx = 1.0
-# inv_dx = 1.0 / dx
-# half_inv_dx = 0.5 * inv_dx
-# dt = 0.03
-# half_dt = dt / 2
-p_jacobi_iters = 30
-f_strength = 10000.0
-dye_decay = 0.99
 debug = True
 
 import config.default_config
 
 FILTER_TYPE = 'm_'
-
-for k, v in config.default_config.__dict__.items():
-    if (k.startswith(FILTER_TYPE)):
-        print(k, v)
-        vars()[k[len(FILTER_TYPE):]] = v
-
-force_radius = res[0] / 3.0
-inv_force_radius = 1.0 / force_radius
-inv_dye_denom = 4.0 / (res[0] / 15.0)**2
-f_strength_dt = f_strength * dt
-
+set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE)
 
 SceneType = SceneEnum.ShotFromBottom
-fluid_color = ti.Vector(list(np.random.rand(3) * 0.7 + 0.3))
+import config.scene_config.shot_from_bottom_config as scene_cfg
+set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE)
 
-f_gravity = ti.static(9.8)
-fluid_shot_direction = ti.Vector([0.0, 1.0])
-direct_X_force = f_strength * fluid_shot_direction
-source_x = ti.static(res[0] / 2)
-source_y = ti.static(0)
 
 VisualType = VisualizeEnum.Dye
-
-
-
-#Projection
-# projection_solver = RedBlackGaussSedialProjectionSolver
-
-
-
-
+## run Scheme
+run_scheme = SchemeType.Advection_Reflection
 
 # save to video(gif)
 bool_save = False
@@ -63,10 +30,12 @@ video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,
                                 automatic_build=False)
 
-## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+
 
 # if __name__ == '__main__':
+#     import sys
+#     thismodule = sys.modules[__name__]
+#     print(thismodule.__dict__.items())
 #     # print(get_variable_from_module('projection_config'))
 #     # print(config.default_config.__dict__.items())
 #     for k, v in config.default_config.__dict__.items():

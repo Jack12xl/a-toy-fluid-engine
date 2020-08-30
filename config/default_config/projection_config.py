@@ -4,6 +4,7 @@ from config.default_config.basic_config import m_dx as dx
 from config.default_config.basic_config import m_dt as dt
 
 m_projection_solver = JacobiProjectionSolver
+m_p_jacobi_iters = 30
 
 m_poisson_pressure_alpha = ti.static(- dx * dx)
 m_poisson_pressure_beta  = ti.static(0.25)

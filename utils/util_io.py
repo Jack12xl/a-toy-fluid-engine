@@ -18,6 +18,14 @@ def get_variable_from_module(module_name):
                 not (key.startswith('__') or key.startswith('_'))}
     return book
 
+def set_attribute_from_cfg(_module, _trgt_module, _filter:str, _if_print:bool = True):
+    for k, v in _module.__dict__.items():
+        if (k.startswith(_filter)):
+            if (_if_print):
+                print(k, v)
+            _trgt_module.__dict__[k[len(_filter):]] = v
+            # vars()[k[len(_filter):]] = v
+
 class MouseDataGen(object):
     def __init__(self, cfg):
         self.prev_mouse = None
