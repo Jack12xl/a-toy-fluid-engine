@@ -10,6 +10,14 @@ def read_cfg( cfg_dir : str ):
         cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     return cfg
 
+def get_variable_from_module(module_name):
+    module = globals().get(module_name, None)
+    book = {}
+    if module:
+        book = {key: value for key, value in module.__dict__.iteritems() if
+                not (key.startswith('__') or key.startswith('_'))}
+    return book
+
 class MouseDataGen(object):
     def __init__(self, cfg):
         self.prev_mouse = None
