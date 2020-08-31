@@ -16,7 +16,7 @@ if __name__ == '__main__':
     paused = False
 
     frame_count = 0
-    while True:
+    while gui.running:
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
             if e.key == ti.GUI.ESCAPE:
@@ -36,10 +36,12 @@ if __name__ == '__main__':
 
 
         if (m_cfg.bool_save):
-                if (frame_count <= m_cfg.save_frame_length):
-                    m_cfg.video_manager.write_frame(img)
-                else:
-                    m_cfg.video_manager.make_video(gif=True, mp4=False)
-                    # m_cfg.video_manager.get_output_filename(".mp4")
-                    m_cfg.video_manager.get_output_filename(".gif")
+            if (frame_count <= m_cfg.save_frame_length):
+                m_cfg.video_manager.write_frame(img)
+            else:
+                m_cfg.video_manager.make_video(gif=True, mp4=False)
+                # m_cfg.video_manager.get_output_filename(".mp4")
+                m_cfg.video_manager.get_output_filename(".gif")
         frame_count += 1
+
+    ti.kernel_profiler_print()

@@ -1,4 +1,3 @@
-from config.default_config.basic_config import m_dx as dx
 from config.default_config.basic_config import m_dt as dt
 from config.default_config.basic_config import m_res as res
 import taichi as ti
