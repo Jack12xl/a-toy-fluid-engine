@@ -26,6 +26,9 @@ def set_attribute_from_cfg(_module, _trgt_module, _filter:str, _if_print:bool = 
             _trgt_module.__dict__[k[len(_filter):]] = v
             # vars()[k[len(_filter):]] = v
 
+def set_attribute_from_variable(_trgt_module, _variable_name:str, _obj, _if_print:bool = True):
+    _trgt_module.__dict__[_variable_name] = _obj
+
 class MouseDataGen(object):
     def __init__(self, cfg):
         self.prev_mouse = None

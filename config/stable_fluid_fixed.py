@@ -3,22 +3,24 @@ from .class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import os
 from utils import set_attribute_from_cfg
 import sys
+import config.scene_config.shot_from_bottom_config as scene_cfg
+import config.default_config
 
 debug = True
 
-import config.default_config
+
 
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE)
-
-SceneType = SceneEnum.ShotFromBottom
-import config.scene_config.shot_from_bottom_config as scene_cfg
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE)
-
-
+SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.Dye
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
+
+
+
+
 
 # save to video(gif)
 bool_save = False
