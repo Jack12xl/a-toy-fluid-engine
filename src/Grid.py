@@ -14,12 +14,12 @@ class Grid():
         self.p = ti.field(dtype=ti.f32, shape=cfg.res)
         self.new_p = ti.field(dtype=ti.f32, shape=cfg.res)
 
-        self.dye_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
-        self.new_dye_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
+        self.density_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
+        self.new_density_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
 
         self.v_pair = TexPair(self.v, self.new_v)
         self.p_pair = TexPair(self.p, self.new_p)
-        self.dye_pair = TexPair(self.dye_bffr, self.new_dye_bffr)
+        self.density_pair = TexPair(self.density_bffr, self.new_density_bffr)
         pass
 
     @ti.func
@@ -137,4 +137,4 @@ class Grid():
     def reset(self):
         self.v_pair.cur.fill(ti.Vector([0, 0]))
         self.p_pair.cur.fill(0.0)
-        self.dye_pair.cur.fill(ti.Vector([0, 0, 0]))
+        self.density_pair.cur.fill(ti.Vector([0, 0, 0]))

@@ -1,8 +1,9 @@
 from .Grid import Grid
 import taichi as ti
 import numpy as np
-from config import VisualizeEnum, SceneEnum, SchemeType
+from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 import utils
+
 
 @ti.data_oriented
 class EulerScheme():
@@ -16,14 +17,14 @@ class EulerScheme():
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, dt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.dye_pair.cur, self.grid.dye_pair.nxt, dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt, dt)
         self.grid.v_pair.swap()
-        self.grid.dye_pair.swap()
+        self.grid.density_pair.swap()
 
     def externalForce(self, ext_input, dt):
         if (self.cfg.SceneType == SceneEnum.MouseDragDye):
             # add impulse from mouse
-            self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.dye_pair.cur, ext_input, dt)
+            self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
         elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
             self.add_fixed_force_and_render(self.grid.v_pair.cur, dt)
 
@@ -78,21 +79,31 @@ class EulerScheme():
                                    vf: ti.template(),
                                    dt: ti.template()):
         for i, j in vf:
+            den = self.grid.density_pair.cur[i, j]
+
+            # if (self.cfg.simulate_type == SimulateType.Gas):
+            #     v = vf[i, j]
+            #     v[1] += (den * 25.0 - 5.0) * dt
+            #     # random disturbance
+            #     v[0] += (ti.random(ti.f32) - 0.5) * 80.0
+            #     v[1] += (ti.random(ti.f32) - 0.5) * 80.0
+            #
+            #     vf[i, j] = v
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
             momentum = (self.cfg.direct_X_force * ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity) * dt
             vf[i, j] += momentum
+            # vf[i, j] *= self.cfg.dye_decay
+            den += ti.exp(- d2 * self.cfg.inv_dye_denom) * self.cfg.fluid_color
 
-            dc = self.grid.dye_pair.cur[i, j]
-            dc += ti.exp( - d2 * self.cfg.inv_dye_denom) * self.cfg.fluid_color
-            dc *= self.cfg.dye_decay
-            self.grid.dye_pair.cur[i, j] = min(dc, self.cfg.fluid_color)
+            den *= self.cfg.dye_decay
+            self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
 
     def render_frame(self):
         if (self.cfg.VisualType == VisualizeEnum.Velocity):
             self.fill_color_2d(self.grid.v_pair.cur)
-        elif (self.cfg.VisualType == VisualizeEnum.Dye):
-            self.fill_color(self.grid.dye_pair.cur)
+        elif (self.cfg.VisualType == VisualizeEnum.Density):
+            self.fill_color(self.grid.density_pair.cur)
 
 
     def step(self, ext_input:np.array):

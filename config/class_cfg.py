@@ -11,10 +11,14 @@ class SceneEnum(Enum):
     pass
 
 class VisualizeEnum(Enum):
-    Dye = 0
+    Density = 0
     Velocity = 1
     pass
 
 class SchemeType(Enum):
     Advection_Projection = 0
     Advection_Reflection = 1
+
+class SimulateType(Enum):
+    Liquid = 0
+    Gas = 1

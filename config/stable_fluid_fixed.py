@@ -1,5 +1,5 @@
 import taichi as ti
-from .class_cfg import SceneEnum, VisualizeEnum, SchemeType
+from .class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import os
 from utils import set_attribute_from_cfg
 import sys
@@ -8,19 +8,19 @@ import config.default_config
 
 debug = True
 
-
+# simulate_type = SimulateType.Gas
 
 FILTER_TYPE = 'm_'
-set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE)
-set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE)
+set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE, _if_print=True)
+set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=True)
 SceneType = SceneEnum.ShotFromBottom
-VisualType = VisualizeEnum.Dye
+VisualType = VisualizeEnum.Density
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
-
-
-
+from advection import MacCormackSolver
+advection_solver = MacCormackSolver
+dye_decay = 0.99
 
 # save to video(gif)
 bool_save = False

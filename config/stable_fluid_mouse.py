@@ -10,7 +10,7 @@ FILTER_TYPE = 'm_'
 set_attribute_from_cfg(default_cfg, sys.modules[__name__], FILTER_TYPE)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE)
 SceneType = SceneEnum.MouseDragDye
-VisualType = VisualizeEnum.Dye
+VisualType = VisualizeEnum.Density
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
