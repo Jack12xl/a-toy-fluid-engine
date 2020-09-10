@@ -16,5 +16,11 @@ run_scheme = SchemeType.Advection_Reflection
 
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
 advection_solver = MacCormackSolver
+
+from projection import JacobiProjectionSolver ,RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
+p_jacobi_iters = 30
+dye_decay = 0.99
+
 # save to video(gif)
 bool_save = False

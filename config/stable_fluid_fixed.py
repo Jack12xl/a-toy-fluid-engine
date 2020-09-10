@@ -16,10 +16,14 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.Density
 ## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver
 advection_solver = MacCormackSolver
+
+from projection import RedBlackGaussSedialProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
+p_jacobi_iters = 30
 dye_decay = 0.99
 
 # save to video(gif)
