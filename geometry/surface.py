@@ -35,19 +35,23 @@ class Surface(metaclass=ABCMeta):
 
     @ti.func
     def closest_normal(self, world_p:Vector) -> Vector :
-        out = self.transform.dir_2world(self.closest_point_normal(self._transform.to_local(world_p)))
+        out = self.transform.dir_2world(self.closest_point_normal_local(self._transform.to_local(world_p)))
         if (ti.static(self.is_normal_flipped)):
             out *= -1.0
         return out
 
     @abstractmethod
-    def closest_point_normal(self, local_p:Vector ) -> Vector:
+    def closest_point_normal_local(self, local_p:Vector) -> Vector:
         pass
 
     @ti.func
     def closest_distance(self, world_p:Vector) -> Vector:
         closest_p = self.closest_point(world_p)
         return EuclideanDistance(world_p, closest_p)
+
+    @abstractmethod
+    def is_inside_local(self, local_p: Vector) -> bool:
+        pass
 
 
 class ImplicitSurface(Surface):
@@ -64,6 +68,9 @@ class ImplicitSurface(Surface):
         local_point = self.transform.to_local(world_point)
         return self.transform._localscale * self.sign_distance_local(local_point)
 
+    @ti.func
+    def is_inside_local(self, local_p: Vector) -> bool:
+        return self.sign_distance_local(local_p) < 0.0
 
 class SurfaceToImplict(ImplicitSurface):
     def __init__(
@@ -81,3 +88,16 @@ class SurfaceToImplict(ImplicitSurface):
     @surface.setter
     def surface(self, _surface):
         self._surface = _surface
+
+    def sign_distance_local(self, local_point: Vector) -> Float:
+        p = self.surface.closest_point_local(local_point)
+        return - EuclideanDistance(p, local_point) \
+            if \
+                self.surface.is_inside_local(local_point) \
+            else \
+                EuclideanDistance(p, local_point)
+
+
+
+
+
