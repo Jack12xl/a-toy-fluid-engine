@@ -34,8 +34,9 @@ class Transform2:
         return self._localscale
 
     @localScale.setter
-    def localScale(self, localscale):
-        self._localscale = max(localscale , error)
+    def localScale(self, localScale):
+        # clamp above zero
+        self._localscale = max(localScale , error)
 
     @ti.func
     def to_local(self, p_world:Vector ) -> Vector:
