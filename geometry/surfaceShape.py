@@ -45,7 +45,7 @@ class Ball(Surface):
 
     @ti.func
     def closest_point_local(self, local_p) -> Vector:
-        ## TODO local_p is [0, 0]
+        ## TODO if local_p is [0, 0]
         return tiNormalize(local_p)
 
     @ti.func

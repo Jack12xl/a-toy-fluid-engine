@@ -72,6 +72,7 @@ class ImplicitSurface(Surface):
     def is_inside_local(self, local_p: Vector) -> bool:
         return self.sign_distance_local(local_p) < 0.0
 
+
 class SurfaceToImplict(ImplicitSurface):
     def __init__(
             self,
@@ -88,6 +89,14 @@ class SurfaceToImplict(ImplicitSurface):
     @surface.setter
     def surface(self, _surface):
         self._surface = _surface
+
+    @ti.func
+    def closest_point_local(self, local_p) -> Vector:
+        return self._surface.closest_point_local(local_p)
+
+    @ti.func
+    def closest_point_normal_local(self, local_p:Vector) -> Vector:
+        return self._surface.closest_point_normal_local(local_p)
 
     def sign_distance_local(self, local_point: Vector) -> Float:
         p = self.surface.closest_point_local(local_point)
