@@ -53,6 +53,10 @@ class Surface(metaclass=ABCMeta):
     def is_inside_local(self, local_p: Vector) -> bool:
         pass
 
+    @ti.func
+    def translateTo(self, offset: Vector):
+        self.transform += ti.static(offset)
+
 
 class ImplicitSurface(Surface):
     # reference 3.1.4.3
@@ -98,6 +102,7 @@ class SurfaceToImplict(ImplicitSurface):
     def closest_point_normal_local(self, local_p:Vector) -> Vector:
         return self._surface.closest_point_normal_local(local_p)
 
+    @ti.func
     def sign_distance_local(self, local_point: Vector) -> Float:
         p = self.surface.closest_point_local(local_point)
         return - EuclideanDistance(p, local_point) \
@@ -105,6 +110,10 @@ class SurfaceToImplict(ImplicitSurface):
                 self.surface.is_inside_local(local_point) \
             else \
                 EuclideanDistance(p, local_point)
+
+    @ti.func
+    def is_inside_local(self, local_p: Vector) -> bool:
+        return self._surface.is_inside_local(local_p)
 
 
 

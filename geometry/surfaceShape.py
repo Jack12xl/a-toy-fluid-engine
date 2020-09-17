@@ -52,3 +52,4 @@ class Ball(Surface):
     def is_inside_local(self, local_p: Vector) -> bool:
         return local_p.norm() < ti.static(1.0)
 
+

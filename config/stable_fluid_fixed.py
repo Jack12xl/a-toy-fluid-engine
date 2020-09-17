@@ -6,7 +6,7 @@ import sys
 import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
 
-debug = True
+debug = False
 
 # simulate_type = SimulateType.Gas
 
@@ -16,7 +16,7 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.Density
 ## run Scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver
 advection_solver = MacCormackSolver
