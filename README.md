@@ -88,11 +88,5 @@ Left: Semi-lagrangion, Right: MacCormack
 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk1.gif" height="384px"></a> 
 
-1. The macCormack advection would cause 
 
-   ```bash
-   [control_flow_graph.cpp:dead_store_elimination@464] Identical load elimination failed.
-   ```
-
-   
 
