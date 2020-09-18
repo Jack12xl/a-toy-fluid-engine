@@ -5,8 +5,8 @@ import taichi as ti
 import os
 
 
-ti.init(ti.cpu, debug=True)
-pixel = ti.Vector(3, dt=ti.f32, shape=m_cfg.res)
+ti.init(ti.gpu, debug=True)
+pixel = ti.Vector.field(3, dtype=ti.f32, shape=m_cfg.res)
 
 v = 16
 
@@ -15,8 +15,8 @@ def paint(translate: ti.template()):
     # print(shape.transform.translation)
     # print(m_implicitBall.transform.translation)
     # m_implicitBall.translateTo(ti.Vector(20.0, 10.0))
-    a = ti.Vector([1,1])
-    translate += a
+    # a = ti.Vector([1,1])
+    # translate += a
     for I in ti.grouped(pixel):
         # pixel[I] = ti.random() * 255
         local_p = m_implicitBall.transform.to_local(I)
@@ -63,6 +63,7 @@ while gui.running:
             m_implicitBall.transform.localScale *= 0.5
 
     print(m_implicitBall.transform.translation)
+    print(m_ball.transform.translation)
     paint(m_implicitBall.transform.translation)
     img = pixel.to_numpy()
     gui.set_image(img)

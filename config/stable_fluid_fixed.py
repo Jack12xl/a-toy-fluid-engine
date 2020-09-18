@@ -26,6 +26,8 @@ projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 
+
+
 # save to video(gif)
 bool_save = False
 save_frame_length = 240
