@@ -57,7 +57,7 @@ class Surface(metaclass=ABCMeta):
     def translateTo(self, offset: Vector):
         self.transform += ti.static(offset)
 
-
+@ti.data_oriented
 class ImplicitSurface(Surface):
     # reference 3.1.4.3
     def __init__(self, transform: Transform2, is_norm_flipped : bool = False):
@@ -76,7 +76,7 @@ class ImplicitSurface(Surface):
     def is_inside_local(self, local_p: Vector) -> bool:
         return self.sign_distance_local(local_p) < 0.0
 
-
+@ti.data_oriented
 class SurfaceToImplict(ImplicitSurface):
     def __init__(
             self,

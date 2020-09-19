@@ -15,8 +15,6 @@ def paint(translate: ti.template()):
     # print(shape.transform.translation)
     # print(m_implicitBall.transform.translation)
     # m_implicitBall.translateTo(ti.Vector(20.0, 10.0))
-    # a = ti.Vector([1,1])
-    # translate += a
     for I in ti.grouped(pixel):
         # pixel[I] = ti.random() * 255
         local_p = m_implicitBall.transform.to_local(I)
