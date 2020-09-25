@@ -3,9 +3,21 @@ from .transform import Transform2
 import taichi as ti
 from basic_types import Vector, Matrix, Float
 from utils import tiNormalize
+from abc import ABCMeta , abstractmethod
 
 @ti.data_oriented
-class Ball(Surface):
+class SurfaceShape(Surface):
+    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False):
+        super(SurfaceShape, self).__init__(transform, is_normal_flipped)
+
+    @abstractmethod
+    def velocity_at_local_point(self, local_point: Vector):
+        pass
+
+
+
+@ti.data_oriented
+class Ball(SurfaceShape):
     @property
     def mid(self):
         return self._mid
@@ -52,4 +64,7 @@ class Ball(Surface):
     def is_inside_local(self, local_p: Vector) -> bool:
         return local_p.norm() < ti.static(1.0)
 
-
+    @ti.func
+    def velocity_at_local_point(self, local_point: Vector):
+        #TODO
+        return ti.Vector(0.0, 0.0)
