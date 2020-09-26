@@ -7,15 +7,18 @@ from .surfaceShape import SurfaceShape
 
 class Collider(metaclass=ABCMeta):
     '''
-    class containing speed
-    currently only for 2d
+    class that integrated surfaceShape
+    3.4.1.1
+    conversion to signed-distance field enable cached the inside/outside testing
+    and closest distance measuring into a grid
+    => accelerate the collider queries
     '''
     def __init__(self, surface: SurfaceShape):
         self._surface = surface
         self._implicit = SurfaceToImplict(surface) if not isinstance(surface , ImplicitSurface) else surface
 
     @property
-    def surface(self) -> Surface:
+    def surfaceshape(self) -> SurfaceShape:
         return self._surface
 
     @property
@@ -39,5 +42,8 @@ class RigidBodyCollider(Collider):
     def update(self, time_interval: float):
         pass
 
-    def velocity_at(self, point: Vector) -> Vector:
+    @ti.func
+    def velocity_at(self, world_point: Vector) -> Vector:
+        sfs = self.surfaceshape
+        return sfs.velocity_at_local_point(sfs.transform.to_local(world_point))
 

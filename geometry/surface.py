@@ -113,7 +113,7 @@ class SurfaceToImplict(ImplicitSurface):
 
     @ti.func
     def is_inside_local(self, local_p: Vector) -> bool:
-        return self._surface.is_inside_local(local_p)
+        return self.surface.is_inside_local(local_p)
 
 
 

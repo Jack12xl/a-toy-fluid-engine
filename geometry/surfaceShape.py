@@ -7,8 +7,30 @@ from abc import ABCMeta , abstractmethod
 
 @ti.data_oriented
 class SurfaceShape(Surface):
-    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False):
+    '''
+    class with velocity, mass
+    more of interface for an instance
+    '''
+    @property
+    def velocity(self) -> Vector:
+        return self._velocity
+
+    @velocity.setter
+    def velocity(self, _v: Vector):
+        self._velocity = _v
+
+    @property
+    def mass(self) -> ti.f32:
+        return self._mass
+
+    @mass.setter
+    def mass(self, _m):
+        self._mass = max(_m, 0.0001)
+
+    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False, mass:ti.f32= 1.0):
         super(SurfaceShape, self).__init__(transform, is_normal_flipped)
+        self.velocity = ti.Vector([0.0, 0.0])
+        self.mass = mass
 
     @abstractmethod
     def velocity_at_local_point(self, local_point: Vector):
@@ -49,7 +71,6 @@ class Ball(SurfaceShape):
 
     def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False):
         super(Ball, self).__init__(transform, is_normal_flipped)
-        self.transform = transform
 
     @ti.func
     def closest_point_normal_local(self, local_p:Vector) -> Vector:
@@ -67,4 +88,4 @@ class Ball(SurfaceShape):
     @ti.func
     def velocity_at_local_point(self, local_point: Vector):
         #TODO
-        return ti.Vector(0.0, 0.0)
+        return ti.Vector([0.0, 0.0])

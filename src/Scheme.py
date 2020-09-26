@@ -1,7 +1,7 @@
-from .Grid import Grid
+from Grid.Grid import Grid
 import taichi as ti
 import numpy as np
-from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
+from config import VisualizeEnum, SceneEnum, SchemeType
 import utils
 
 
