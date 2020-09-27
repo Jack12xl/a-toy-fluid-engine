@@ -22,10 +22,10 @@ class MacCormackSolver(AdvectionSolver):
         for I in ti.grouped(vec_field):
             pos = (I + 0.5) * self.cfg.dx
             p_mid = self.subsolver.backtrace(vec_field, pos, dt)
-            q_mid = self.grid.interpolate_value(q_cur, p_mid)
+            q_mid = self.grid.bilerp(q_cur, p_mid)
 
             p_fin = self.subsolver.backtrace(vec_field, p_mid, -dt)
-            q_fin = self.grid.interpolate_value(q_cur, p_fin)
+            q_fin = self.grid.bilerp(q_cur, p_fin)
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
             # clipping to prevent overshooting

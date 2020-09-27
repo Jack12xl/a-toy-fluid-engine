@@ -16,6 +16,8 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                    new_pf: ti.template(),
                    p_divs: ti.template()):
         # TODO: dimension independent coding
+        ti.cache_read_only(pf)
+
         for i, j in pf:
             if (i + j) % 2 == 0:
                 pl = self.grid.sample(pf, i - 1, j)

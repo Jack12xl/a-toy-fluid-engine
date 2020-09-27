@@ -23,9 +23,6 @@ def clamp(v, start, end):
 def lerp(vl, vr, frac):
     return frac * ( vr - vl ) + vl
 
-
-
-
 def npNormalize(a, order=2, axis=0):
     l2 = np.atleast_1d(np.linalg.norm(a, order, axis)) + base_cfg.error
     # l2[l2 == 0] = 1

@@ -28,20 +28,22 @@ class Grid():
     @ti.func
     def sample(self, qf, u, v):
         # assure integer
-        i, j = int(u), int(v)
+        # i, j = int(u), int(v)
+        I = int( ti.Vector([u, v]) )
         # clamp
-        i = clamp(i, 0, self.cfg.res[0] - 1)
-        j = clamp(j, 0, self.cfg.res[1] - 1)
+        # i = clamp(i, 0, self.cfg.res[0] - 1)
+        # j = clamp(j, 0, self.cfg.res[1] - 1)
+        I = max( 0, min(self.cfg.res[0] - 1, I) )
 
-        return qf[i, j]
+        return qf[I]
+
+    # @ti.func
+    # def incell2grid(self, phy_coord:ti.template()) -> ti.template():
+    #     grid_coord = phy_coord / self.cfg.dx - 0.5
+    #     return grid_coord.cast(ti.i32)
 
     @ti.func
-    def incell2grid(self, phy_coord:ti.template()) -> ti.template():
-        grid_coord = phy_coord / self.cfg.dx - 0.5
-        return grid_coord.cast(ti.i32)
-
-    @ti.func
-    def interpolate_value(self, values, phy_coord):
+    def bilerp(self, values, phy_coord):
         '''
         get corresponding value given physical coordinate
         :param values: value field

@@ -1,12 +1,12 @@
 import utils
-import config.stable_fluid_mouse as m_cfg
+import config.stable_fluid_fixed as m_cfg
 from src.Scheme import EulerScheme
 import taichi as ti
 
 
 if __name__ == '__main__':
     # m_cfg = read_cfg(YAML_PATH)
-    ti.init(arch=ti.gpu, debug=m_cfg.debug)
+    ti.init(arch=ti.gpu, debug=m_cfg.debug,kernel_profiler=True)
 
     # cfg_dict = m_cfg.scheme_setting
     s = EulerScheme(m_cfg)

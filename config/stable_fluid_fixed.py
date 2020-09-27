@@ -12,15 +12,15 @@ debug = False
 # simulate_type = SimulateType.Gas
 
 FILTER_TYPE = 'm_'
-set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE, _if_print=True)
-set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=True)
+set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.Density
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver
-advection_solver = MacCormackSolver
+# advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
@@ -42,8 +42,15 @@ video_manager = ti.VideoManager(output_dir=save_path,
                                 automatic_build=False)
 
 
-
-
+# print
+# import copy
+# tmp = sys.modules[__name__].__dict__.copy()
+# for k, v in tmp.items():
+#     if (~k.startswith("__")):
+#         print(k, v)
+print(run_scheme)
+print(advection_solver)
+print(projection_solver)
 
 # if __name__ == '__main__':
 #     import sys

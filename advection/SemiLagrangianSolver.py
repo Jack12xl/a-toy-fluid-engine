@@ -32,18 +32,18 @@ class SemiLagrangeSolver(AdvectionSolver):
         # position in cell center grid
         # p = (pos + 0.5) * self.cfg.dx
         if ti.static(self.RK == SemiLagrangeOrder.RK_1):
-            pos -= dt * self.grid.interpolate_value(vel_field, pos)
+            pos -= dt * self.grid.bilerp(vel_field, pos)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_2):
-            mid_p = pos - 0.5 * dt * self.grid.interpolate_value(vel_field, pos)
-            pos -= dt * self.grid.interpolate_value(vel_field, mid_p)
+            mid_p = pos - 0.5 * dt * self.grid.bilerp(vel_field, pos)
+            pos -= dt * self.grid.bilerp(vel_field, mid_p)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_3):
-            v1 = self.grid.interpolate_value(vel_field, pos)
+            v1 = self.grid.bilerp(vel_field, pos)
             p1 = pos - 0.5 * dt * v1
 
-            v2 = self.grid.interpolate_value(vel_field, p1)
+            v2 = self.grid.bilerp(vel_field, p1)
             p2 = pos - 0.75 * dt * v2
 
-            v3 = self.grid.interpolate_value(vel_field, p2)
+            v3 = self.grid.bilerp(vel_field, p2)
             pos -= dt * ( 2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3 )
 
         # TODO boundary handling
@@ -61,7 +61,7 @@ class SemiLagrangeSolver(AdvectionSolver):
             p = ( I  + 0.5 ) * self.cfg.dx
             coord = self.backtrace(vec_field, p, dt)
             # sample its speed
-            q_nxt[I] = self.grid.interpolate_value(q_cur, coord)
+            q_nxt[I] = self.grid.bilerp(q_cur, coord)
 
         return q_nxt
     @ti.kernel
@@ -70,6 +70,7 @@ class SemiLagrangeSolver(AdvectionSolver):
                q_cur: ti.template(),
                q_nxt: ti.template(),
                dt: ti.template() ):
+        ti.cache_read_only(vec_field)
         self.advect_func(vec_field, q_cur, q_nxt, dt)
 
 
