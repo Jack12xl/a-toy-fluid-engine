@@ -1,4 +1,4 @@
-from Grid.Grid import Grid
+from Grid import Grid
 import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType
@@ -14,6 +14,9 @@ class EulerScheme():
         self.clr_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
+
+
+
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, dt)

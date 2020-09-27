@@ -5,6 +5,7 @@ from utils import set_attribute_from_cfg
 import sys
 import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
+from geometry import RigidBodyCollider, Ball
 
 debug = False
 
@@ -26,7 +27,9 @@ projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 
-
+# collider
+Ccolliders = []
+Ccolliders.append(RigidBodyCollider(Ball()))
 
 # save to video(gif)
 bool_save = False
@@ -37,6 +40,8 @@ save_path = os.path.join(save_root, file_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,
                                 automatic_build=False)
+
+
 
 
 

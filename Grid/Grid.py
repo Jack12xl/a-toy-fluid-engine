@@ -17,10 +17,13 @@ class Grid():
         self.density_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
         self.new_density_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
 
+        self.marker = ti.Vector.field(3, dtype=ti.i32, shape=cfg.res)
+
         self.v_pair = TexPair(self.v, self.new_v)
         self.p_pair = TexPair(self.p, self.new_p)
         self.density_pair = TexPair(self.density_bffr, self.new_density_bffr)
-        pass
+
+
 
     @ti.func
     def sample(self, qf, u, v):
@@ -50,7 +53,9 @@ class Grid():
         #TODO handle non-suqare cell
         grid_coord = phy_coord / self.cfg.dx - 0.5
         #TODO handle 3D input
-        iu, iv = int(grid_coord[0]), int(grid_coord[1])
+
+        # int -> floor https://github.com/taichi-dev/taichi/pull/1784
+        iu, iv = ti.floor(grid_coord[0]), ti.floor(grid_coord[1])
         # fract
         fu, fv = grid_coord[0] - iu, grid_coord[1] - iv
         #TODO test +0, +1
@@ -65,8 +70,8 @@ class Grid():
     def sample_minmax(self, vf, p):
         u, v = p
         s, t = u - 0.5, v - 0.5
-        # floor
-        iu, iv = int(s), int(t)
+        # int -> floor https://github.com/taichi-dev/taichi/pull/1784
+        iu, iv = ti.floor(s), ti.floor(t)
         a = self.sample(vf, iu + 0.5, iv + 0.5)
         b = self.sample(vf, iu + 1.5, iv + 0.5)
         c = self.sample(vf, iu + 0.5, iv + 1.5)
