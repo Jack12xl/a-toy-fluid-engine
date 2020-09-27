@@ -41,7 +41,7 @@ class Transform2:
     @ti.func
     def to_local(self, p_world:Vector ) -> Vector:
         # translate
-        out = p_world - self.translation
+        out = float(p_world) - self.translation
         # rotate back
         out = apply_rot(-self.orientation, out)
         # scale

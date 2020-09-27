@@ -115,8 +115,8 @@ class EulerScheme():
         self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
 
-        a = self.boundarySolver.marker_field.to_numpy()
-        b = self.boundarySolver.collider_sdf_field.to_numpy()
+        # a = self.boundarySolver.marker_field.to_numpy()
+        # b = self.boundarySolver.collider_sdf_field.to_numpy()
         # for x, y in np.ndindex(b.shape):
         #     if (b[x, y] < 0.0):
         #         print(b[x, y])
