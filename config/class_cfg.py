@@ -22,3 +22,8 @@ class SchemeType(Enum):
 class SimulateType(Enum):
     Liquid = 0
     Gas = 1
+
+class PixelType(Enum):
+    Liquid = 0
+    Collider = 1
+    Air = 2

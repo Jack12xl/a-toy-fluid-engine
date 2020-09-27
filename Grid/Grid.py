@@ -17,12 +17,13 @@ class Grid():
         self.density_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
         self.new_density_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
 
-        self.marker = ti.Vector.field(3, dtype=ti.i32, shape=cfg.res)
+        # self.marker = ti.field(dtype=ti.i32, shape=cfg.res)
+        # self.new_marker = ti.field(dtype=ti.i32, shape=cfg.res)
 
         self.v_pair = TexPair(self.v, self.new_v)
         self.p_pair = TexPair(self.p, self.new_p)
         self.density_pair = TexPair(self.density_bffr, self.new_density_bffr)
-
+        self.marker_pair = TexPair(self.marker, self.new_marker)
 
 
     @ti.func
