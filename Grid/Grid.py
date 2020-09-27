@@ -23,7 +23,7 @@ class Grid():
         self.v_pair = TexPair(self.v, self.new_v)
         self.p_pair = TexPair(self.p, self.new_p)
         self.density_pair = TexPair(self.density_bffr, self.new_density_bffr)
-        self.marker_pair = TexPair(self.marker, self.new_marker)
+        # self.marker_pair = TexPair(self.marker, self.new_marker)
 
 
     @ti.func

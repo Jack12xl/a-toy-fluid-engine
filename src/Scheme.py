@@ -3,7 +3,8 @@ import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType
 import utils
-
+from boundary import StdGridBoundaryConditionSolver
+from config import PixelType
 
 @ti.data_oriented
 class EulerScheme():
@@ -15,6 +16,7 @@ class EulerScheme():
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
+        self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
 
 
@@ -110,6 +112,15 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
+        self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
+        self.boundarySolver.kern_update_marker()
+
+        a = self.boundarySolver.marker_field.to_numpy()
+        b = self.boundarySolver.collider_sdf_field.to_numpy()
+        # for x, y in np.ndindex(b.shape):
+        #     if (b[x, y] < 0.0):
+        #         print(b[x, y])
+
         if (self.cfg.run_scheme == SchemeType.Advection_Projection):
             self.advect(self.cfg.dt)
             self.externalForce(ext_input, self.cfg.dt)
@@ -134,8 +145,16 @@ class EulerScheme():
             self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
 
 
-
         self.render_frame()
+        self.render_collider()
+
+
+    @ti.kernel
+    def render_collider(self):
+        for I in ti.grouped(self.clr_bffr):
+            if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
+                self.clr_bffr[I] = ti.Vector([0.5, 0.5, 0.5])
+
     def reset(self):
         self.grid.reset()
         self.clr_bffr.fill(ti.Vector([0, 0, 0]))

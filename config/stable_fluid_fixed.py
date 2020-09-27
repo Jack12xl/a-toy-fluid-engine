@@ -28,8 +28,9 @@ p_jacobi_iters = 30
 dye_decay = 0.99
 
 # collider
-Ccolliders = []
-Ccolliders.append(RigidBodyCollider(Ball()))
+from geometry import Transform2
+Colliders = []
+Colliders.append(RigidBodyCollider(Ball(Transform2(translation=ti.Vector([300, 300]), localscale=16))))
 
 # save to video(gif)
 bool_save = False

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 class PreConditioner(Enum):
     Nothing = 0
@@ -23,7 +23,7 @@ class SimulateType(Enum):
     Liquid = 0
     Gas = 1
 
-class PixelType(Enum):
+class PixelType(IntEnum):
     Liquid = 0
     Collider = 1
     Air = 2

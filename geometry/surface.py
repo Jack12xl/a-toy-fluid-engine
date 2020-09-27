@@ -81,9 +81,10 @@ class SurfaceToImplict(ImplicitSurface):
     def __init__(
             self,
             surface : Surface,
-            transform : Transform2 = Transform2(),
+            # transform : Transform2 = Transform2(),
             is_normal_flipped : bool = False):
-        super(SurfaceToImplict, self).__init__(transform, is_normal_flipped)
+        _transform = surface.transform
+        super(SurfaceToImplict, self).__init__(_transform, is_normal_flipped)
         self._surface = surface
 
     @property
