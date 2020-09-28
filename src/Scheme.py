@@ -116,7 +116,10 @@ class EulerScheme():
     def step(self, ext_input:np.array):
         self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
-
+        for colld in self.boundarySolver.colliders:
+            colld.surfaceshape.update_transform(self.cfg.dt)
+            # print(colld.surfaceshape.transform)
+            # print(colld.implict_surface.transform)
         # a = self.boundarySolver.marker_field.to_numpy()
         # b = self.boundarySolver.collider_sdf_field.to_numpy()
         # for x, y in np.ndindex(b.shape):
@@ -148,11 +151,11 @@ class EulerScheme():
 
 
         self.render_frame()
-        self.render_collider()
-
+        self.render_collider(self.boundarySolver.colliders[0].surfaceshape.transform.translation)
+        # self.render_collider()
 
     @ti.kernel
-    def render_collider(self):
+    def render_collider(self, t:ti.template()):
         for I in ti.grouped(self.clr_bffr):
             if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
                 for it in ti.static(range(len(self.boundarySolver.colliders))):

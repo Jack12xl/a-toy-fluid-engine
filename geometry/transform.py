@@ -13,6 +13,13 @@ class Transform2:
         self._orientation = orientation % (2 * math.pi)
         self._localscale = localscale
 
+    def __repr__(self):
+        return '{} ( Trsln : {}, Ornttn: {}, lclScl: {})'.format(
+            self.__class__.__name__,
+            self.translation,
+            self.orientation,
+            self.localScale)
+
     @property
     def translation(self):
         return self._translation
