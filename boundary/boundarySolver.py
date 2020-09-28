@@ -22,6 +22,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
 
     @ti.kernel
     def kern_update_marker(self):
+        #TODO support more type
         for I in ti.grouped(self.marker_field):
             if (self.collider_sdf_field[I] <= 0.0):
                 # in collider

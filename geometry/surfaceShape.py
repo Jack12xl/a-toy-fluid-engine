@@ -1,9 +1,11 @@
 from .surface import Surface
 from .transform import Transform2
+from .velocity import Velocity2
 import taichi as ti
 from basic_types import Vector, Matrix, Float
 from utils import tiNormalize
 from abc import ABCMeta , abstractmethod
+
 
 @ti.data_oriented
 class SurfaceShape(Surface):
@@ -12,24 +14,17 @@ class SurfaceShape(Surface):
     more of interface for an instance
     '''
     @property
-    def velocity(self) -> Vector:
+    def Velocity(self) -> Velocity2:
         '''
         velocity w.r.t center of mass
         :return:
         '''
         return self._velocity
 
-    @velocity.setter
-    def velocity(self, _v: Vector):
+    @Velocity.setter
+    def Velocity(self, _v: Velocity2):
         self._velocity = _v
 
-    @property
-    def omega(self):
-        return self._angular_velocity
-
-    @omega.setter
-    def omega(self, angular_velocity):
-        self._angular_velocity = angular_velocity
 
     @property
     def mass(self) -> ti.f32:
@@ -39,10 +34,14 @@ class SurfaceShape(Surface):
     def mass(self, _m):
         self._mass = max(_m, 0.0001)
 
-    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False, mass:ti.f32= 1.0, angular_velocity:ti.f32 = 0.0):
+    def __init__(self,
+                 transform: Transform2 = Transform2(),
+                 velocity: Velocity2 = Velocity2(),
+                 is_normal_flipped:bool = False,
+                 mass:ti.f32= 1.0
+                 ):
         super(SurfaceShape, self).__init__(transform, is_normal_flipped)
-        self.velocity = ti.Vector([0.0, 0.0])
-        self.omega = angular_velocity
+        self.Velocity = velocity
         self.mass = mass
 
     @abstractmethod
@@ -86,14 +85,15 @@ class Ball(SurfaceShape):
 
     def __init__(self,
                  transform: Transform2 = Transform2(),
+                 velocity: Velocity2 = Velocity2(),
                  is_normal_flipped:bool = False,
                  mass:ti.f32 = 1.0,
-                 angular_velocity: ti.f32= 0.0):
+                 ):
         super(Ball, self).__init__(
             transform,
+            velocity,
             is_normal_flipped,
-            mass,
-            angular_velocity
+            mass
         )
 
     @ti.func
