@@ -5,6 +5,7 @@ from config import VisualizeEnum, SceneEnum, SchemeType
 import utils
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
+from geometry import Collider
 
 @ti.data_oriented
 class EulerScheme():
@@ -42,9 +43,10 @@ class EulerScheme():
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):
-        for i, j in vf:
-            v = vf[i, j]
-            self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), abs(v[2])])
+        ti.cache_read_only(vf)
+        for I in ti.grouped(vf):
+            v = vf[I]
+            self.clr_bffr[I] = ti.abs(v)
 
     @ti.kernel
     def fill_color_2d(self, vf: ti.template()):
@@ -153,7 +155,11 @@ class EulerScheme():
     def render_collider(self):
         for I in ti.grouped(self.clr_bffr):
             if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
-                self.clr_bffr[I] = ti.Vector([0.5, 0.5, 0.5])
+                for clld in self.boundarySolver.colliders:
+                # clld = self.boundarySolver.colliders[0]
+                #TODO render function should be optimized
+                    if (clld.is_inside_world(I)):
+                        self.clr_bffr[I] = clld.color_at_world(I)
 
     def reset(self):
         self.grid.reset()

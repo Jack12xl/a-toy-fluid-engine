@@ -36,7 +36,9 @@ class SurfaceShape(Surface):
     def velocity_at_local_point(self, local_point: Vector):
         pass
 
-
+    @abstractmethod
+    def color_at_local_point(self, local_point: Vector):
+        pass
 
 @ti.data_oriented
 class Ball(SurfaceShape):
@@ -89,3 +91,13 @@ class Ball(SurfaceShape):
     def velocity_at_local_point(self, local_point: Vector):
         #TODO
         return ti.Vector([0.0, 0.0])
+
+    @ti.func
+    def color_at_local_point(self, local_point: Vector) -> Vector:
+        c = ti.Vector([0.0, 0.0, 0.0])
+        if (ti.abs(local_point[1]) < ti.static(0.1)):
+            c = ti.Vector([0.7, 0.2, 0.2])
+        else:
+            c = ti.Vector([0.9, 0.9, 0.9])
+        return c
+
