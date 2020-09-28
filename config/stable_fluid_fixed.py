@@ -30,8 +30,8 @@ dye_decay = 0.99
 # collider
 from geometry import Transform2
 Colliders = []
-Colliders.append(RigidBodyCollider(Ball(Transform2(translation=ti.Vector([300, 300]), localscale=16))))
-Colliders.append(RigidBodyCollider(Ball(Transform2(translation=ti.Vector([150, 300]), localscale=32))))
+Colliders.append(RigidBodyCollider(Ball(Transform2(translation=ti.Vector([300, 150]), localscale=16))))
+Colliders.append(RigidBodyCollider(Ball(Transform2(translation=ti.Vector([150, 150]), localscale=32))))
 
 # save to video(gif)
 bool_save = False

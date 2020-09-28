@@ -57,7 +57,7 @@ class SemiLagrangeSolver(AdvectionSolver):
         if (phi0 * phi1 < 0.0):
             w = ti.abs(phi1) / (ti.abs(phi0) + ti.abs(phi1))
             # pos = w * start_pos + (1.0 - w) * pos
-            # why the previous line would trigger
+            # why the previous line would trigger:
             # UnboundLocalError: local variable 'pos' referenced before assignment
             pos += w * start_pos
             pos *= (1.0 - w)

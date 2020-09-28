@@ -13,11 +13,23 @@ class SurfaceShape(Surface):
     '''
     @property
     def velocity(self) -> Vector:
+        '''
+        velocity w.r.t center of mass
+        :return:
+        '''
         return self._velocity
 
     @velocity.setter
     def velocity(self, _v: Vector):
         self._velocity = _v
+
+    @property
+    def omega(self):
+        return self._angular_velocity
+
+    @omega.setter
+    def omega(self, angular_velocity):
+        self._angular_velocity = angular_velocity
 
     @property
     def mass(self) -> ti.f32:
@@ -27,9 +39,10 @@ class SurfaceShape(Surface):
     def mass(self, _m):
         self._mass = max(_m, 0.0001)
 
-    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False, mass:ti.f32= 1.0):
+    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False, mass:ti.f32= 1.0, angular_velocity:ti.f32 = 0.0):
         super(SurfaceShape, self).__init__(transform, is_normal_flipped)
         self.velocity = ti.Vector([0.0, 0.0])
+        self.omega = angular_velocity
         self.mass = mass
 
     @abstractmethod
@@ -71,8 +84,17 @@ class Ball(SurfaceShape):
         self._transform = _transform
         self.parse_transform(_transform)
 
-    def __init__(self, transform: Transform2 = Transform2(), is_normal_flipped:bool = False):
-        super(Ball, self).__init__(transform, is_normal_flipped)
+    def __init__(self,
+                 transform: Transform2 = Transform2(),
+                 is_normal_flipped:bool = False,
+                 mass:ti.f32 = 1.0,
+                 angular_velocity: ti.f32= 0.0):
+        super(Ball, self).__init__(
+            transform,
+            is_normal_flipped,
+            mass,
+            angular_velocity
+        )
 
     @ti.func
     def closest_point_normal_local(self, local_p:Vector) -> Vector:
@@ -100,4 +122,5 @@ class Ball(SurfaceShape):
         else:
             c = ti.Vector([0.9, 0.9, 0.9])
         return c
+
 

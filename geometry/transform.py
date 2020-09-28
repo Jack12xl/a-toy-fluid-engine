@@ -85,6 +85,7 @@ def test_rotate():
 
     print(a.to_local(b))
 
+
 if __name__ == '__main__':
     a = Transform2(20, 15)
     a.orientation = 100
