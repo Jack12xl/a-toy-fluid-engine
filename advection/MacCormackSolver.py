@@ -2,6 +2,7 @@ import taichi as ti
 from enum import Enum
 from .AbstractAdvectionSolver import AdvectionSolver
 from .SemiLagrangianSolver import SemiLagrangeSolver
+from utils import Vector, Matrix
 
 @ti.data_oriented
 class MacCormackSolver(AdvectionSolver):
@@ -17,14 +18,15 @@ class MacCormackSolver(AdvectionSolver):
                     vec_field: ti.template(),
                     q_cur: ti.template(),
                     q_nxt: ti.template(),
+                    boundarySdf: Matrix,
                     dt: ti.template()):
 
         for I in ti.grouped(vec_field):
             pos = (I + 0.5) * self.cfg.dx
-            p_mid = self.subsolver.backtrace(vec_field, pos, dt)
+            p_mid = self.subsolver.backtrace(vec_field, pos, boundarySdf,  dt)
             q_mid = self.grid.bilerp(q_cur, p_mid)
 
-            p_fin = self.subsolver.backtrace(vec_field, p_mid, -dt)
+            p_fin = self.subsolver.backtrace(vec_field, p_mid, boundarySdf, -dt)
             q_fin = self.grid.bilerp(q_cur, p_fin)
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
@@ -43,7 +45,8 @@ class MacCormackSolver(AdvectionSolver):
                vec_field: ti.template(),
                q_cur: ti.template(),
                q_nxt: ti.template(),
+               boundarySdf: Matrix,
                dt: ti.template()):
-        self.advect_func(vec_field, q_cur, q_nxt, dt)
+        self.advect_func(vec_field, q_cur, q_nxt, boundarySdf, dt)
 
 

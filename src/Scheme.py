@@ -22,8 +22,8 @@ class EulerScheme():
 
 
     def advect(self, dt):
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, dt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt, dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, self.boundarySolver.collider_sdf_field, dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur,  self.grid.density_pair.nxt, self.boundarySolver.collider_sdf_field, dt)
         self.grid.v_pair.swap()
         self.grid.density_pair.swap()
 
@@ -155,9 +155,10 @@ class EulerScheme():
     def render_collider(self):
         for I in ti.grouped(self.clr_bffr):
             if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
-                for clld in self.boundarySolver.colliders:
+                for it in ti.static(range(len(self.boundarySolver.colliders))):
                 # clld = self.boundarySolver.colliders[0]
                 #TODO render function should be optimized
+                    clld = self.boundarySolver.colliders[it]
                     if (clld.is_inside_world(I)):
                         self.clr_bffr[I] = clld.color_at_world(I)
 

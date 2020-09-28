@@ -95,7 +95,7 @@ class Ball(SurfaceShape):
     @ti.func
     def color_at_local_point(self, local_point: Vector) -> Vector:
         c = ti.Vector([0.0, 0.0, 0.0])
-        if (ti.abs(local_point[1]) < ti.static(0.1)):
+        if (ti.abs(local_point[1]) < ti.static(0.1) and local_point[0] > ti.static(0.0) ):
             c = ti.Vector([0.7, 0.2, 0.2])
         else:
             c = ti.Vector([0.9, 0.9, 0.9])
