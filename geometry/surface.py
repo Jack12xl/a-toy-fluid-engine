@@ -70,7 +70,7 @@ class ImplicitSurface(Surface):
     @ti.func
     def signed_distance(self, world_point: Vector) -> Float:
         local_point = self.transform.to_local(world_point)
-        return self.transform._localscale * self.sign_distance_local(local_point)
+        return self.transform._localScale * self.sign_distance_local(local_point)
 
     @ti.func
     def is_inside_local(self, local_p: Vector) -> bool:
