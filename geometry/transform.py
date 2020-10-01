@@ -39,7 +39,7 @@ class Transform2:
     @property
     @ti.pyfunc
     def translation(self) -> Vector:
-        return self._translation
+        return self._translation[None]
 
 
     @translation.setter
@@ -53,7 +53,7 @@ class Transform2:
     @property
     @ti.pyfunc
     def orientation(self) -> Float:
-        return self._orientation
+        return self._orientation[None]
 
     @orientation.setter
     def orientation(self, orientation:Float):
@@ -66,7 +66,7 @@ class Transform2:
     @property
     @ti.pyfunc
     def localScale(self) -> Float:
-        return self._localScale
+        return self._localScale[None]
 
     @localScale.setter
     def localScale(self, localScale:Float):

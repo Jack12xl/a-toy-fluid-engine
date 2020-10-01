@@ -7,7 +7,7 @@ import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
 from geometry import RigidBodyCollider, Ball
 
-debug = False
+debug = True
 
 # simulate_type = SimulateType.Gas
 

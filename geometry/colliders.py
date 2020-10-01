@@ -17,6 +17,10 @@ class Collider(metaclass=ABCMeta):
         self._surface = surface
         self._implicit = SurfaceToImplict(surface) if not isinstance(surface , ImplicitSurface) else surface
 
+    @ti.kernel
+    def kern_materialize(self):
+        self.surfaceshape.kern_materialize()
+
     @property
     def surfaceshape(self) -> SurfaceShape:
         return self._surface

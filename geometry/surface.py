@@ -12,6 +12,10 @@ class Surface(metaclass=ABCMeta):
         self._transform = transform
         self.is_normal_flipped = is_normal_flipped
 
+    @ti.kernel
+    def kern_materialize(self):
+        self.transform.kern_materialize()
+
     @property
     def transform(self):
         return self._transform
@@ -70,7 +74,7 @@ class ImplicitSurface(Surface):
     @ti.func
     def signed_distance(self, world_point: Vector) -> Float:
         local_point = self.transform.to_local(world_point)
-        return self.transform._localScale * self.sign_distance_local(local_point)
+        return self.transform.localScale * self.sign_distance_local(local_point)
 
     @ti.func
     def is_inside_local(self, local_p: Vector) -> bool:
