@@ -8,10 +8,17 @@ from config.base_cfg import error
 # ref: https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi/blob/master/src/python/geometry.py
 @ti.data_oriented
 class Transform2:
-    def __init__(self, translation=ti.Vector([0.0, 0.0]), orientation = 0.0, localscale = 1.0):
+    def __init__(self,
+                 translation=ti.Vector.field([0.0, 0.0]),
+                 orientation = 0.0,
+                 localscale = 1.0):
         self._translation = translation
         self._orientation = orientation % (2 * math.pi)
         self._localscale = localscale
+
+        self._translation_buf = translation
+        self._orientation_buf = orientation % (2 * math.pi)
+        self._localscale_buf = localscale
 
     def __repr__(self):
         return '{} ( Trsln : {}, Ornttn: {}, lclScl: {})'.format(
@@ -19,6 +26,8 @@ class Transform2:
             self.translation,
             self.orientation,
             self.localScale)
+
+
 
     @property
     def translation(self):

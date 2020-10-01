@@ -67,8 +67,12 @@ def kern_test_float_input(f1: ti.float32, f2: ti.float32):
 t1 = trsfrm()
 t2 = trsfrm_field()
 
-while (True):
+# t1 = ti.field(dtype=ti.f32, shape=2)
+# t2 = ti.Vector.field(2, dtype=ti.f32, shape=[1])
 
+
+
+while (True):
     t1.translation = t1.translation + ti.Vector([2.0, 2.0])
     print(t1)
     print("py scope print t1: ",t1.translation)
