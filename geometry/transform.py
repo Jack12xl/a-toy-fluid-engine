@@ -32,43 +32,41 @@ class Transform2:
         self._orientation[None] = self.orientation_buf
         self._localScale[None] = self.localscale_buf
 
-    @property
-    def translation(self) -> Vector:
-        return self._translation[None]
+    # @property
+    # def translation(self) -> Vector:
+    #     return self._translation[None]
 
     @property
-    @ti.func
+    @ti.pyfunc
     def translation(self) -> Vector:
-        return self._translation[None]
+        return self._translation
 
 
     @translation.setter
     def translation(self, translation:ti.Vector):
         self._translation[None] = translation
 
-
+    # @property
+    # def orientation(self) -> Float:
+    #     return self._orientation[None]
 
     @property
+    @ti.pyfunc
     def orientation(self) -> Float:
-        return self._orientation[None]
+        return self._orientation
 
     @orientation.setter
     def orientation(self, orientation:Float):
         self._orientation[None] = orientation % (2 * math.pi)
 
-    @property
-    @ti.func
-    def orientation(self) -> Float:
-        return self._orientation[None]
+    # @property
+    # def localScale(self) -> Float:
+    #     return self._localScale[None]
 
     @property
+    @ti.pyfunc
     def localScale(self) -> Float:
-        return self._localScale[None]
-
-    @property
-    @ti.func
-    def localScale(self) -> Float:
-        return self._localScale[None]
+        return self._localScale
 
     @localScale.setter
     def localScale(self, localScale:Float):
@@ -78,11 +76,15 @@ class Transform2:
     @ti.func
     def to_local(self, p_world:Vector ) -> Vector:
         # translate
-        out = float(p_world) - self.translation[None]
+        out = float(p_world) - self.translation
+        # print(out)
         # rotate back
-        out = apply_rot(-self.orientation[None], out)
+        # print(-self.orientation)
+        out = apply_rot(-self.orientation, out)
+        # print(self.orientation)
+        # out = apply_rot(-2.0, out)
         # scale
-        out /=  self.localScale[None]
+        out /=  self.localScale
         return out
 
     @ti.func
@@ -118,9 +120,9 @@ def test_rotate(a : ti.template()):
     a._orientation = ti.static(math.pi / 2)
     a._orientation = ti.static(math.pi)
     b = ti.Vector([0, 1])
-    # print(a.to_local(b))
-
     print(a.to_local(b))
+
+    # print(apply_rot(2.0, b))
 
 
 if __name__ == '__main__':
@@ -129,8 +131,9 @@ if __name__ == '__main__':
     a.kern_materialize()
     a.orientation = 100
     a.localScale = 2
+    a.translation = ti.Vector([5.0, 2.0])
     print(a.orientation)
     print(a.localScale)
-
+    print(a.translation)
 
     test_rotate(a)
