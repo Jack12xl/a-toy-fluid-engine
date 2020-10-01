@@ -58,6 +58,12 @@ def kern_add(t:ti.template()):
     t[0] += ti.Vector([2.0, 2.0])
     # print("kern add field", t[0])
 
+@ti.kernel
+def kern_test_float_input(f1: ti.float32, f2: ti.float32):
+    f = ti.Vector([f1, f2])
+    print("kern_test_float_input: ", f)
+
+
 t1 = trsfrm()
 t2 = trsfrm_field()
 
@@ -73,4 +79,7 @@ while (True):
     kern_test_without_input()
     # can not capture the incremented t1
     kern_test_with_input(t1.translation, t2.translation)
+
+    kern_test_float_input(t1.translation[0], t1.translation[1])
+
     print(" ")

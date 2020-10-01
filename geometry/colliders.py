@@ -34,7 +34,7 @@ class Collider(metaclass=ABCMeta):
         pass
 
     @ti.func
-    def is_inside_world(self, world_p: Vector) -> bool:
+    def is_inside_collider(self, world_p: Vector) -> bool:
         local_p = self.surfaceshape.transform.to_local(world_p)
         return self.implict_surface.is_inside_local(local_p)
 

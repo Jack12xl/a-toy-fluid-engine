@@ -27,3 +27,8 @@ class PixelType(IntEnum):
     Liquid = 0
     Collider = 1
     Air = 2
+
+class SurfaceShapeType(IntEnum):
+    Base = 0
+    Ball = 1
+    Square = 2

@@ -151,18 +151,23 @@ class EulerScheme():
 
 
         self.render_frame()
-        self.render_collider(self.boundarySolver.colliders[0].surfaceshape.transform.translation)
-        # self.render_collider()
+        # self.render_collider(self.boundarySolver.colliders[0].surfaceshape.transform.translation)
+        self.render_collider()
+
+    # def render_colliders(self):
+    #     for cur_collider in self.boundarySolver.colliders:
+    #
+    #     pass
 
     @ti.kernel
-    def render_collider(self, t:ti.template()):
+    def render_collider(self):
         for I in ti.grouped(self.clr_bffr):
             if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
                 for it in ti.static(range(len(self.boundarySolver.colliders))):
                 # clld = self.boundarySolver.colliders[0]
                 #TODO render function should be optimized
                     clld = self.boundarySolver.colliders[it]
-                    if (clld.is_inside_world(I)):
+                    if (clld.is_inside_collider(I)):
                         self.clr_bffr[I] = clld.color_at_world(I)
 
     def reset(self):
