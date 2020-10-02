@@ -26,7 +26,7 @@ class Transform2:
             self.orientation,
             self.localScale)
 
-    @ti.kernel
+    @ti.pyfunc
     def kern_materialize(self):
         self._translation[None] = self.translation_buf
         self._orientation[None] = self.orientation_buf
@@ -73,16 +73,12 @@ class Transform2:
         # clamp above zero
         self._localScale[None] = max(localScale, error)
 
-    @ti.func
+    @ti.pyfunc
     def to_local(self, p_world:Vector ) -> Vector:
         # translate
         out = float(p_world) - self.translation
-        # print(out)
         # rotate back
-        # print(-self.orientation)
         out = apply_rot(-self.orientation, out)
-        # print(self.orientation)
-        # out = apply_rot(-2.0, out)
         # scale
         out /=  self.localScale
         return out
@@ -107,33 +103,42 @@ class Transform2:
 def getRotMat2D(rotation)-> Matrix:
     return ti.Matrix([[ti.cos(rotation), -ti.sin(rotation)], [ti.sin(rotation), ti.cos(rotation)]])
 
-@ti.func
-def apply_rot(rot, p:Vector) -> Vector:
+@ti.pyfunc
+def apply_rot(rot, p) -> Vector:
     cos = ti.cos(rot)
     sin = ti.sin(rot)
     return ti.Vector([cos * p[0] - sin * p[1], sin * p[0] + cos * p[1] ])
 
 
 @ti.kernel
-def test_rotate(a : ti.template()):
+def test_rotate():
 
-    a._orientation = ti.static(math.pi / 2)
-    a._orientation = ti.static(math.pi)
+    # a._orientation[None] = ti.static(math.pi / 2)
+    a.orientation = math.pi / 2
     b = ti.Vector([0, 1])
+
+    print(apply_rot(2.0, b))
     print(a.to_local(b))
 
-    # print(apply_rot(2.0, b))
+
 
 
 if __name__ == '__main__':
     ti.init(ti.cpu, debug=True)
     a = Transform2(ti.Vector([2.0, 4.0]), 15)
     a.kern_materialize()
-    a.orientation = 100
-    a.localScale = 2
+    a.orientation = 100.0
+    a.localScale = 2.0
     a.translation = ti.Vector([5.0, 2.0])
+
+    t = a.orientation
+
+    print(a.translation)
     print(a.orientation)
     print(a.localScale)
-    print(a.translation)
 
-    test_rotate(a)
+    print(a._translation[None])
+    print(a._orientation[None])
+    print(a._localScale[None])
+
+    test_rotate()

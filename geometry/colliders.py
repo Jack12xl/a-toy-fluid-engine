@@ -17,7 +17,7 @@ class Collider(metaclass=ABCMeta):
         self._surface = surface
         self._implicit = SurfaceToImplict(surface) if not isinstance(surface , ImplicitSurface) else surface
 
-    @ti.kernel
+    @ti.pyfunc
     def kern_materialize(self):
         self.surfaceshape.kern_materialize()
 
@@ -61,3 +61,7 @@ class RigidBodyCollider(Collider):
         sfs = self.surfaceshape
         return sfs.velocity_at_local_point(sfs.transform.to_local(world_point))
 
+
+
+if __name__ == '__main__':
+    ti.init(ti.cpu, debug=True)

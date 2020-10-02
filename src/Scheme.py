@@ -114,10 +114,11 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
-        self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
-        self.boundarySolver.kern_update_marker()
-        for colld in self.boundarySolver.colliders:
-            colld.surfaceshape.update_transform(self.cfg.dt)
+        # self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
+        # self.boundarySolver.kern_update_marker()
+        # for colld in self.boundarySolver.colliders:
+        #     colld.surfaceshape.update_transform(self.cfg.dt)
+
             # print(colld.surfaceshape.transform)
             # print(colld.implict_surface.transform)
         # a = self.boundarySolver.marker_field.to_numpy()
@@ -152,7 +153,7 @@ class EulerScheme():
 
         self.render_frame()
         # self.render_collider(self.boundarySolver.colliders[0].surfaceshape.transform.translation)
-        self.render_collider()
+        # self.render_collider()
 
     # def render_colliders(self):
     #     for cur_collider in self.boundarySolver.colliders:
@@ -169,6 +170,10 @@ class EulerScheme():
                     clld = self.boundarySolver.colliders[it]
                     if (clld.is_inside_collider(I)):
                         self.clr_bffr[I] = clld.color_at_world(I)
+
+    def materialize_collider(self):
+        for collid in self.boundarySolver.colliders:
+            collid.kern_materialize()
 
     def reset(self):
         self.grid.reset()

@@ -12,7 +12,7 @@ class Surface(metaclass=ABCMeta):
         self._transform = transform
         self.is_normal_flipped = is_normal_flipped
 
-    @ti.kernel
+    @ti.pyfunc
     def kern_materialize(self):
         self.transform.kern_materialize()
 

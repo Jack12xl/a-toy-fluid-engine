@@ -16,6 +16,7 @@ if __name__ == '__main__':
     paused = False
 
     frame_count = 0
+    s.materialize_collider()
     while gui.running:
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
