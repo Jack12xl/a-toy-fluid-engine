@@ -121,6 +121,8 @@ class SurfaceToImplict(ImplicitSurface):
         return self.surface.is_inside_local(local_p)
 
 
+if __name__ == '__main__':
+    ti.init(ti.gpu, debug=True)
 
 
 

@@ -14,7 +14,7 @@ class Transform2:
         self._translation = ti.Vector.field(2, dtype=ti.f32, shape = [])
         self._orientation = ti.field(dtype=ti.f32, shape = [])
         self._localScale = ti.field(dtype=ti.f32, shape = [])
-
+        # use buffer for later materialization
         self.translation_buf = translation
         self.orientation_buf = orientation % (2 * math.pi)
         self.localscale_buf = localscale
@@ -76,7 +76,7 @@ class Transform2:
     @ti.pyfunc
     def to_local(self, p_world:Vector ) -> Vector:
         # translate
-        out = float(p_world) - self.translation
+        out = p_world - self.translation
         # rotate back
         out = apply_rot(-self.orientation, out)
         # scale
@@ -117,8 +117,12 @@ def test_rotate():
     a.orientation = math.pi / 2
     b = ti.Vector([0, 1])
 
-    print(apply_rot(2.0, b))
-    print(a.to_local(b))
+    # print(apply_rot(2.0, b))
+    c = a.to_local(b)
+    d = a.to_world(c)
+    # should be the same
+    print("world b: ", b)
+    print("world d: ", d)
 
 
 

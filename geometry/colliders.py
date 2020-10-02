@@ -2,8 +2,10 @@
 from abc import ABCMeta , abstractmethod
 from utils import Vector, Float
 import taichi as ti
-from .surface import Surface, SurfaceToImplict, ImplicitSurface
-from .surfaceShape import SurfaceShape
+from geometry import SurfaceToImplict, ImplicitSurface
+from geometry import SurfaceShape, Ball
+from geometry import Transform2
+from geometry import Velocity2
 
 class Collider(metaclass=ABCMeta):
     '''
@@ -37,7 +39,7 @@ class Collider(metaclass=ABCMeta):
     def velocity_at(self, point: Vector) -> Vector:
         pass
 
-    @ti.func
+    @ti.pyfunc
     def is_inside_collider(self, world_p: Vector) -> bool:
         local_p = self.surfaceshape.transform.to_local(world_p)
         return self.implict_surface.is_inside_local(local_p)
@@ -64,4 +66,10 @@ class RigidBodyCollider(Collider):
 
 
 if __name__ == '__main__':
-    ti.init(ti.cpu, debug=True)
+    ti.init(ti.gpu, debug=True)
+    colld_ball = RigidBodyCollider(Ball(
+        transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
+        velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=10.0)))
+    colld_ball.kern_materialize()
+    local_p = ti.Vector([1.0,2.0])
+    print(colld_ball.is_inside_collider(local_p))
