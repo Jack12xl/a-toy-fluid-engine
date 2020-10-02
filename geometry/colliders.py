@@ -71,5 +71,14 @@ if __name__ == '__main__':
         transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
         velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=10.0)))
     colld_ball.kern_materialize()
-    local_p = ti.Vector([1.0,2.0])
-    print(colld_ball.is_inside_collider(local_p))
+    world_p = ti.Vector([315.0,150])
+    print(colld_ball.implict_surface.transform)
+
+    @ti.kernel
+    def test():
+        # print(colld_ball.implict_surface.transform)
+        # bad value
+
+        print(colld_ball.is_inside_collider(world_p))
+
+    test()
