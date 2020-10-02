@@ -137,12 +137,14 @@ if __name__ == '__main__':
 
     t = a.orientation
 
-    print(a.translation)
-    print(a.orientation)
-    print(a.localScale)
+    print(a.to_local(ti.Vector([2.0,2.0])))
 
-    print(a._translation[None])
-    print(a._orientation[None])
-    print(a._localScale[None])
+    # print(a.translation)
+    # print(a.orientation)
+    # print(a.localScale)
+    #
+    # print(a._translation[None])
+    # print(a._orientation[None])
+    # print(a._localScale[None])
 
-    test_rotate()
+    # test_rotate()

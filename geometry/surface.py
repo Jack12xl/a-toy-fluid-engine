@@ -1,5 +1,5 @@
 import taichi as ti
-from .transform import Transform2
+from transform import Transform2
 from abc import ABCMeta , abstractmethod
 from utils import Vector, Float, EuclideanDistance
 
@@ -56,6 +56,11 @@ class Surface(metaclass=ABCMeta):
     @abstractmethod
     def is_inside_local(self, local_p: Vector) -> bool:
         pass
+
+    @ti.pyfunc
+    def is_inside_world(self, world_p: Vector) -> bool:
+        local_p = self.transform.to_local(world_p)
+        return self.is_inside_local(local_p)
 
     @ti.func
     def translateTo(self, offset: Vector):

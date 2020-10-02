@@ -1,6 +1,6 @@
-from .surface import Surface
-from .transform import Transform2
-from .velocity import Velocity2
+from surface import Surface
+from transform import Transform2
+from velocity import Velocity2
 import taichi as ti
 from basic_types import Vector, Matrix, Float
 from utils import tiNormalize
@@ -111,9 +111,10 @@ class Ball(SurfaceShape):
         ## TODO if local_p is [0, 0]
         return tiNormalize(local_p)
 
-    @ti.func
+    @ti.pyfunc
     def is_inside_local(self, local_p: Vector) -> bool:
         return local_p.norm() < ti.static(1.0)
+
 
     @ti.func
     def velocity_at_local_point(self, local_point: Vector):
@@ -122,11 +123,25 @@ class Ball(SurfaceShape):
 
     @ti.func
     def color_at_local_point(self, local_point: Vector) -> Vector:
+
         c = ti.Vector([0.0, 0.0, 0.0])
         if (ti.abs(local_point[1]) < ti.static(0.1) and local_point[0] > ti.static(0.0) ):
+            # plot a red line
             c = ti.Vector([0.7, 0.2, 0.2])
         else:
             c = ti.Vector([0.9, 0.9, 0.9])
         return c
 
 
+if __name__ == '__main__':
+    ti.init(ti.gpu, debug=True)
+    m_ball = Ball(transform=Transform2(ti.Vector([2.0, 2.0]), localscale=5.0))
+    m_ball.kern_materialize()
+
+    @ti.kernel
+    def test_kern():
+        print(m_ball.is_inside_world(ti.Vector([2.0, 2.0])))
+
+    test_kern()
+    m_ball.transform.translation = ti.Vector([1.5, 1.5])
+    # print(m_ball.transform._translation[None])

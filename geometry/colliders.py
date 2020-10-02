@@ -2,10 +2,10 @@
 from abc import ABCMeta , abstractmethod
 from utils import Vector, Float
 import taichi as ti
-from geometry import SurfaceToImplict, ImplicitSurface
-from geometry import SurfaceShape, Ball
-from geometry import Transform2
-from geometry import Velocity2
+from surface import SurfaceToImplict, ImplicitSurface
+from surfaceShape import SurfaceShape, Ball
+from transform import Transform2
+from velocity import Velocity2
 
 class Collider(metaclass=ABCMeta):
     '''
