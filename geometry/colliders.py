@@ -66,12 +66,13 @@ class RigidBodyCollider(Collider):
 
 
 if __name__ == '__main__':
-    ti.init(ti.gpu, debug=True)
+    ti.init(ti.cpu, debug=True)
     colld_ball = RigidBodyCollider(Ball(
         transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
         velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=10.0)))
+
     colld_ball.kern_materialize()
-    world_p = ti.Vector([315.0,150])
+    world_p = ti.Vector([315.0, 150.0])
     print(colld_ball.implict_surface.transform)
 
     @ti.kernel

@@ -114,18 +114,10 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
-        # self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
-        # self.boundarySolver.kern_update_marker()
-        # for colld in self.boundarySolver.colliders:
-        #     colld.surfaceshape.update_transform(self.cfg.dt)
-
-            # print(colld.surfaceshape.transform)
-            # print(colld.implict_surface.transform)
-        # a = self.boundarySolver.marker_field.to_numpy()
-        # b = self.boundarySolver.collider_sdf_field.to_numpy()
-        # for x, y in np.ndindex(b.shape):
-        #     if (b[x, y] < 0.0):
-        #         print(b[x, y])
+        self.boundarySolver.update_sdfs(self.boundarySolver.colliders)
+        self.boundarySolver.kern_update_marker()
+        for colld in self.boundarySolver.colliders:
+            colld.surfaceshape.update_transform(self.cfg.dt)
 
         if (self.cfg.run_scheme == SchemeType.Advection_Projection):
             self.advect(self.cfg.dt)
@@ -152,8 +144,7 @@ class EulerScheme():
 
 
         self.render_frame()
-        # self.render_collider(self.boundarySolver.colliders[0].surfaceshape.transform.translation)
-        # self.render_collider()
+        self.render_collider()
 
     # def render_colliders(self):
     #     for cur_collider in self.boundarySolver.colliders:
@@ -171,9 +162,11 @@ class EulerScheme():
                     if (clld.is_inside_collider(I)):
                         self.clr_bffr[I] = clld.color_at_world(I)
 
+    # @ti.kernel
     def materialize_collider(self):
         for collid in self.boundarySolver.colliders:
             collid.kern_materialize()
+        # self.boundarySolver.colliders[0].kern_materialize()
 
     def reset(self):
         self.grid.reset()

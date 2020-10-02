@@ -52,6 +52,7 @@ class SurfaceShape(Surface):
     def color_at_local_point(self, local_point: Vector):
         pass
 
+    @ti.kernel
     def update_transform(self, delta_time: Float):
         #TODO seems too intuitive
         self.transform.orientation = self.transform.orientation + self.Velocity.w_centroid * delta_time
