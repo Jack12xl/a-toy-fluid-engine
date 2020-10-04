@@ -27,9 +27,9 @@ Implement reference:
 
 #### Naive coupling with moving solids(not complete)
 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/collider-rflct-lg-gs-rk2.gif"></a> 
+<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"> <img src="https://github.com/Jack12xl/a-toy-fluid-engine/blob/dev/results/collider-rflct-lg-gs-rk2.gif" height="384px"></a>
 
-Currently I am working on coupling with moving objects. I haven't consider the boundary velocity and pressure change caused by moving objects.
+Currently I am working on coupling with moving objects. I haven't consider the boundary velocity and pressure change caused by moving objects yet.
 
 #### Advection Scheme
 
