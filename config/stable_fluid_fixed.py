@@ -35,7 +35,7 @@ ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 Colliders = []
 Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=10.0))))
+    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -8.0]),angular_velocity_to_centroid=10.0))))
 Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
@@ -44,7 +44,7 @@ Colliders.append(RigidBodyCollider(Ball(
 bool_save = False
 save_frame_length = 240
 save_root = './tmp_result'
-file_name = 'Projection-MacCormack-GuassSedial-RK2'
+file_name = 'With-Collider-Projection-Lagragian-GuassSedial-RK2'
 save_path = os.path.join(save_root, file_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,

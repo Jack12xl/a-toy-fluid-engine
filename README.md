@@ -23,6 +23,14 @@ Implement reference:
 [NVIDIA DEVELOP ZONE](https://developer.download.nvidia.cn/books/HTML/gpugems/gpugems_ch38.html),
 [taichi official example](https://github.com/taichi-dev/taichi/blob/master/examples/stable_fluid.py)
 
+
+
+#### Naive oupling with moving solids(not complete)
+
+<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk2.gif" height="384px"></a> 
+
+Currently I am working on coupling with moving objects. I haven't consider the boundary velocity and pressure change caused by moving objects.
+
 #### Advection Scheme
 
 change this [line](https://github.com/Jack12xl/myFluid/blob/88dcaf7a39cd976756811f1087767bfc4bd59502/exp_my_fluid.py#L2) to 
