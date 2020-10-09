@@ -17,10 +17,10 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.Density
 ## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver
-# advection_solver = MacCormackSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
@@ -33,9 +33,9 @@ ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 # init should put before init ti.field
 
 Colliders = []
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -8.0]),angular_velocity_to_centroid=10.0))))
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -8.0]),angular_velocity_to_centroid=10.0))))
 Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))

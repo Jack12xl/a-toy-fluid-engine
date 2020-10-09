@@ -84,7 +84,7 @@ class EulerScheme():
     @ti.kernel
     def add_fixed_force_and_render(self,
                                    vf: ti.template(),
-                                   dt: ti.template()):
+                                   dt: ti.float32):
         for i, j in vf:
             den = self.grid.density_pair.cur[i, j]
 
@@ -98,10 +98,10 @@ class EulerScheme():
             #     vf[i, j] = v
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
-            momentum = (self.cfg.direct_X_force * ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity) * dt
+            momentum = (self.cfg.direct_X_force *  ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity ) * dt
             vf[i, j] += momentum
             # vf[i, j] *= self.cfg.dye_decay
-            den += ti.exp(- d2 * self.cfg.inv_dye_denom) * self.cfg.fluid_color
+            den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
 
             den *= self.cfg.dye_decay
             self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
