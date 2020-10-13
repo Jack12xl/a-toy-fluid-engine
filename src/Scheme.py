@@ -144,7 +144,8 @@ class EulerScheme():
 
 
         self.render_frame()
-        self.render_collider()
+        if (len( self.boundarySolver.colliders) ):
+            self.render_collider()
 
     # def render_colliders(self):
     #     for cur_collider in self.boundarySolver.colliders:

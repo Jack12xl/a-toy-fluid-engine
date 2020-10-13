@@ -32,7 +32,7 @@ class Surface(metaclass=ABCMeta):
     def closest_point_local(self, local_p) -> Vector:
         '''
         in local space given local point, return the closest point to it
-        :param point:
+        :param local_p:
         :return:
         '''
         pass

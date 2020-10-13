@@ -3,6 +3,9 @@ from utils import set_attribute_from_cfg
 import sys
 import config.scene_config.mouse_drag_config as scene_cfg
 import config.default_config as default_cfg
+import taichi as ti
+
+ti.init(arch=ti.gpu, debug=False,kernel_profiler=True)
 
 debug = False
 
@@ -21,6 +24,8 @@ from projection import JacobiProjectionSolver ,RedBlackGaussSedialProjectionSolv
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
+
+Colliders = []
 
 # save to video(gif)
 bool_save = False
