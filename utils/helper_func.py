@@ -1,7 +1,7 @@
 import numpy as np
 import config.base_cfg as base_cfg
 import taichi as ti
-from basic_types import Vector
+from .basic_types import Vector
 
 import math
 

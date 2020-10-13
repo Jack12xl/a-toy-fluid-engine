@@ -1,8 +1,8 @@
-from surface import Surface
-from transform import Transform2
-from velocity import Velocity2
+from .surface import Surface
+from .transform import Transform2
+from .velocity import Velocity2
 import taichi as ti
-from basic_types import Vector, Matrix, Float
+from utils import Vector, Matrix, Float
 from utils import tiNormalize
 from abc import ABCMeta , abstractmethod
 
