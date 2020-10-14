@@ -16,6 +16,8 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
         self.grid = grid
 
         self.collider_sdf_field = ti.field(dtype = ti.f32, shape= self.cfg.res)
+        self.collider_velocity_field = ti.Vector.field(cfg.dim, dtype = ti.f32, shape= self.cfg.res)
+
         self.marker_field = ti.field(dtype = ti.i32 , shape= self.cfg.res)
         self.marker_bffr_field = ti.field(dtype = ti.i32 , shape= self.cfg.res)
         self.colliders = self.cfg.Colliders
@@ -30,17 +32,18 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
             else:
                 self.marker_field[I] = int(PixelType.Liquid)
 
-    def update_sdfs(self, colliders:List[Collider]):
+    def step_update_sdfs(self, colliders:List[Collider]):
         self.collider_sdf_field.fill(1e8)
         for cllider in colliders:
-            self.kern_update_sdf(cllider.implict_surface)
+            self.kern_update_sdf(cllider)
 
     @ti.kernel
-    def kern_update_sdf(self, implct_surf: ti.template()):
+    def kern_update_sdf(self, collid: ti.template()):
         sdf = ti.static(self.collider_sdf_field)
-
+        vf = ti.static(self.collider_velocity_field)
         for I in ti.grouped(sdf):
-            self.collider_sdf_field[I] = min(sdf[I], implct_surf.signed_distance(I))
+            sdf[I] = min(sdf[I], collid.implict_surface.signed_distance(I))
+
 
     @abstractmethod
     def ApplyBoundaryCondition(self):
@@ -53,3 +56,13 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
 
     def ApplyBoundaryCondition(self):
         pass
+
+    @ti.kernel
+    def kernBoundaryCondition(self):
+        # no flux
+        # slip
+        # for I in ti.grouped(self.grid.v):
+
+        pass
+
+

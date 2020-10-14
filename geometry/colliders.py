@@ -23,6 +23,7 @@ class Collider(metaclass=ABCMeta):
     def kern_materialize(self):
         self.surfaceshape.kern_materialize()
 
+
     @property
     def surfaceshape(self) -> SurfaceShape:
         return self._surface

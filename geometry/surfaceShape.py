@@ -44,6 +44,11 @@ class SurfaceShape(Surface):
         self.Velocity = velocity
         self.mass = mass
 
+    @ti.pyfunc
+    def kern_materialize(self):
+        super(SurfaceShape, self).kern_materialize()
+        self.Velocity.kern_materialize()
+
     @abstractmethod
     def velocity_at_local_point(self, local_point: Vector):
         pass
