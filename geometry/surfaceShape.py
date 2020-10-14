@@ -5,7 +5,7 @@ import taichi as ti
 from utils import Vector, Matrix, Float
 from utils import tiNormalize
 from abc import ABCMeta , abstractmethod
-
+import math
 
 @ti.data_oriented
 class SurfaceShape(Surface):
@@ -14,15 +14,15 @@ class SurfaceShape(Surface):
     more of interface for an instance
     '''
     @property
-    def Velocity(self) -> Velocity2:
+    def velocity(self) -> Velocity2:
         '''
         velocity w.r.t center of mass
         :return:
         '''
         return self._velocity
 
-    @Velocity.setter
-    def Velocity(self, _v: Velocity2):
+    @velocity.setter
+    def velocity(self, _v: Velocity2):
         self._velocity = _v
 
 
@@ -41,17 +41,22 @@ class SurfaceShape(Surface):
                  mass:ti.f32= 1.0
                  ):
         super(SurfaceShape, self).__init__(transform, is_normal_flipped)
-        self.Velocity = velocity
+        self.velocity = velocity
         self.mass = mass
 
     @ti.pyfunc
     def kern_materialize(self):
         super(SurfaceShape, self).kern_materialize()
-        self.Velocity.kern_materialize()
+        self.velocity.kern_materialize()
 
     @abstractmethod
     def velocity_at_local_point(self, local_point: Vector):
         pass
+
+    def velocity_at_world_point(self, world_point: Vector):
+        local_p = self.transform.to_local(world_point)
+        local_v = self.velocity_at_local_point(local_p)
+        return local_v * self.transform.localScale + self.velocity.v_world
 
     @abstractmethod
     def color_at_local_point(self, local_point: Vector):
@@ -60,8 +65,8 @@ class SurfaceShape(Surface):
     @ti.kernel
     def update_transform(self, delta_time: Float):
         #TODO seems too intuitive
-        self.transform.orientation = self.transform.orientation + self.Velocity.w_centroid * delta_time
-        self.transform.translation = self.transform.translation + self.Velocity.v_world * delta_time
+        self.transform.orientation = self.transform.orientation + self.velocity.w_centroid * delta_time
+        self.transform.translation = self.transform.translation + self.velocity.v_world * delta_time
 
 
 @ti.data_oriented
@@ -125,7 +130,13 @@ class Ball(SurfaceShape):
     @ti.func
     def velocity_at_local_point(self, local_point: Vector):
         #TODO
-        return ti.Vector([0.0, 0.0])
+        # angular velocity to linear velocity
+        linear_speed = local_point.norm() * self.velocity.w_centroid
+        tmp = ti.Vector([ti.cos(self.transform.orientation + math.pi / 2 ), ti.sin(self.transform.orientation + math.pi / 2)])
+        # add to world speed
+        v = tmp * linear_speed
+        return v
+
 
     @ti.func
     def color_at_local_point(self, local_point: Vector) -> Vector:
@@ -141,13 +152,16 @@ class Ball(SurfaceShape):
 
 if __name__ == '__main__':
     ti.init(ti.gpu, debug=True)
-    m_ball = Ball(transform=Transform2(ti.Vector([2.0, 2.0]), localscale=5.0))
+    m_ball = Ball(transform=Transform2(ti.Vector([2.0, 2.0]), localscale=5.0),
+                  velocity=Velocity2(
+                      velocity_to_world=ti.Vector([2.0, 2.0]),
+                angular_velocity_to_centroid=2.0) )
     m_ball.kern_materialize()
 
     @ti.kernel
     def test_kern():
         print(m_ball.is_inside_world(ti.Vector([2.0, 2.0])))
-
+        print(m_ball.velocity_at_local_point(ti.Vector([1.0, 1.0])))
     test_kern()
     m_ball.transform.translation = ti.Vector([1.5, 1.5])
     # print(m_ball.transform._translation[None])
