@@ -119,6 +119,7 @@ class EulerScheme():
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)
 
+
         if (self.cfg.run_scheme == SchemeType.Advection_Projection):
             self.advect(self.cfg.dt)
             self.externalForce(ext_input, self.cfg.dt)
@@ -142,6 +143,7 @@ class EulerScheme():
             self.project()
             self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
 
+        # self.boundarySolver.ApplyBoundaryCondition()
 
         self.render_frame()
         if (len( self.boundarySolver.colliders) ):
