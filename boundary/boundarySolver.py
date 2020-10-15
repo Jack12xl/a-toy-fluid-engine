@@ -52,7 +52,6 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
         for I in ti.grouped(sdf):
             if (collid.is_inside_collider(I)):
                 cmf[I] = idx
-
                 sdf[I] = min(sdf[I], collid.implict_surface.signed_distance(I))
                 vf[I] = collid.surfaceshape.velocity_at_world_point(I)
 
@@ -79,6 +78,7 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
                 vel = self.grid.v[I]
 
                 collid_idx = self.collider_marker_field[I]
+                # normal = self.colliders[collid_idx].surfaceshape.closest_normal(I)
                 normal = self.colliders[0].surfaceshape.closest_normal(I)
 
                 if (normal.norm() > 0):
