@@ -143,7 +143,7 @@ class EulerScheme():
             self.project()
             self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
 
-        # self.boundarySolver.ApplyBoundaryCondition()
+        self.boundarySolver.ApplyBoundaryCondition()
 
         self.render_frame()
         if (len( self.boundarySolver.colliders) ):
@@ -165,11 +165,9 @@ class EulerScheme():
                     if (clld.is_inside_collider(I)):
                         self.clr_bffr[I] = clld.color_at_world(I)
 
-    # @ti.kernel
     def materialize_collider(self):
         for collid in self.boundarySolver.colliders:
             collid.kern_materialize()
-        # self.boundarySolver.colliders[0].kern_materialize()
 
     def reset(self):
         self.grid.reset()

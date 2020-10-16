@@ -78,8 +78,12 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
                 vel = self.grid.v[I]
 
                 collid_idx = self.collider_marker_field[I]
+                normal = ti.Vector([0.0, 0.0])
+                for i in ti.static(range(len(self.colliders))):
+                    if i == collid_idx:
+                        normal = self.colliders[i].surfaceshape.closest_normal(I)
                 # normal = self.colliders[collid_idx].surfaceshape.closest_normal(I)
-                normal = self.colliders[0].surfaceshape.closest_normal(I)
+                #normal = self.colliders[0].surfaceshape.closest_normal(I)
 
                 if (normal.norm() > 0):
                     vel_r = vel - collider_vel
