@@ -10,7 +10,7 @@ if __name__ == '__main__':
     # cfg_dict = m_cfg.scheme_setting
     s = EulerScheme(m_cfg)
 
-    gui = ti.GUI('Stable-Fluid', tuple(m_cfg.screen_res))
+    gui = ti.GUI('Stable-Fluid', tuple(m_cfg.screen_res), fast_gui=False)
     md_gen = utils.MouseDataGen(m_cfg)
     paused = False
 
@@ -35,10 +35,9 @@ if __name__ == '__main__':
         img = s.clr_bffr.to_numpy()
         # gui.set_image(skimage.transform.resize(img, m_cfg.screen_res))
         # too slow
+        # gui.set_image(s.clr_bffr)
         gui.set_image(img)
-
         gui.show()
-
 
         if (m_cfg.bool_save):
             if (frame_count <= m_cfg.save_frame_length):

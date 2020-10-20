@@ -13,7 +13,7 @@ class EulerScheme():
         self.cfg = cfg
         self.grid = cellCenteredGrid(cfg)
 
-        self.clr_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
+        self.clr_bffr = ti.Vector.field(3, dtype=ti.float32, shape=cfg.res)
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
