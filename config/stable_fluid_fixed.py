@@ -35,7 +35,7 @@ ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 Colliders = []
 Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]),angular_velocity_to_centroid=15.0))))
+    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
 Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))

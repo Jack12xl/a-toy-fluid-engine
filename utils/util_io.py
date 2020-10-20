@@ -1,14 +1,14 @@
-import yaml
+# import yaml
 import numpy as np
 import taichi as ti
 
 from .helper_func import vec2_npf32
 
 
-def read_cfg( cfg_dir : str ):
-    with open(cfg_dir, "r") as ymlfile:
-        cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-    return cfg
+# def read_cfg( cfg_dir : str ):
+#     with open(cfg_dir, "r") as ymlfile:
+#         cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
+#     return cfg
 
 def get_variable_from_module(module_name):
     module = globals().get(module_name, None)
