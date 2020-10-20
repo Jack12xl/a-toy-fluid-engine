@@ -11,7 +11,7 @@ if __name__ == '__main__':
     # cfg_dict = m_cfg.scheme_setting
     s = EulerScheme(m_cfg)
 
-    gui = ti.GUI('Stable-Fluid', tuple(m_cfg.res))
+    gui = ti.GUI('Stable-Fluid', tuple(m_cfg.screen_res))
     md_gen = utils.MouseDataGen(m_cfg)
     paused = False
 

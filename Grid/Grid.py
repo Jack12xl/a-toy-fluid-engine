@@ -1,5 +1,5 @@
 import taichi as ti
-from utils import TexPair, clamp, lerp
+from utils import Buffer, clamp, lerp
 @ti.data_oriented
 class Grid():
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
@@ -20,9 +20,9 @@ class Grid():
         # self.marker = ti.field(dtype=ti.i32, shape=cfg.res)
         # self.new_marker = ti.field(dtype=ti.i32, shape=cfg.res)
 
-        self.v_pair = TexPair(self.v, self.new_v)
-        self.p_pair = TexPair(self.p, self.new_p)
-        self.density_pair = TexPair(self.density_bffr, self.new_density_bffr)
+        self.v_pair = Buffer(self.v, self.new_v)
+        self.p_pair = Buffer(self.p, self.new_p)
+        self.density_pair = Buffer(self.density_bffr, self.new_density_bffr)
         # self.marker_pair = TexPair(self.marker, self.new_marker)
 
 
