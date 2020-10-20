@@ -1,8 +1,7 @@
 import utils
 import config.stable_fluid_fixed as m_cfg
-from src.Scheme import EulerScheme
+from Scheme.Euler_Scheme import EulerScheme
 import taichi as ti
-import skimage.transform
 
 if __name__ == '__main__':
     # m_cfg = read_cfg(YAML_PATH)

@@ -1,6 +1,6 @@
 import taichi as ti
 from abc import ABCMeta , abstractmethod
-from Grid import Grid
+from Grid import cellCenteredGrid
 from utils import Vector, Matrix
 from config import PixelType
 from geometry import Collider
@@ -11,7 +11,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
     '''
     solve boundary condition and manager C
     '''
-    def __init__(self, cfg, grid: Grid):
+    def __init__(self, cfg, grid: cellCenteredGrid):
         self.cfg = cfg
         self.grid = grid
 
@@ -64,7 +64,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
     
 @ti.data_oriented
 class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
-    def __init__(self, cfg, grid:Grid):
+    def __init__(self, cfg, grid:cellCenteredGrid):
         super(StdGridBoundaryConditionSolver, self).__init__(cfg, grid)
 
 

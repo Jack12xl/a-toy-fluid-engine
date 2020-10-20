@@ -1,7 +1,7 @@
 import taichi as ti
 from utils import Buffer, clamp, lerp
 @ti.data_oriented
-class Grid():
+class cellCenteredGrid():
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
     def __init__(self, cfg, ):
         self.cfg = cfg

@@ -1,4 +1,4 @@
-from Grid import Grid
+from Grid import cellCenteredGrid
 import taichi as ti
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType
@@ -11,7 +11,7 @@ from geometry import Collider
 class EulerScheme():
     def __init__(self, cfg, ):
         self.cfg = cfg
-        self.grid = Grid(cfg)
+        self.grid = cellCenteredGrid(cfg)
 
         self.clr_bffr = ti.Vector.field(3, dtype=ti.f32, shape=cfg.res)
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
