@@ -32,7 +32,7 @@ class MacCormackSolver(AdvectionSolver):
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
             # clipping to prevent overshooting
             if (ti.static(self.cfg.macCormack_clipping)):
-                # ref: advection.py from class 4
+                # ref: advection.py from taichi class 4
                 min_val, max_val = self.grid.sample_minmax(q_cur, p_mid)
                 cond = min_val < q_nxt[I] < max_val
                 for k in ti.static(range(cond.n)):
