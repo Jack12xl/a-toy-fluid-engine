@@ -30,7 +30,7 @@ class DataGrid(metaclass=ABCMeta):
         return self._field.shape
 
     @property
-    @ti.func
+    @ti.pyfunc
     def field(self):
         return self._field
 

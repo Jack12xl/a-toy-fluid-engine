@@ -27,7 +27,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
     @ti.kernel
     def kern_update_marker(self):
         #TODO support more type
-        for I in ti.grouped(self.marker_field):
+        for I in ti.grouped(self.marker_field.field):
             if (self.collider_sdf_field[I] <= 0.0):
                 # in collider
                 self.marker_field[I] = int(PixelType.Collider)
@@ -50,7 +50,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
         sdf = ti.static(self.collider_sdf_field)
         vf = ti.static(self.collider_velocity_field)
         cmf = ti.static(self.collider_marker_field)
-        for I in ti.grouped(sdf):
+        for I in ti.grouped(sdf.field):
             if (collid.is_inside_collider(I)):
                 cmf[I] = idx
                 sdf[I] = min(sdf[I], collid.implict_surface.signed_distance(I))
