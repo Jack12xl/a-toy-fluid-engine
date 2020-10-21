@@ -123,17 +123,6 @@ class collocatedGridData():
                 vt = 0
             vd[I] = (vr - vl + vt - vb) * 0.5
 
-
-    @ti.kernel
-    def Jacobi_Step(self, pf: ti.template(), new_pf: ti.template(), p_divs: ti.template()):
-        for i, j in pf:
-            pl = self.sample(pf, i - 1, j)
-            pr = self.sample(pf, i + 1, j)
-            pb = self.sample(pf, i, j - 1)
-            pt = self.sample(pf, i, j + 1)
-            div = p_divs[i, j]
-            new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
-
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
         # for i, j in vf:

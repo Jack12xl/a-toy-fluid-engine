@@ -5,6 +5,7 @@ from utils import Vector, Matrix
 from config import PixelType
 from geometry import Collider
 from typing import List
+from Grid import DataGrid
 
 # ref : https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi/blob/master/src/python/Eulerian_method.py
 class GridBoudaryConditionSolver(metaclass = ABCMeta):
@@ -15,12 +16,12 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
         self.cfg = cfg
         self.grid = grid
 
-        self.collider_sdf_field = ti.field(dtype = ti.f32, shape= self.cfg.res)
-        self.collider_velocity_field = ti.Vector.field(cfg.dim, dtype = ti.f32, shape= self.cfg.res)
-        self.collider_marker_field = ti.field(dtype = ti.int32, shape= self.cfg.res)
+        self.collider_sdf_field = DataGrid( ti.field(dtype = ti.f32, shape= self.cfg.res) )
+        self.collider_velocity_field = DataGrid( ti.Vector.field(cfg.dim, dtype = ti.f32, shape= self.cfg.res) )
+        self.collider_marker_field = DataGrid( ti.field(dtype = ti.int32, shape= self.cfg.res) )
 
-        self.marker_field = ti.field(dtype = ti.i32 , shape= self.cfg.res)
-        self.marker_bffr_field = ti.field(dtype = ti.i32 , shape= self.cfg.res)
+        self.marker_field = DataGrid( ti.field(dtype = ti.i32 , shape= self.cfg.res) )
+        self.marker_bffr_field = DataGrid( ti.field(dtype = ti.i32 , shape= self.cfg.res) )
         self.colliders = self.cfg.Colliders
 
     @ti.kernel

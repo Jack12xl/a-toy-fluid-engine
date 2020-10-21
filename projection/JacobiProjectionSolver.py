@@ -23,7 +23,14 @@ class JacobiProjectionSolver(ProjectionSolver):
         #     new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
         ti.cache_read_only(pf)
         for I in pf:
-            pl = pf.sample(I - ts.D.zy)
+            pl = pf.sample(I + ts.D.zy)
+            pr = pf.sample(I + ts.D.xy)
+            pb = pf.sample(I + ts.D.yz)
+            pt = pf.sample(I + ts.D.yx)
+            div = v_divs[I]
+            #TODO
+            new_pf[I] = (pl + pr + pb + pt - div) * self.cfg.jacobi_beta
+
 
     def runPressure(self):
         self.cfg.jacobi_alpha = self.cfg.poisson_pressure_alpha

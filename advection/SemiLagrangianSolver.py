@@ -36,24 +36,35 @@ class SemiLagrangeSolver(AdvectionSolver):
         start_pos = pos
 
         if ti.static(self.RK == SemiLagrangeOrder.RK_1):
-            pos -= dt * self.grid.bilerp(vel_field, pos)
+            #pos -= dt * self.grid.bilerp(vel_field, pos)
+            pos -= dt * vel_field.sample(pos)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_2):
-            mid_p = pos - 0.5 * dt * self.grid.bilerp(vel_field, pos)
-            pos -= dt * self.grid.bilerp(vel_field, mid_p)
+            # mid_p = pos - 0.5 * dt * self.grid.bilerp(vel_field, pos)
+            # pos -= dt * self.grid.bilerp(vel_field, mid_p)
+            mid_p = pos - 0.5 * dt * vel_field.sample(pos)
+            pos -= dt * vel_field.sample(mid_p)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_3):
-            v1 = self.grid.bilerp(vel_field, pos)
+            # v1 = self.grid.bilerp(vel_field, pos)
+            # p1 = pos - 0.5 * dt * v1
+            v1 = vel_field.sample(pos)
             p1 = pos - 0.5 * dt * v1
 
-            v2 = self.grid.bilerp(vel_field, p1)
+            # v2 = self.grid.bilerp(vel_field, p1)
+            # p2 = pos - 0.75 * dt * v2
+            v2 = vel_field.sample(p1)
             p2 = pos - 0.75 * dt * v2
 
-            v3 = self.grid.bilerp(vel_field, p2)
-            pos -= dt * ( 2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3 )
+            # v3 = self.grid.bilerp(vel_field, p2)
+            # pos -= dt * ( 2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3 )
+            v3 = vel_field.sample(p2)
+            pos -= dt * (2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3)
 
         # TODO boundary handling
         # 3.4.2.4
-        phi0 = self.grid.bilerp(boundarySdf, start_pos)
-        phi1 = self.grid.bilerp(boundarySdf, pos)
+        # phi0 = self.grid.bilerp(boundarySdf, start_pos)
+        # phi1 = self.grid.bilerp(boundarySdf, pos)
+        phi0 = boundarySdf.sample(start_pos)
+        phi1 = boundarySdf.sample(pos)
         if (phi0 * phi1 < 0.0):
             w = ti.abs(phi1) / (ti.abs(phi0) + ti.abs(phi1))
             # pos = w * start_pos + (1.0 - w) * pos
@@ -79,12 +90,13 @@ class SemiLagrangeSolver(AdvectionSolver):
         :param dt:
         :return:
         '''
-        for I in ti.grouped(vec_field):
+        for I in ti.grouped(vec_field.field):
             # get predicted position
-            p = ( I  + 0.5 ) * self.cfg.dx
+            p = ( I  + 0.5 )
             coord = self.backtrace(vec_field, p, boundarySdf, dt)
             # sample its speed
-            q_nxt[I] = self.grid.bilerp(q_cur, coord)
+            #q_nxt[I] = self.grid.bilerp(q_cur, coord)
+            q_nxt[I] = q_cur.sample(coord)
 
         return q_nxt
     @ti.kernel

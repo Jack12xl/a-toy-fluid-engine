@@ -57,4 +57,6 @@ class DataGrid(metaclass=ABCMeta):
 
         return min(a, b, c, d), max(a, b, c, d)
 
-
+    @ti.pyfunc
+    def fill(self, value):
+        self.field.fill(value)
