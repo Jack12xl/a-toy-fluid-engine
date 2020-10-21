@@ -21,15 +21,15 @@ class JacobiProjectionSolver(ProjectionSolver):
         #     pt = self.grid.sample(pf, i, j + 1)
         #     div = v_divs[i, j]
         #     new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
-        ti.cache_read_only(pf)
-        for I in pf:
+        ti.cache_read_only(pf.field)
+        for I in ti.grouped(pf.field):
             pl = pf.sample(I + ts.D.zy)
             pr = pf.sample(I + ts.D.xy)
             pb = pf.sample(I + ts.D.yz)
             pt = pf.sample(I + ts.D.yx)
             div = v_divs[I]
             #TODO
-            new_pf[I] = (pl + pr + pb + pt - div) * self.cfg.jacobi_beta
+            new_pf[I] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
 
 
     def runPressure(self):

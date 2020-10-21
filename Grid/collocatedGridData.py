@@ -92,7 +92,7 @@ class collocatedGridData():
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
-        for I in vf:
+        for I in ti.grouped(vf.field):
             # vl = self.sample(vf, i - 1, j)[0]
             # vr = self.sample(vf, i + 1, j)[0]
             # vb = self.sample(vf, i, j - 1)[1]
@@ -115,11 +115,11 @@ class collocatedGridData():
             # vd[i, j] = (vr - vl + vt - vb) * self.cfg.half_inv_dx
             if I.x == 0:
                 vl = 0
-            if I.x == vf.shape.x - 1:
+            if I.x == vf.shape[0] - 1:
                 vr = 0
             if I.y == 0:
                 vb = 0
-            if I.y == vf.shape.y - 1:
+            if I.y == vf.shape[1] - 1:
                 vt = 0
             vd[I] = (vr - vl + vt - vb) * 0.5
 
@@ -133,8 +133,8 @@ class collocatedGridData():
         #
         #     vf[i, j] = self.sample(vf, i, j) - \
         #                self.cfg.half_inv_dx * ti.Vector([pr - pl, pt - pb])
-        ti.cache_read_only(pf)
-        for I in pf:
+        ti.cache_read_only(pf.field)
+        for I in ti.grouped(pf.field):
             pl = pf.sample(I + ts.D.zy)
             pr = pf.sample(I + ts.D.xy)
             pb = pf.sample(I + ts.D.yz)

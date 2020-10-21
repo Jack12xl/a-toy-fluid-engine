@@ -16,7 +16,7 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                    new_pf: ti.template(),
                    p_divs: ti.template()):
         # TODO: dimension independent coding
-        ti.cache_read_only(pf)
+        ti.cache_read_only(pf.field)
 
         for i, j in pf:
             if (i + j) % 2 == 0:

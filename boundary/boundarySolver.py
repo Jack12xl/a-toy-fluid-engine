@@ -74,7 +74,7 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
     def kernBoundaryCondition(self):
         # no flux
         # slip
-        for I in ti.grouped(self.grid.v):
+        for I in ti.grouped(self.grid.v.field):
             if (self.collider_sdf_field[I] < ti.static(0.0)):
                 collider_vel = self.collider_velocity_field[I]
                 vel = self.grid.v[I]

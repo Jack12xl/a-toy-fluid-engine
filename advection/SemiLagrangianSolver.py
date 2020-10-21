@@ -106,7 +106,7 @@ class SemiLagrangeSolver(AdvectionSolver):
                q_nxt: ti.template(),
                boundarySdf: Matrix,
                dt: ti.template() ):
-        ti.cache_read_only(vec_field)
+        ti.cache_read_only(vec_field.field)
         self.advect_func(vec_field, q_cur, q_nxt, boundarySdf, dt)
 
 

@@ -43,8 +43,8 @@ class EulerScheme():
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):
-        ti.cache_read_only(vf)
-        for I in ti.grouped(vf):
+        ti.cache_read_only(vf.field)
+        for I in ti.grouped(vf.field):
             v = vf[I]
             self.clr_bffr[I] = ti.abs(v)
 
@@ -85,7 +85,7 @@ class EulerScheme():
     def add_fixed_force_and_render(self,
                                    vf: ti.template(),
                                    dt: ti.float32):
-        for i, j in vf:
+        for i, j in vf.field:
             den = self.grid.density_pair.cur[i, j]
 
             # if (self.cfg.simulate_type == SimulateType.Gas):
@@ -114,10 +114,10 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
-        self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
-        self.boundarySolver.kern_update_marker()
-        for colld in self.boundarySolver.colliders:
-            colld.surfaceshape.update_transform(self.cfg.dt)
+        # self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
+        # self.boundarySolver.kern_update_marker()
+        # for colld in self.boundarySolver.colliders:
+        #     colld.surfaceshape.update_transform(self.cfg.dt)
 
 
         if (self.cfg.run_scheme == SchemeType.Advection_Projection):
