@@ -10,15 +10,15 @@ def fill_data(input: ti.template()):
 
 @ti.kernel
 def test_kern(grid_input : ti.template()):
-    print(grid_input.sample(ts.vec(1.0, 1.0)))
+    print(grid_input.sample(ts.vec(1.1, 1.0)))
 
 if __name__ == '__main__':
     a_field = ti.Vector.field(2, dtype=ti.f32, shape=[3,3])
     a = ti.Vector([2, 3])
     # print(ts.normalize(a))
-    print(ts.D.xy)
-    print(ts.D.yx)
-    print(ts.D.zy)
+    # print(ts.D.xy)
+    # print(ts.D.yx)
+    # print(ts.D.zy)
     # print(ts.D.xz)
     # #print(a_field.shape)
     # print(len(a))

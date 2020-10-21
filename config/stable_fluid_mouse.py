@@ -19,7 +19,7 @@ VisualType = VisualizeEnum.Density
 run_scheme = SchemeType.Advection_Reflection
 
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
-advection_solver = MacCormackSolver
+advection_solver = SemiLagrangeSolver
 
 from projection import JacobiProjectionSolver ,RedBlackGaussSedialProjectionSolver
 projection_solver = JacobiProjectionSolver

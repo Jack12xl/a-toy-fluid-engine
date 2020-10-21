@@ -59,7 +59,7 @@ class EulerScheme():
                                      imp_data: ti.ext_arr(),
                                      dt: ti.template()):
 
-        for i, j in vf:
+        for i, j in vf.field:
             mdir = ti.Vector([imp_data[0], imp_data[1]])
             omx, omy = imp_data[2], imp_data[3]
             # move to cell center

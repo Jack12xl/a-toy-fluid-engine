@@ -102,6 +102,7 @@ class collocatedGridData():
             vr = vf.sample(I + ts.D.xy).x
             vb = vf.sample(I + ts.D.yz).y
             vt = vf.sample(I + ts.D.yx).y
+            vc = vf.sample(I)
             # boundary
             #TODO
             # if i == 0:
@@ -114,13 +115,13 @@ class collocatedGridData():
             #     vt = -vc[1]
             # vd[i, j] = (vr - vl + vt - vb) * self.cfg.half_inv_dx
             if I.x == 0:
-                vl = 0
+                vl = -vc.x
             if I.x == vf.shape[0] - 1:
-                vr = 0
+                vr = -vc.x
             if I.y == 0:
-                vb = 0
+                vb = -vc.y
             if I.y == vf.shape[1] - 1:
-                vt = 0
+                vt = -vc.y
             vd[I] = (vr - vl + vt - vb) * 0.5
 
     @ti.kernel

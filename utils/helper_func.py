@@ -39,13 +39,13 @@ def EuclideanDistance(v1: Vector, v2: Vector):
 @ti.kernel
 def copy_ti_field( dst: ti.template(),
                    trgt:ti.template()):
-    for I in ti.grouped(dst):
+    for I in ti.grouped(dst.field):
         dst[I] = trgt[I]
 
 @ti.kernel
 def reflect(to_be_reflected:ti.template(),
             mid_point: ti.template()):
-    for (I) in ti.grouped(to_be_reflected):
+    for (I) in ti.grouped(to_be_reflected.field):
         to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
 
 
