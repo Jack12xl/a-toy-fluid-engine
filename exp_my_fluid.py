@@ -32,16 +32,17 @@ if __name__ == '__main__':
             mouse_data = md_gen(gui)
             s.step(mouse_data)
 
-        img = s.clr_bffr.to_numpy()
+        # img = s.clr_bffr.to_numpy()
         # gui.set_image(skimage.transform.resize(img, m_cfg.screen_res))
         # too slow
         # gui.set_image(s.clr_bffr)
-        gui.set_image(img)
+        gui.set_image(s.clr_bffr)
         gui.show()
 
         if (m_cfg.bool_save):
             if (frame_count <= m_cfg.save_frame_length):
-                m_cfg.video_manager.write_frame(img)
+                # not sure this would work
+                m_cfg.video_manager.write_frame(s.clr_bffr)
             else:
                 m_cfg.video_manager.make_video(gif=True, mp4=False)
                 # m_cfg.video_manager.get_output_filename(".mp4")
