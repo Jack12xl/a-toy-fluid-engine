@@ -1,4 +1,5 @@
 import taichi as ti
+import taichi_glsl as ts
 from .AbstractProjectionSolver import ProjectionSolver
 
 @ti.data_oriented
@@ -9,15 +10,20 @@ class JacobiProjectionSolver(ProjectionSolver):
 
 
     @ti.kernel
-    def Jacobi_Step(self, pf: ti.template(), new_pf: ti.template(), p_divs: ti.template()):
-        for i, j in pf:
-            pl = self.grid.sample(pf, i - 1, j)
-            pr = self.grid.sample(pf, i + 1, j)
-            pb = self.grid.sample(pf, i, j - 1)
-            pt = self.grid.sample(pf, i, j + 1)
-            div = p_divs[i, j]
-            new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
-
+    def Jacobi_Step(self,
+                    pf: ti.template(),
+                    new_pf: ti.template(),
+                    v_divs: ti.template()):
+        # for i, j in pf:
+        #     pl = self.grid.sample(pf, i - 1, j)
+        #     pr = self.grid.sample(pf, i + 1, j)
+        #     pb = self.grid.sample(pf, i, j - 1)
+        #     pt = self.grid.sample(pf, i, j + 1)
+        #     div = v_divs[i, j]
+        #     new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
+        ti.cache_read_only(pf)
+        for I in pf:
+            pl = pf.sample(I - ts.D.zy)
 
     def runPressure(self):
         self.cfg.jacobi_alpha = self.cfg.poisson_pressure_alpha

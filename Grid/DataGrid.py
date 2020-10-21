@@ -16,8 +16,6 @@ class DataGrid(metaclass=ABCMeta):
         #TODO currently borrow from taichi_glsl
         self._sampler = None
 
-        pass
-
     @ti.pyfunc
     def __getitem__(self, I):
         return self.field[I]
@@ -37,5 +35,26 @@ class DataGrid(metaclass=ABCMeta):
         return self._field
 
     @ti.pyfunc
-    def sample(self, I):
-        return ts.bilerp(self.field, I)
+    def sample(self, P):
+        '''
+        use bilinear to sample on position P(could be float)
+        :param P:
+        :return:
+        '''
+        #TODO support 3D
+        return ts.bilerp(self.field, P)
+
+    @ti.pyfunc
+    def sample_minmax(self, P):
+        I = int(P)
+        x = ts.fract(P)
+        y = 1 - x
+
+        a = ts.sample(self.field, I + ts.D.xx) * x.x * x.y
+        b = ts.sample(self.field, I + ts.D.xy) * x.x * y.y
+        c = ts.sample(self.field, I + ts.D.yy) * y.x * y.y
+        d = ts.sample(self.field, I + ts.D.yx) * y.x * x.y
+
+        return min(a, b, c, d), max(a, b, c, d)
+
+
