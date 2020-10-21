@@ -5,9 +5,10 @@ import config.scene_config.mouse_drag_config as scene_cfg
 import config.default_config as default_cfg
 import taichi as ti
 
-ti.init(arch=ti.gpu, debug=False,kernel_profiler=True)
-
 debug = False
+ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
+
+
 
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(default_cfg, sys.modules[__name__], FILTER_TYPE)

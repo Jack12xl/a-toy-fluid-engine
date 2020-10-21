@@ -1,5 +1,5 @@
 import taichi as ti
-from utils import Buffer, clamp, lerp
+from utils import bufferPair, clamp, lerp
 @ti.data_oriented
 class cellCenteredGrid():
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
@@ -20,9 +20,9 @@ class cellCenteredGrid():
         # self.marker = ti.field(dtype=ti.i32, shape=cfg.res)
         # self.new_marker = ti.field(dtype=ti.i32, shape=cfg.res)
 
-        self.v_pair = Buffer(self.v, self.new_v)
-        self.p_pair = Buffer(self.p, self.new_p)
-        self.density_pair = Buffer(self.density_bffr, self.new_density_bffr)
+        self.v_pair = bufferPair(self.v, self.new_v)
+        self.p_pair = bufferPair(self.p, self.new_p)
+        self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         # self.marker_pair = TexPair(self.marker, self.new_marker)
 
 

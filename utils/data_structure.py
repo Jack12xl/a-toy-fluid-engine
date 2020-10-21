@@ -1,4 +1,4 @@
-class Buffer:
+class bufferPair:
     # a ping-pong buffer for gpu computation
     def __init__(self, cur, nxt):
         self.cur = cur

@@ -56,7 +56,8 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
                 vf[I] = collid.surfaceshape.velocity_at_world_point(I)
 
     def ApplyBoundaryCondition(self):
-        self.kernBoundaryCondition()
+        if (self.colliders):
+            self.kernBoundaryCondition()
 
     @abstractmethod
     def kernBoundaryCondition(self):
