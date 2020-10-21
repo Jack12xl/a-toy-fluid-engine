@@ -36,14 +36,13 @@ class DataGrid(metaclass=ABCMeta):
         return self._field
 
     @ti.pyfunc
-    def sample(self, P):
+    def bilerp(self, P):
         '''
         use bilinear to sample on position P(could be float)
         :param P:
         :return:
         '''
         #TODO support 3D
-        # return ts.bilerp(self.field, P)
         # t_P = P - 0.5
         # iu, iv = ti.floor(t_P.x), ti.floor(t_P.y)
         # fu, fv = t_P.x - iu, t_P.y - iv
@@ -55,6 +54,10 @@ class DataGrid(metaclass=ABCMeta):
         #
         # return lerp(lerp(a, b, fu), lerp(c, d, fu), fv)
         return ts.bilerp(self.field, P)
+
+    @ti.pyfunc
+    def sample(self, I):
+        return ts.sample(self.field, I)
 
     @ti.pyfunc
     def sample_minmax(self, P):

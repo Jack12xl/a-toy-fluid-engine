@@ -114,10 +114,10 @@ class EulerScheme():
 
 
     def step(self, ext_input:np.array):
-        # self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
-        # self.boundarySolver.kern_update_marker()
-        # for colld in self.boundarySolver.colliders:
-        #     colld.surfaceshape.update_transform(self.cfg.dt)
+        self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
+        self.boundarySolver.kern_update_marker()
+        for colld in self.boundarySolver.colliders:
+            colld.surfaceshape.update_transform(self.cfg.dt)
 
 
         if (self.cfg.run_scheme == SchemeType.Advection_Projection):
