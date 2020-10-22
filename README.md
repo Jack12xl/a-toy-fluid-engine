@@ -3,10 +3,10 @@ A repo that trys to reimplement Euler based fluid simluation
 
 The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embed both gpu and cpu parrellel computing.
 
-### Taichi Installation 
+### Dependency Installation 
 
 ```bash
-python3 -m pip install taichi
+pip install taichi taichi_glsl
 ```
 
 #### [Stable fluid (siggraph 1999) ](https://dl.acm.org/doi/pdf/10.1145/311535.311548)

@@ -1,4 +1,5 @@
 import taichi as ti
+import taichi_glsl as ts
 from .AbstractProjectionSolver import ProjectionSolver
 
 #ref1 : https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf
@@ -18,23 +19,39 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
         # TODO: dimension independent coding
         ti.cache_read_only(pf.field)
 
-        for i, j in pf:
-            if (i + j) % 2 == 0:
-                pl = self.grid.sample(pf, i - 1, j)
-                pr = self.grid.sample(pf, i + 1, j)
-                pb = self.grid.sample(pf, i, j - 1)
-                pt = self.grid.sample(pf, i, j + 1)
-                div = p_divs[i, j]
-                new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
+        # for i, j in pf:
+        #     if (i + j) % 2 == 0:
+        #         pl = self.grid.sample(pf, i - 1, j)
+        #         pr = self.grid.sample(pf, i + 1, j)
+        #         pb = self.grid.sample(pf, i, j - 1)
+        #         pt = self.grid.sample(pf, i, j + 1)
+        #         div = p_divs[i, j]
+        #         new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
+        for I in ti.grouped(pf.field):
+            if ts.summation(I) % 2 == 0:
+                pl = pf.sample(I + ts.D.zy)
+                pr = pf.sample(I + ts.D.xy)
+                pb = pf.sample(I + ts.D.yz)
+                pt = pf.sample(I + ts.D.yx)
+                div = p_divs[I]
+                new_pf[I] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
 
-        for i, j in pf:
-            if (i + j) % 2 == 1:
-                pl = self.grid.sample(new_pf, i - 1, j)
-                pr = self.grid.sample(new_pf, i + 1, j)
-                pb = self.grid.sample(new_pf, i, j - 1)
-                pt = self.grid.sample(new_pf, i, j + 1)
-                div = p_divs[i, j]
-                new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
+        # for i, j in pf:
+        #     if (i + j) % 2 == 1:
+        #         pl = self.grid.sample(new_pf, i - 1, j)
+        #         pr = self.grid.sample(new_pf, i + 1, j)
+        #         pb = self.grid.sample(new_pf, i, j - 1)
+        #         pt = self.grid.sample(new_pf, i, j + 1)
+        #         div = p_divs[i, j]
+        #         new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
+        for I in ti.grouped(pf.field):
+            if ts.summation(I) % 2 == 1:
+                pl = new_pf.sample(I + ts.D.zy)
+                pr = new_pf.sample(I + ts.D.xy)
+                pb = new_pf.sample(I + ts.D.yz)
+                pt = new_pf.sample(I + ts.D.yx)
+                div = p_divs[I]
+                new_pf[I] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
 
     def runPressure(self):
         self.cfg.jacobi_alpha = self.cfg.poisson_pressure_alpha
