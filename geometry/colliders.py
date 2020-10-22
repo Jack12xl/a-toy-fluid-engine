@@ -50,6 +50,9 @@ class Collider(metaclass=ABCMeta):
         local_p = self.surfaceshape.transform.to_local(world_p)
         return self.surfaceshape.color_at_local_point(local_p)
 
+    @ti.pyfunc
+    def reset(self):
+        self.kern_materialize()
 
 @ti.data_oriented
 class RigidBodyCollider(Collider):

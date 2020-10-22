@@ -172,3 +172,4 @@ class EulerScheme():
     def reset(self):
         self.grid.reset()
         self.clr_bffr.fill(ti.Vector([0, 0, 0]))
+        self.boundarySolver.reset()

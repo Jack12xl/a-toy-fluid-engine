@@ -63,6 +63,10 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
     @abstractmethod
     def kernBoundaryCondition(self):
         pass
+
+    @abstractmethod
+    def reset(self):
+        pass
     
 @ti.data_oriented
 class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
@@ -93,5 +97,8 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
                 else:
                     self.grid.v[I] = collider_vel
 
-
+    @ti.pyfunc
+    def reset(self):
+        for collid in self.colliders:
+            collid.reset()
 
