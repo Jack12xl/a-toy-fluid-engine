@@ -7,7 +7,7 @@ import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
 from geometry import RigidBodyCollider, Ball
 
-debug = True
+debug = False
 
 # simulate_type = SimulateType.Gas
 
@@ -20,7 +20,7 @@ VisualType = VisualizeEnum.Density
 run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeSolver
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = JacobiProjectionSolver

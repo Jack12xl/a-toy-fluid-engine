@@ -22,21 +22,22 @@ class MacCormackSolver(AdvectionSolver):
                     dt: ti.template()):
 
         for I in ti.grouped(vec_field.field):
-            pos = I + 0.5
+            # pos = I + 0.5
+            pos = float(I)
             p_mid = self.subsolver.backtrace(vec_field, pos, boundarySdf,  dt)
             #q_mid = self.grid.bilerp(q_cur, p_mid)
-            q_mid = q_cur.sample(p_mid)
+            q_mid = q_cur.bilerp(p_mid)
 
             p_fin = self.subsolver.backtrace(vec_field, p_mid, boundarySdf, -dt)
             #q_fin = self.grid.bilerp(q_cur, p_fin)
-            q_fin = q_cur.sample(p_fin)
+            q_fin = q_cur.bilerp(p_fin)
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
             # clipping to prevent overshooting
             if (ti.static(self.cfg.macCormack_clipping)):
                 # ref: advection.py from taichi class 4
                 #min_val, max_val = self.grid.sample_minmax(q_cur, p_mid)
-                min_val, max_val = q_cur.sample(p_mid)
+                min_val, max_val = q_cur.sample_minmax(p_mid)
                 cond = min_val < q_nxt[I] < max_val
                 for k in ti.static(range(cond.n)):
                     if not cond[k]:
