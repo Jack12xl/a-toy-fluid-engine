@@ -2,8 +2,7 @@ import utils
 import config.stable_fluid_fixed as m_cfg
 from Scheme.Euler_Scheme import EulerScheme
 import taichi as ti
-import skimage
-import skimage.transform
+
 
 if __name__ == '__main__':
     # m_cfg = read_cfg(YAML_PATH)
@@ -39,6 +38,8 @@ if __name__ == '__main__':
         # gui.set_image()
         # too slow
         if (m_cfg.screen_res[0] != m_cfg.res[0]):
+            import skimage
+            import skimage.transform
             img = s.clr_bffr.to_numpy()
             img = skimage.transform.resize(img, m_cfg.screen_res)
             gui.set_image(img)
