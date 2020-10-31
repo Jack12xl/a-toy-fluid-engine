@@ -30,7 +30,7 @@ python exp_my_fluid.py
 ```
 
 <a href="./exp_my_fluid.py"><img src="./results/stable_fluid_demo.gif" height="384px"></a> 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"> <img src="https://github.com/Jack12xl/myFluid/blob/master/results/stable_fluid_velocity.gif" height="384px"></a>
+<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"> <img src="./results/stable_fluid_velocity.gif" height="384px"></a>
 
 Left: fluid density, Right: velocity.
 
