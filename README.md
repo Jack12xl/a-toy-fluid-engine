@@ -1,7 +1,7 @@
-# myFluid
-A repo that trys to reimplement Euler based fluid simluation
+# A toy fluid engine
+A repo that tries to reimplement Euler based fluid simulation.
 
-The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embed both gpu and cpu parrellel computing.
+The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embeds both GPU and CPU  parralleled computing.
 
 ### Dependency Installation 
 
@@ -9,15 +9,30 @@ The project is based on [Taichi](https://github.com/taichi-dev/taichi), a progra
 pip install taichi taichi_glsl
 ```
 
+#### Feature:
+
+- Euler-based Schenem
+  - Advection-Projection
+  - Advection-Reflection
+- Advection
+  - Semi-Lagrangian
+  - MacCormack / BFECC
+- Projection
+  - Jacobian
+  - Gauss-Seidel 
+- Two way Coupling
+  - In progress...
+
 #### [Stable fluid (siggraph 1999) ](https://dl.acm.org/doi/pdf/10.1145/311535.311548)
+
 ```bash
 python exp_my_fluid.py
 ```
 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/stable_fluid_demo.gif" height="384px"></a> 
+<a href="./exp_my_fluid.py"><img src="./results/stable_fluid_demo.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"> <img src="https://github.com/Jack12xl/myFluid/blob/master/results/stable_fluid_velocity.gif" height="384px"></a>
 
-Left: simulate adding dye in fluid, Right: velocity.
+Left: fluid density, Right: velocity.
 
 Implement reference:
 [NVIDIA DEVELOP ZONE](https://developer.download.nvidia.cn/books/HTML/gpugems/gpugems_ch38.html),
@@ -45,7 +60,7 @@ implement reference: [offcial tutorial](https://www.bilibili.com/video/BV1ZK411H
 
 framework reference: [Efficient and Conservative Fluids with Bidirectional Mapping](https://github.com/ziyinq/Bimocq#efficient-and-conservative-fluids-with-bidirectional-mapping)
 
-##### Semi-Lagragian 
+##### Semi-Lagrangian 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk1.gif" height="384px"></a> 
 <a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/sl-rk2.gif" height="384px"></a> 
 

@@ -7,6 +7,7 @@ import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
 from geometry import RigidBodyCollider, Ball
 
+
 debug = False
 
 # simulate_type = SimulateType.Gas
@@ -19,14 +20,14 @@ VisualType = VisualizeEnum.Density
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
-from advection import MacCormackSolver, SemiLagrangeSolver
-advection_solver = MacCormackSolver
+from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
+advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
-
+semi_order = SemiLagrangeOrder.RK_3
 # collider
 from geometry import Transform2, Velocity2
 ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
@@ -40,11 +41,17 @@ Colliders = []
 #     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
+file_name = str(res[0]) + 'x' + str(res[1]) + '-' \
+            + str(run_scheme) + '-'\
+            + advection_solver.__name__ + '-' \
+            + projection_solver.__name__ + '-' \
+            + 'RK' + str(int(semi_order))
+
 # save to video(gif)
 bool_save = True
 save_frame_length = 240
 save_root = './tmp_result'
-file_name = '300x300-Projection-MacCormack-GuassSedial-RK3'
+# file_name = '600x600-Reflection-SemiLagrangian-Sedial-RK3'
 save_path = os.path.join(save_root, file_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,

@@ -1,9 +1,9 @@
 import taichi as ti
-from enum import Enum
+from enum import Enum, IntEnum
 from .AbstractAdvectionSolver import AdvectionSolver
 from utils import Vector, Matrix
 
-class SemiLagrangeOrder(Enum):
+class SemiLagrangeOrder(IntEnum):
     RK_1 = 1
     RK_2 = 2
     RK_3 = 3

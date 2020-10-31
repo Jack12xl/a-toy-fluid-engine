@@ -5,10 +5,6 @@ import taichi as ti
 
 
 if __name__ == '__main__':
-    # m_cfg = read_cfg(YAML_PATH)
-    # ti.init(arch=ti.gpu, debug=m_cfg.debug,kernel_profiler=True)
-
-    # cfg_dict = m_cfg.scheme_setting
     s = EulerScheme(m_cfg)
 
     gui = ti.GUI('Stable-Fluid', tuple(m_cfg.screen_res), fast_gui=False)
@@ -33,8 +29,6 @@ if __name__ == '__main__':
             mouse_data = md_gen(gui)
             s.step(mouse_data)
 
-
-
         # gui.set_image()
         # too slow
         if (m_cfg.screen_res[0] != m_cfg.res[0]):
@@ -50,6 +44,7 @@ if __name__ == '__main__':
         if (m_cfg.bool_save):
             if (frame_count <= m_cfg.save_frame_length):
                 # not sure this would work
+                img = s.clr_bffr.to_numpy()
                 m_cfg.video_manager.write_frame(img)
             else:
                 m_cfg.video_manager.make_video(gif=True, mp4=False)
