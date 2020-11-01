@@ -33,12 +33,11 @@ python exp_my_fluid.py
 
 #### [Stable fluid (Siggraph 1999) ](https://dl.acm.org/doi/pdf/10.1145/311535.311548)
 
+| Density                                                      | Velocity                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <a href="./exp_my_fluid.py"><img src="./results/stable_fluid_demo.gif" height="384px"> | <a href=",/exp_my_fluid.py"> <img src="./results/stable_fluid_velocity.gif" height="384px"> |
 
 
-<a href="./exp_my_fluid.py"><img src="./results/stable_fluid_demo.gif" height="384px"></a> 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"> <img src="./results/stable_fluid_velocity.gif" height="384px"></a>
-
-Left: fluid density, Right: velocity.
 
 
 
@@ -72,7 +71,7 @@ it == iteration
 | AP + SL(RK2) + JC(30 it)           | AP + SL(RK3) + JC(30 it)           | AP + MC(RK3) + JC(30 it)          |
 | ---------------------------------- | ---------------------------------- | --------------------------------- |
 | ![](results/proj-sl-jc-rk2.gif)    | ![](./results/proj-sl-jc-rk3.gif)  | ![](./results/proj-mc-jc-rk3.gif) |
-| AR + MC(RK3) + SD(30 it)           | AR + MC(RK3) + SD(30 it)           | AP + MC(RK3) + SD(30 it)          |
+| **AR + MC(RK3) + SD(30 it)**       | **AR + MC(RK3) + SD(30 it)**       | **AP + MC(RK3) + SD(30 it)**      |
 | ![](results/reflect-sl-sd-rk3.gif) | ![](results/reflect-mc-sd-rk3.gif) | ![](./results/proj-mc-sd-rk3.gif) |
 
 The above results are showing the density.
@@ -82,11 +81,7 @@ The above results are showing the density.
 - [Advection](./advection/)
 - [Projection](./projection/)
 
-- Solver Scheme
-
-
-
-
+- [Euler Solver Scheme](./Scheme)
 
 #### Reference
 
