@@ -80,39 +80,11 @@ The above results are showing the density.
 #### Mumbled Comparison
 
 - [Advection](./advection/README.md)
-- [Projection]()
+- [Projection](./projection/)
 
-#### Solver Scheme
-
-Above is all about advection-projection.
-
-##### [Advection-Reflection](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiAtZeogrfrAhWIvpQKHRdjAuEQtwIwAXoECAkQAQ&url=https%3A%2F%2Fjzehnder.me%2Fpublications%2FadvectionReflection%2F&usg=AOvVaw12RvEOOxqcZ0C7h5urs7f1)
-
-Both running in RK=2.
+- Solver Scheme
 
 
-
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="./results/rflct-sl-rk2.gif" height="384px"></a> 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="./results/rflct-mc-rk2.gif" height="384px"></a> 
-
-Left: Semi-lagrangian, Right: MacCormack
-
-
-
-#### Projection:
-
-Above results is all about jacobi iteration projection solver run in 30 iterations.
-
-##### [Red-Black Gauss Seidel projection](https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf)
-
-Ref:
-
-Both run in RK=2, with advection-projection scheme and 30 iterations.
-
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-sl-gs-rk2.gif" height="384px"></a> 
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"><img src="https://github.com/Jack12xl/myFluid/blob/master/results/rflct-mc-gs-rk2.gif" height="384px"></a> 
-
-Left: Semi-lagrangian, Right: MacCormack
 
 
 
