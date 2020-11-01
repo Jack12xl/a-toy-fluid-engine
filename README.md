@@ -31,7 +31,7 @@ python exp_my_fluid.py
 
 
 
-#### [Stable fluid (siggraph 1999) ](https://dl.acm.org/doi/pdf/10.1145/311535.311548)
+#### [Stable fluid (Siggraph 1999) ](https://dl.acm.org/doi/pdf/10.1145/311535.311548)
 
 
 
@@ -79,7 +79,7 @@ The above results are showing the density.
 
 #### Mumbled Comparison
 
-- [Advection](./advection/README.md)
+- [Advection](./advection/)
 - [Projection](./projection/)
 
 - Solver Scheme
@@ -96,6 +96,8 @@ The above results are showing the density.
 - [taichi official example](https://github.com/taichi-dev/taichi/blob/master/examples/stable_fluid.py)
 - [Cornell_class_slides](https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf)
 -  [offcial tutorial](https://www.bilibili.com/video/BV1ZK411H7Hc?p=4)
+-  [Previous Eulerian Fluid Engine With taichi](https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi)
+-  
 
 ##### Paper
 
