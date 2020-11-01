@@ -35,7 +35,7 @@ ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 
 Colliders = []
 Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([300, 150]), localscale=16),
+    transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
 Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
@@ -45,12 +45,15 @@ file_name = str(res[0]) + 'x' + str(res[1]) + '-' \
             + str(run_scheme) + '-'\
             + advection_solver.__name__ + '-' \
             + projection_solver.__name__ + '-' \
+            + str(p_jacobi_iters) + '_it-' \
             + 'RK' + str(int(semi_order))
 
+print(file_name)
 if (Colliders):
     file_name += '-Collider'
 # save to video(gif)
-bool_save = True
+bool_save = False
+
 save_frame_length = 240
 save_root = './tmp_result'
 # file_name = '600x600-Reflection-SemiLagrangian-Sedial-RK3'
