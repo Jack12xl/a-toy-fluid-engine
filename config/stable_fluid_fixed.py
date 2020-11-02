@@ -47,16 +47,15 @@ profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
                + 'RK' + str(int(semi_order))
-
-print(profile_name)
 if (Colliders):
     profile_name += '-Collider'
+print(profile_name)
+
 # save to video(gif)
 bool_save = False
 
 save_frame_length = 240
 save_root = './tmp_result'
-# file_name = '600x600-Reflection-SemiLagrangian-Sedial-RK3'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,

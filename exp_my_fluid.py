@@ -24,6 +24,13 @@ if __name__ == '__main__':
                 paused = not paused
             elif e.key == 'r':
                 s.reset()
+            # change visualize type
+            elif e.key == ',':
+                #TODO
+                print(e.key)
+            elif e.key == ',':
+                #TODO
+                print(e.key)
 
         if not paused:
             mouse_data = md_gen(gui)

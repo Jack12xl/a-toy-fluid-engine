@@ -45,14 +45,13 @@ class EulerScheme():
     def fill_color(self, vf: ti.template()):
         ti.cache_read_only(vf.field)
         for I in ti.grouped(vf.field):
-            v = vf[I]
-            self.clr_bffr[I] = ti.abs(v)
+            self.clr_bffr[I] = ti.abs(vf[I])
 
     @ti.kernel
     def fill_color_2d(self, vf: ti.template()):
         for i, j in vf:
             v = vf[i, j]
-            self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), 0.25])
+            self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
 
     @ti.kernel
     def apply_mouse_input_and_render(self, vf: ti.template(), dyef: ti.template(),
@@ -88,14 +87,6 @@ class EulerScheme():
         for i, j in vf.field:
             den = self.grid.density_pair.cur[i, j]
 
-            # if (self.cfg.simulate_type == SimulateType.Gas):
-            #     v = vf[i, j]
-            #     v[1] += (den * 25.0 - 5.0) * dt
-            #     # random disturbance
-            #     v[0] += (ti.random(ti.f32) - 0.5) * 80.0
-            #     v[1] += (ti.random(ti.f32) - 0.5) * 80.0
-            #
-            #     vf[i, j] = v
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
             momentum = (self.cfg.direct_X_force *  ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity ) * dt
