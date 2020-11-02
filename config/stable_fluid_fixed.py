@@ -23,8 +23,8 @@ run_scheme = SchemeType.Advection_Reflection
 from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
 advection_solver = MacCormackSolver
 
-from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
+projection_solver = ConjugateGradientProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
@@ -34,12 +34,12 @@ ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 # init should put before init ti.field
 
 Colliders = []
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
 profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
                + str(run_scheme) + '-' \
@@ -52,7 +52,7 @@ if (Colliders):
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
 save_frame_length = 240
 save_root = './tmp_result'

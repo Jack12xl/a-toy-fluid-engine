@@ -40,7 +40,7 @@ class EulerScheme():
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
         self.projection_solver.runPressure()
-        self.projection_solver.runViscosity()
+        # self.projection_solver.runViscosity()
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):

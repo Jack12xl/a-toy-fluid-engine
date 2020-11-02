@@ -11,20 +11,20 @@ ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 
 
 FILTER_TYPE = 'm_'
-set_attribute_from_cfg(default_cfg, sys.modules[__name__], FILTER_TYPE)
-set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE)
+set_attribute_from_cfg(default_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Density
 ## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
 advection_solver = MacCormackSolver
 semi_order = SemiLagrangeOrder.RK_3
 
 from projection import JacobiProjectionSolver ,RedBlackGaussSedialProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 30
+projection_solver = JacobiProjectionSolver
+p_jacobi_iters = 160
 dye_decay = 0.99
 
 Colliders = []

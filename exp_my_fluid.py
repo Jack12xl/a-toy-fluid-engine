@@ -1,5 +1,5 @@
 import utils
-import config.stable_fluid_fixed as m_cfg
+import config.stable_fluid_mouse as m_cfg
 from Scheme.Euler_Scheme import EulerScheme
 import taichi as ti
 
