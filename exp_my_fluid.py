@@ -7,7 +7,7 @@ import taichi as ti
 if __name__ == '__main__':
     s = EulerScheme(m_cfg)
 
-    gui = ti.GUI('Stable-Fluid', tuple(m_cfg.screen_res), fast_gui=False)
+    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
     md_gen = utils.MouseDataGen(m_cfg)
     paused = False
 

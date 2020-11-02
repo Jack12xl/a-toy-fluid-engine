@@ -2,7 +2,7 @@ import numpy as np
 import config.base_cfg as base_cfg
 import taichi as ti
 from .basic_types import Vector
-
+import re
 import math
 
 def vec2_npf32(m):
@@ -48,6 +48,9 @@ def reflect(to_be_reflected:ti.template(),
     for (I) in ti.grouped(to_be_reflected.field):
         to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
 
+
+def filterUpCase(c:str) -> str:
+    return re.sub('[^A-Z]', '', c)
 
 @ti.kernel
 def test():

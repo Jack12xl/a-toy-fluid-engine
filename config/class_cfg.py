@@ -18,6 +18,11 @@ class VisualizeEnum(Enum):
 class SchemeType(Enum):
     Advection_Projection = 0
     Advection_Reflection = 1
+    def __init__(self, *args):
+        super().__init__()
+        self.map = ['AP', 'AR']
+    def __str__(self):
+        return self.map[self.value]
 
 class SimulateType(Enum):
     Liquid = 0

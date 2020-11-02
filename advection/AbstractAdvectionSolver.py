@@ -1,5 +1,5 @@
 from abc import ABCMeta , abstractmethod
-
+from utils import filterUpCase
 
 
 class AdvectionSolver(metaclass = ABCMeta):
@@ -11,3 +11,6 @@ class AdvectionSolver(metaclass = ABCMeta):
     @abstractmethod
     def advect(self, vec_field, q_cur, q_nxt, dt):
         pass
+
+    def abbreviation(self):
+        return filterUpCase(self.__class__.__name__)

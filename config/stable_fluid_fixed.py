@@ -1,7 +1,7 @@
 import taichi as ti
 from .class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import os
-from utils import set_attribute_from_cfg
+from utils import set_attribute_from_cfg, filterUpCase
 import sys
 import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
@@ -41,46 +41,23 @@ Colliders.append(RigidBodyCollider(Ball(
     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
-file_name = str(res[0]) + 'x' + str(res[1]) + '-' \
-            + str(run_scheme) + '-'\
-            + advection_solver.__name__ + '-' \
-            + projection_solver.__name__ + '-' \
-            + str(p_jacobi_iters) + '_it-' \
-            + 'RK' + str(int(semi_order))
+profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
+               + str(run_scheme) + '-' \
+               + filterUpCase(advection_solver.__name__) + '-' \
+               + filterUpCase(projection_solver.__name__) + '-' \
+               + str(p_jacobi_iters) + 'it-' \
+               + 'RK' + str(int(semi_order))
 
-print(file_name)
+print(profile_name)
 if (Colliders):
-    file_name += '-Collider'
+    profile_name += '-Collider'
 # save to video(gif)
 bool_save = False
 
 save_frame_length = 240
 save_root = './tmp_result'
 # file_name = '600x600-Reflection-SemiLagrangian-Sedial-RK3'
-save_path = os.path.join(save_root, file_name)
+save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,
                                 framerate=24,
                                 automatic_build=False)
-
-
-# print
-# import copy
-# tmp = sys.modules[__name__].__dict__.copy()
-# for k, v in tmp.items():
-#     if (~k.startswith("__")):
-#         print(k, v)
-print(run_scheme)
-print(advection_solver)
-print(projection_solver)
-
-# if __name__ == '__main__':
-#     import sys
-#     thismodule = sys.modules[__name__]
-#     print(thismodule.__dict__.items())
-#     # print(get_variable_from_module('projection_config'))
-#     # print(config.default_config.__dict__.items())
-#     for k, v in config.default_config.__dict__.items():
-#         if (k.startswith('m_')):
-#             print(k, v)
-#             vars()[k[2:]] = v
-#     print(projection_solver)
