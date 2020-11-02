@@ -1,7 +1,8 @@
 import taichi as ti
-from utils import bufferPair, clamp, lerp
+from utils import bufferPair, clamp, lerp, Vector, Matrix
 from .DataGrid import DataGrid
 import taichi_glsl as ts
+
 
 @ti.data_oriented
 class collocatedGridData():
@@ -15,8 +16,12 @@ class collocatedGridData():
 
         self.v = DataGrid(ti.Vector.field(cfg.dim,  dtype=ti.f32, shape=cfg.res))
         self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
-        self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+        # another buffer for advection-reflection
         self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
+        # velocity divergence
+        self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+        #velocity vorticity
+        self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
 
         self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
         self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
@@ -124,6 +129,16 @@ class collocatedGridData():
             if I.y == vf.shape[1] - 1:
                 vt = -vc.y
             vd[I] = (vr - vl + vt - vb) * 0.5
+
+    @ti.kernel
+    # ref: taichi official stable fluid
+    def calVorticity(self, vf: Vector):
+        for I in ti.grouped(vf.field):
+            vl = vf.sample(I + ts.D.zy).x
+            vr = vf.sample(I + ts.D.xy).x
+            vb = vf.sample(I + ts.D.yz).y
+            vt = vf.sample(I + ts.D.yx).y
+            self.v_curl[I] = (vr - vl - vt + vb) * 0.5
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):

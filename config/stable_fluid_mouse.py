@@ -16,16 +16,19 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Density
 ## run Scheme
-run_scheme = SchemeType.Advection_Projection
+#run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
 advection_solver = MacCormackSolver
 semi_order = SemiLagrangeOrder.RK_3
 
 from projection import JacobiProjectionSolver ,RedBlackGaussSedialProjectionSolver
-projection_solver = JacobiProjectionSolver
-p_jacobi_iters = 160
+projection_solver = RedBlackGaussSedialProjectionSolver
+p_jacobi_iters = 30
 dye_decay = 0.99
+
+curl_strength = 7.0
 
 Colliders = []
 
@@ -35,6 +38,6 @@ profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
                + 'RK' + str(int(semi_order))
-
+print(profile_name)
 # save to video(gif)
 bool_save = False

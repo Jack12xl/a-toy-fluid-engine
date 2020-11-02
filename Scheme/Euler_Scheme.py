@@ -1,5 +1,6 @@
 from Grid import collocatedGridData
 import taichi as ti
+import taichi_glsl as ts
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType
 import utils
@@ -39,20 +40,57 @@ class EulerScheme():
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
+        if self.cfg.curl_strength:
+            self.grid.calVorticity(self.grid.v_pair.cur)
+            self.enhance_vorticity()
+
         self.projection_solver.runPressure()
-        # self.projection_solver.runViscosity()
+        self.projection_solver.runViscosity()
 
     @ti.kernel
-    def fill_color(self, vf: ti.template()):
+    def enhance_vorticity(self):
+        #ref: taichi official stable fluid
+        #ref2: https://softologyblog.wordpress.com/2019/03/13/vorticity-confinement-for-eulerian-fluid-simulations/
+        vf = ti.static(self.grid.v_pair.cur)
+        vc = ti.static(self.grid.v_curl)
+        for I in ti.grouped(vc.field):
+            cl = vc.sample(I + ts.D.zy)
+            cr = vc.sample(I + ts.D.xy)
+            cb = vc.sample(I + ts.D.yz)
+            ct = vc.sample(I + ts.D.yx)
+            cc = vc.sample(I)
+            force = ti.Vector([abs(ct) - abs(cb),
+                               abs(cl) - abs(cr)]).normalized(1e-3)
+            force *= self.cfg.curl_strength * cc
+            vf[I] = ts.clamp( vf[I] + force * self.cfg.dt, -1e3, 1e3)
+
+    @ti.kernel
+    def vis_density(self, vf: ti.template()):
         ti.cache_read_only(vf.field)
         for I in ti.grouped(vf.field):
             self.clr_bffr[I] = ti.abs(vf[I])
 
     @ti.kernel
-    def fill_color_2d(self, vf: ti.template()):
-        for i, j in vf:
-            v = vf[i, j]
-            self.clr_bffr[i, j] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
+    def vis_v(self, vf: ti.template()):
+        # velocity
+        for I in ti.grouped(vf):
+            v = ts.vec(vf[I].x, vf[I].y, 0.0)
+            # self.clr_bffr[I] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
+            self.clr_bffr[I] = 0.01 * v + ts.vec3(0.5)
+
+    @ti.kernel
+    def vis_vd(self, vf: ti.template()):
+        # divergence
+        for I in ti.grouped(vf):
+            v = ts.vec(vf[I], 0.0, 0.0)
+            self.clr_bffr[I] = 0.1 * v + ts.vec3(0.5)
+
+    @ti.kernel
+    def vis_vt(self, vf: ti.template()):
+        # visualize vorticity
+        for I in ti.grouped(vf):
+            v = ts.vec(vf[I], 0.0, 0.0)
+            self.clr_bffr[I] = 0.03 * v + ts.vec3(0.5)
 
     @ti.kernel
     def apply_mouse_input_and_render(self, vf: ti.template(), dyef: ti.template(),
@@ -98,10 +136,14 @@ class EulerScheme():
             self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
 
     def render_frame(self):
-        if (self.cfg.VisualType == VisualizeEnum.Velocity):
-            self.fill_color_2d(self.grid.v_pair.cur)
-        elif (self.cfg.VisualType == VisualizeEnum.Density):
-            self.fill_color(self.grid.density_pair.cur)
+        if self.cfg.VisualType == VisualizeEnum.Velocity:
+            self.vis_v(self.grid.v_pair.cur.field)
+        elif self.cfg.VisualType == VisualizeEnum.Density:
+            self.vis_density(self.grid.density_pair.cur)
+        elif self.cfg.VisualType == VisualizeEnum.Divergence:
+            self.vis_vd(self.grid.v_divs.field)
+        elif self.cfg.VisualType == VisualizeEnum.Vorticity:
+            self.vis_vt(self.grid.v_curl.field)
 
     def step(self, ext_input: np.array):
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
@@ -138,10 +180,7 @@ class EulerScheme():
         if (len(self.boundarySolver.colliders)):
             self.render_collider()
 
-    # def render_colliders(self):
-    #     for cur_collider in self.boundarySolver.colliders:
-    #
-    #     pass
+
 
     @ti.kernel
     def render_collider(self):

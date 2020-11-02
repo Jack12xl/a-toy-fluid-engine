@@ -1,13 +1,14 @@
 import utils
-import config.stable_fluid_mouse as m_cfg
+import config.stable_fluid_fixed as m_cfg
 from Scheme.Euler_Scheme import EulerScheme
+from config import VisualizeEnum
 import taichi as ti
 
 
 if __name__ == '__main__':
     s = EulerScheme(m_cfg)
 
-    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
+    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
     md_gen = utils.MouseDataGen(m_cfg)
     paused = False
 
@@ -31,6 +32,14 @@ if __name__ == '__main__':
             elif e.key == ',':
                 #TODO
                 print(e.key)
+            elif e.key == '1':
+                m_cfg.VisualType = VisualizeEnum.Density
+            elif e.key == '2':
+                m_cfg.VisualType = VisualizeEnum.Velocity
+            elif e.key == '3':
+                m_cfg.VisualType = VisualizeEnum.Divergence
+            elif e.key == '4':
+                m_cfg.VisualType = VisualizeEnum.Vorticity
 
         if not paused:
             mouse_data = md_gen(gui)

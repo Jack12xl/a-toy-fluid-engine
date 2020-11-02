@@ -24,13 +24,17 @@ from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
 advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
-projection_solver = ConjugateGradientProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
+
+# vorticity enhancement
+curl_strength = 7.0
+
 # collider
 from geometry import Transform2, Velocity2
-ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
+ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 # init should put before init ti.field
 
 Colliders = []
@@ -46,13 +50,14 @@ profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
-               + 'RK' + str(int(semi_order))
+               + 'RK' + str(int(semi_order)) + '-' \
+               + 'curl' + str(curl_strength)
 if (Colliders):
     profile_name += '-Collider'
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 
 save_frame_length = 240
 save_root = './tmp_result'

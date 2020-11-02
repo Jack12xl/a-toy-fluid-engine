@@ -16,6 +16,8 @@ class SceneEnum(Enum):
 class VisualizeEnum(Enum):
     Density = 0
     Velocity = 1
+    Divergence = 2
+    Vorticity = 3
 
     def __init__(self, *args):
         super().__init__()
