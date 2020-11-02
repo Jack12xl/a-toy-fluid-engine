@@ -7,6 +7,7 @@ from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from geometry import Collider
 
+
 @ti.data_oriented
 class EulerScheme():
     def __init__(self, cfg, ):
@@ -19,15 +20,16 @@ class EulerScheme():
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
-
-
     def advect(self, dt):
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt, self.boundarySolver.collider_sdf_field, dt)
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur,  self.grid.density_pair.nxt, self.boundarySolver.collider_sdf_field, dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
+                                     self.boundarySolver.collider_sdf_field, dt)
+        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt,
+                                     self.boundarySolver.collider_sdf_field, dt)
         self.grid.v_pair.swap()
         self.grid.density_pair.swap()
 
     def externalForce(self, ext_input, dt):
+        # TODO
         if (self.cfg.SceneType == SceneEnum.MouseDragDye):
             # add impulse from mouse
             self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
@@ -39,7 +41,6 @@ class EulerScheme():
 
         self.projection_solver.runPressure()
         self.projection_solver.runViscosity()
-
 
     @ti.kernel
     def fill_color(self, vf: ti.template()):
@@ -79,7 +80,6 @@ class EulerScheme():
             dc *= self.cfg.dye_decay
             dyef[i, j] = dc
 
-
     @ti.kernel
     def add_fixed_force_and_render(self,
                                    vf: ti.template(),
@@ -89,7 +89,7 @@ class EulerScheme():
 
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
-            momentum = (self.cfg.direct_X_force *  ti.exp( -d2 * self.cfg.inv_force_radius ) - self.cfg.f_gravity ) * dt
+            momentum = (self.cfg.direct_X_force * ti.exp(-d2 * self.cfg.inv_force_radius) - self.cfg.f_gravity) * dt
             vf[i, j] += momentum
             # vf[i, j] *= self.cfg.dye_decay
             den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
@@ -103,13 +103,11 @@ class EulerScheme():
         elif (self.cfg.VisualType == VisualizeEnum.Density):
             self.fill_color(self.grid.density_pair.cur)
 
-
-    def step(self, ext_input:np.array):
+    def step(self, ext_input: np.array):
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)
-
 
         if (self.cfg.run_scheme == SchemeType.Advection_Projection):
             self.advect(self.cfg.dt)
@@ -137,7 +135,7 @@ class EulerScheme():
         self.boundarySolver.ApplyBoundaryCondition()
 
         self.render_frame()
-        if (len( self.boundarySolver.colliders) ):
+        if (len(self.boundarySolver.colliders)):
             self.render_collider()
 
     # def render_colliders(self):
@@ -150,8 +148,8 @@ class EulerScheme():
         for I in ti.grouped(self.clr_bffr):
             if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
                 for it in ti.static(range(len(self.boundarySolver.colliders))):
-                # clld = self.boundarySolver.colliders[0]
-                #TODO render function should be optimized
+                    # clld = self.boundarySolver.colliders[0]
+                    # TODO render function should be optimized
                     clld = self.boundarySolver.colliders[it]
                     if (clld.is_inside_collider(I)):
                         self.clr_bffr[I] = clld.color_at_world(I)
