@@ -1,1 +1,1 @@
-from .Euler_Scheme import *
+from .EulerScheme import *

@@ -8,16 +8,14 @@ import taichi as ti
 debug = False
 ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
 
-
-
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(default_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Density
-## run Scheme
-#run_scheme = SchemeType.Advection_Projection
-run_scheme = SchemeType.Advection_Reflection
+# run Scheme
+run_scheme = SchemeType.Advection_Projection
+# run_scheme = SchemeType.Advection_Reflection
 
 from advection import SemiLagrangeOrder, SemiLagrangeSolver, MacCormackSolver
 advection_solver = MacCormackSolver

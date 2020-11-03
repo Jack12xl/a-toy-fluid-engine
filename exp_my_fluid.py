@@ -1,12 +1,17 @@
 import utils
-import config.stable_fluid_fixed as m_cfg
-from Scheme.Euler_Scheme import EulerScheme
+import config.stable_fluid_mouse as m_cfg
+#from EulerScheme.Euler_Scheme import EulerScheme
 from config import VisualizeEnum
 import taichi as ti
-
+from config.class_cfg import SchemeType
+from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
 
 if __name__ == '__main__':
-    s = EulerScheme(m_cfg)
+    #s = EulerScheme(m_cfg)
+    if (m_cfg.run_scheme == SchemeType.Advection_Projection):
+        s = AdvectionProjectionEulerScheme(m_cfg)
+    elif (m_cfg.run_scheme == SchemeType.Advection_Reflection):
+        s = AdvectionReflectionEulerScheme(m_cfg)
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
     md_gen = utils.MouseDataGen(m_cfg)
