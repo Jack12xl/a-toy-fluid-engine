@@ -41,7 +41,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
             self.kern_update_collid(idx, cllider)
 
     @ti.kernel
-    def kern_update_collid(self, idx:ti.int32 ,collid: ti.template()):
+    def kern_update_collid(self, idx: ti.int32 ,collid: ti.template()):
         '''
         update the sdf and velocity
         :param collid:

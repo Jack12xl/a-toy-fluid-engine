@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
-from AbstractProjectionSolver import ProjectionSolver
-from MGPCG import MGPCG
+from .AbstractProjectionSolver import ProjectionSolver
+from .MGPCG import MGPCG
 
 
 @ti.data_oriented

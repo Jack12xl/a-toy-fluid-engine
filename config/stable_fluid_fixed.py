@@ -8,7 +8,7 @@ import config.default_config
 from geometry import RigidBodyCollider, Ball
 
 
-debug = False
+debug = True
 
 # simulate_type = SimulateType.Gas
 
@@ -18,7 +18,7 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.Density
 ## run Scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
 advection_solver = MacCormackSolver
@@ -30,11 +30,11 @@ dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
-curl_strength = 7.0
+curl_strength = 0.0
 
 # collider
 from geometry import Transform2, Velocity2
-ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
+ti.init(arch=ti.cpu, debug=debug, kernel_profiler=True)
 # init should put before init ti.field
 
 Colliders = []

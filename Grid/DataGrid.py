@@ -1,8 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from basic_types import Vector, Float
 from abc import ABCMeta, abstractmethod
-from utils import lerp
 
 @ti.data_oriented
 class DataGrid(metaclass=ABCMeta):

@@ -128,11 +128,11 @@ class EulerScheme(metaclass=ABCMeta):
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
             momentum = (self.cfg.direct_X_force * ti.exp(-d2 * self.cfg.inv_force_radius) - self.cfg.f_gravity) * dt
-            vf[i, j] += momentum
+            # vf[i, j] += momentum
             # vf[i, j] *= self.cfg.dye_decay
-            den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
+            # den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
 
-            den *= self.cfg.dye_decay
+            #den *= self.cfg.dye_decay
             self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
 
     def render_frame(self):
@@ -145,44 +145,39 @@ class EulerScheme(metaclass=ABCMeta):
         elif self.cfg.VisualType == VisualizeEnum.Vorticity:
             self.vis_vt(self.grid.v_curl.field)
 
-    @abstractmethod
+    @ti.kernel
+    def emit(self):
+        half_d = 30
+        p = ts.vec(self.cfg.source_x, self.cfg.source_y)
+        l_b = p - half_d
+        r_u = p + half_d
+
+        shape = ti.Vector(self.grid.v.shape)
+        l_b = ts.clamp(l_b, 0, shape - 1)
+        r_u = ts.clamp(r_u, 0, shape - 1)
+        for I in ti.grouped(ti.ndrange( (l_b.x, r_u.x), (l_b.y, r_u.y) )):
+            self.grid.v[I] = ts.vec(0.0, 300.0)
+            self.grid.density_bffr[I] = 1.0 * self.cfg.fluid_color
+
     def step(self, ext_input: np.array):
+        # self.emit()
+
+        self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
+        self.boundarySolver.kern_update_marker()
+        for colld in self.boundarySolver.colliders:
+            colld.surfaceshape.update_transform(self.cfg.dt)
+
+        self.schemeStep(ext_input)
+
+        self.boundarySolver.ApplyBoundaryCondition()
+
+        self.render_frame()
+        if len(self.boundarySolver.colliders):
+            self.render_collider()
+
+    @abstractmethod
+    def schemeStep(self, ext_input: np.array):
         pass
-        # self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
-        # self.boundarySolver.kern_update_marker()
-        # for colld in self.boundarySolver.colliders:
-        #     colld.surfaceshape.update_transform(self.cfg.dt)
-        #
-        # if (self.cfg.run_scheme == SchemeType.Advection_Projection):
-        #     self.advect(self.cfg.dt)
-        #     self.externalForce(ext_input, self.cfg.dt)
-        #     self.project()
-        #     self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
-        #
-        # elif (self.cfg.run_scheme == SchemeType.Advection_Reflection):
-        #     # ref: https://github.com/ShaneFX/GAMES201/blob/master/HW01/Smoke3d/smoke_3D.py
-        #     self.advect(self.cfg.half_dt)
-        #     self.externalForce(ext_input, self.cfg.half_dt)
-        #     utils.copy_ti_field(self.grid.tmp_v, self.grid.v_pair.cur)
-        #     # cur_v = tmp_v = u^{~1/2}, in Fig.2 in advection-reflection solver paper
-        #
-        #     self.project()
-        #     self.grid.subtract_gradient(self.grid.tmp_v, self.grid.p_pair.cur)
-        #     # after projection, tmp_v = u^{1/2}, cur_v = u^{~1/2}
-        #     utils.reflect(self.grid.v_pair.cur, self.grid.tmp_v)
-        #
-        #     self.advect(self.cfg.half_dt)
-        #     self.externalForce(ext_input, self.cfg.half_dt)
-        #     self.project()
-        #     self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
-        #
-        # self.boundarySolver.ApplyBoundaryCondition()
-        #
-        # self.render_frame()
-        # if (len(self.boundarySolver.colliders)):
-        #     self.render_collider()
-
-
 
     @ti.kernel
     def render_collider(self):

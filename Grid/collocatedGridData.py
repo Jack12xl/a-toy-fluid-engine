@@ -14,7 +14,7 @@ class collocatedGridData():
     def __init__(self, cfg, ):
         self.cfg = cfg
 
-        self.v = DataGrid(ti.Vector.field(cfg.dim,  dtype=ti.f32, shape=cfg.res))
+        self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
         self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
         # another buffer for advection-reflection
         self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))

@@ -1,6 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from AbstractProjectionSolver import ProjectionSolver
+from .AbstractProjectionSolver import ProjectionSolver
 
 #ref1 : https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf
 #ref2 : https://github.com/ShaneFX/GAMES201/blob/330d9c75cacfad6901605d3f589eea11954d9a93/HW01/Smoke3d/smoke_3D.py
