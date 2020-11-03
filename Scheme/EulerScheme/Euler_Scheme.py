@@ -186,7 +186,7 @@ class EulerScheme(metaclass=ABCMeta):
                     # clld = self.boundarySolver.colliders[0]
                     # TODO render function should be optimized
                     clld = self.boundarySolver.colliders[it]
-                    if (clld.is_inside_collider(I)):
+                    if clld.is_inside_collider(I):
                         self.clr_bffr[I] = clld.color_at_world(I)
 
     def materialize_collider(self):

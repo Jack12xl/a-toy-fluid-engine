@@ -100,9 +100,11 @@ class ForceEmitter(GridEmitter):
         """
         pass
 
+    @ti.kernel
     def stepEmitForce(self,
                       vf: Vector,
-                      df: Vector
+                      df: Vector,
+                      dt: ti.f32,
                       ):
         """
         ref1 : taichi stable fluid
@@ -114,7 +116,7 @@ class ForceEmitter(GridEmitter):
             den = df[I]
 
             d2 = (I + 0.5 - self.t.translation).norm_sqr()
-            momentum = ti.exp(- self.cfg.dt * self.inv_force_radius) * emit_force
+            momentum = ti.exp(- dt * self.inv_force_radius) * emit_force
 
             vf[I] += momentum
             den += ti.exp(- d2 * self.inv_force_radius)
