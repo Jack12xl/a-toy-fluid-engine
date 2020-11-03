@@ -3,11 +3,10 @@ import taichi as ti
 import taichi_glsl as ts
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType
-import utils
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
-from geometry import Collider
 from abc import ABCMeta, abstractmethod
+from GridEmitter import ForceEmitter
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
@@ -49,8 +48,8 @@ class EulerScheme(metaclass=ABCMeta):
 
     @ti.kernel
     def enhance_vorticity(self):
-        #ref: taichi official stable fluid
-        #ref2: https://softologyblog.wordpress.com/2019/03/13/vorticity-confinement-for-eulerian-fluid-simulations/
+        # ref: taichi official stable fluid
+        # ref2: https://softologyblog.wordpress.com/2019/03/13/vorticity-confinement-for-eulerian-fluid-simulations/
         vf = ti.static(self.grid.v_pair.cur)
         vc = ti.static(self.grid.v_curl)
         for I in ti.grouped(vc.field):
@@ -128,11 +127,11 @@ class EulerScheme(metaclass=ABCMeta):
             dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
             d2 = dx * dx + dy * dy
             momentum = (self.cfg.direct_X_force * ti.exp(-d2 * self.cfg.inv_force_radius) - self.cfg.f_gravity) * dt
-            # vf[i, j] += momentum
+            vf[i, j] += momentum
             # vf[i, j] *= self.cfg.dye_decay
-            # den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
+            den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
 
-            #den *= self.cfg.dye_decay
+            den *= self.cfg.dye_decay
             self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
 
     def render_frame(self):
@@ -166,7 +165,7 @@ class EulerScheme(metaclass=ABCMeta):
         self.boundarySolver.kern_update_marker()
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)
-
+        # do advection projection here
         self.schemeStep(ext_input)
 
         self.boundarySolver.ApplyBoundaryCondition()

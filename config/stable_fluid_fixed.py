@@ -8,7 +8,7 @@ import config.default_config
 from geometry import RigidBodyCollider, Ball
 
 
-debug = True
+debug = False
 
 # simulate_type = SimulateType.Gas
 
@@ -16,7 +16,7 @@ FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 SceneType = SceneEnum.ShotFromBottom
-VisualType = VisualizeEnum.Density
+VisualType = VisualizeEnum.Velocity
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
@@ -34,7 +34,7 @@ curl_strength = 0.0
 
 # collider
 from geometry import Transform2, Velocity2
-ti.init(arch=ti.cpu, debug=debug, kernel_profiler=True)
+ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 # init should put before init ti.field
 
 Colliders = []
@@ -44,6 +44,11 @@ Colliders = []
 # Colliders.append(RigidBodyCollider(Ball(
 #     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
+
+from Emitter import ForceEmitter
+Emitters = []
+# Emitters.append( ForceEmitter() )
+
 
 profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
                + str(run_scheme) + '-' \

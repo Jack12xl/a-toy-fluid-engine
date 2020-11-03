@@ -25,7 +25,7 @@ class collocatedGridData():
 
         self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
         self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
-
+        # here density is just for visualization, which does not involve in calculation
         self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res))
         self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res))
 
