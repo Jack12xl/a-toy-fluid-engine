@@ -53,19 +53,21 @@ Currently, I'm working on coupling with moving objects. I haven't consider the b
 
 #### Simple Show Case
 
-AP = advection-projection
+- AP = advection-projection
 
-AR = advection-reflection
+- AR = advection-reflection
 
-SL == Semi-Lagrangian
+- SL == Semi-Lagrangian
 
-MC == MacCormack
+- MC == MacCormack
 
-JC == Jacobi Iteration
+- JC == Jacobi Iteration
 
-GS == Gauss Sedial
+- GS == Gauss Sedial
 
-it == iteration
+- MGPCG == Multi-Grid Preconditioned Conjugate Gradient( copied from [official](https://github.com/taichi-dev/taichi/blob/master/examples/mgpcg_advanced.py)..)
+
+- it == iteration
 
 
 

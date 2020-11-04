@@ -62,13 +62,24 @@ Emitters.append(ForceEmitter(
     force_radius=res[0] / 3.0
 )
 )
-# shot to right
 # Emitters.append(ForceEmitter(
 #     sys.modules[__name__],
 #     t=Transform2(
-#         translation=ti.Vector([0, 300]),
+#         translation=ti.Vector([305, 0]),
 #         localscale=10000.0,
-#         orientation=0.0
+#         orientation=math.pi / 2.0
+#     ),
+#     v=Velocity2(),
+#     force_radius=res[0] / 3.0
+#     )
+# )
+#
+# Emitters.append(ForceEmitter(
+#     sys.modules[__name__],
+#     t=Transform2(
+#         translation=ti.Vector([295, 0]),
+#         localscale=10000.0,
+#         orientation=math.pi / 2.0
 #     ),
 #     v=Velocity2(),
 #     force_radius=res[0] / 3.0
@@ -83,13 +94,14 @@ profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
                + 'RK' + str(int(semi_order)) + '-' \
-               + 'curl' + str(curl_strength)
+               + 'curl' + str(curl_strength) + '-' \
+               + 'dt-' + str(dt)
 if (Colliders):
     profile_name += '-Collider'
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 
 save_frame_length = 240
 save_root = './tmp_result'

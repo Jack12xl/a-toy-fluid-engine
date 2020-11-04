@@ -99,7 +99,7 @@ class EulerScheme(metaclass=ABCMeta):
         # divergence
         for I in ti.grouped(vf):
             v = ts.vec(vf[I], 0.0, 0.0)
-            self.clr_bffr[I] = 0.1 * v + ts.vec3(0.5)
+            self.clr_bffr[I] = 0.3 * v + ts.vec3(0.5)
 
     @ti.kernel
     def vis_vt(self, vf: ti.template()):
@@ -189,6 +189,8 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver.ApplyBoundaryCondition()
 
+        self.dye_fade()
+
         self.render_frame()
         if len(self.boundarySolver.colliders):
             self.render_collider()
@@ -224,3 +226,9 @@ class EulerScheme(metaclass=ABCMeta):
         self.grid.reset()
         self.clr_bffr.fill(ti.Vector([0, 0, 0]))
         self.boundarySolver.reset()
+
+    @ti.kernel
+    def dye_fade(self):
+        d = ti.static(self.grid.density_bffr)
+        for I in ti.grouped(d.field):
+            d[I] *= self.cfg.dye_decay
