@@ -7,7 +7,7 @@ from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
 from GridEmitter import ForceEmitter
-from utils import color_map
+from utils import cmapper
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
@@ -21,6 +21,7 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
         self.emitters = cfg.Emitters
+        self.mapper = cmapper()
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
@@ -89,8 +90,8 @@ class EulerScheme(metaclass=ABCMeta):
     def vis_v_mag(self, vf: ti.template()):
         # velocity magnitude
         for I in ti.grouped(vf):
-            v_norm = vf[I].norm() * 0.002
-            self.clr_bffr[I] = color_map(v_norm)
+            v_norm = vf[I].norm() * 0.004
+            self.clr_bffr[I] = self.mapper.color_map(v_norm)
 
 
     @ti.kernel

@@ -1,10 +1,11 @@
 import taichi as ti
 import taichi_glsl as ts
+import numpy as np
 
 # to build colormap in taichi
 
 # 3 * 256
-_magma_data = ts.vec(
+_magma_data = np.array([
     0.001462, 0.000466, 0.013866, 0.002258, 0.001295, 0.018331, 0.003279, 0.002305, 0.023708, 0.004512, 0.003490,
     0.029965, 0.005950, 0.004843, 0.037130, 0.007588, 0.006356, 0.044973, 0.009426, 0.008022, 0.052844, 0.011465,
     0.009828, 0.060750,
@@ -100,20 +101,26 @@ _magma_data = ts.vec(
     0.934329, 0.690198,
     0.989434, 0.941470, 0.697519, 0.989077, 0.948604, 0.704863, 0.988717, 0.955742, 0.712242, 0.988367, 0.962878,
     0.719649, 0.988033, 0.970012, 0.727077, 0.987691, 0.977154, 0.734536, 0.987387, 0.984288, 0.742002, 0.987053,
-    0.991438, 0.749504)
+    0.991438, 0.749504]
+)
+_magma_data = _magma_data.reshape([256, 3]).astype(np.float32)
 
+@ti.data_oriented
+class cmapper():
+    def __init__(self):
+        self.map_f = ti.Vector.field(3, dtype=ti.f32, shape=[256])
+        self.map_f.from_numpy(_magma_data)
 
-@ti.pyfunc
-def color_map(v, cmap = _magma_data):
-    """
+    @ti.pyfunc
+    def color_map(self, v):
+        """
 
-    :param v: one d value ~[0, 1]
-    :return: 3d color mapped value
-    """
-    v = ts.clamp(v, 0.0, 1.0)
-    # map to 0 ~ 255
-    v = int(v * 255)
-    return ts.vec(cmap[3 * v],
-                  cmap[3 * v + 1],
-                  cmap[3 * v + 2]
-                  )
+        :param v: one d value ~[0, 1]
+        :return: 3d color mapped value
+        """
+        # print(v)
+        v = ts.clamp(v, 0.0, 1.0)
+        # map to 0 ~ 255
+        v = int(v * 255)
+
+        return self.map_f[v]
