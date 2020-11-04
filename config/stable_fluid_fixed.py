@@ -17,24 +17,27 @@ FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 SceneType = SceneEnum.ShotFromBottom
-VisualType = VisualizeEnum.Velocity
+VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
+
 advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
+
 projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
-curl_strength = 0.0
+curl_strength = 6.0
 
 # collider
 from geometry import Transform2, Velocity2
+
 ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 # init should put before init ti.field
 
@@ -47,7 +50,7 @@ Colliders = []
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
 
-Emitters=[]
+Emitters = []
 Emitters.append(ForceEmitter(
     sys.modules[__name__],
     t=Transform2(
@@ -57,7 +60,7 @@ Emitters.append(ForceEmitter(
     ),
     v=Velocity2(),
     force_radius=res[0] / 3.0
-    )
+)
 )
 # shot to right
 # Emitters.append(ForceEmitter(
@@ -74,6 +77,7 @@ Emitters.append(ForceEmitter(
 
 
 profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
+               + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
@@ -85,7 +89,7 @@ if (Colliders):
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
 save_frame_length = 240
 save_root = './tmp_result'

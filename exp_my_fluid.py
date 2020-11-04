@@ -22,9 +22,6 @@ if __name__ == '__main__':
 
     s.materialize()
 
-    # cmap = cm.get_cmap('magma')
-    # needcmap = False
-
     while gui.running:
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
@@ -51,7 +48,6 @@ if __name__ == '__main__':
                 m_cfg.VisualType = VisualizeEnum.Vorticity
             elif e.key == '5':
                 m_cfg.VisualType = VisualizeEnum.VelocityMagnitude
-                # needcmap = True
 
         if not paused:
             mouse_data = md_gen(gui)
@@ -66,12 +62,6 @@ if __name__ == '__main__':
             img = skimage.transform.resize(img, m_cfg.screen_res)
             gui.set_image(img)
         else:
-            # if needcmap:
-            #     gui.fast_gui = False
-            #     arr = s.clr_bffr.to_numpy()[:, :, 0]
-            #     gui.set_image(cmap(arr)[:, :, :3])
-            # else:
-            #     gui.fast_gui = False
             gui.set_image(s.clr_bffr)
         gui.show()
 

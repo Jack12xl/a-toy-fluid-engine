@@ -26,6 +26,7 @@ python exp_my_fluid.py
 - Projection
   - Jacobian
   - Gauss-Seidel 
+  - Multi-Grid Preconditioned Conjugate Gradient ( copied from [official](https://github.com/taichi-dev/taichi/blob/master/examples/mgpcg_advanced.py)...)
 - Two way Coupling
   - In progress...
 
@@ -68,13 +69,23 @@ it == iteration
 
 
 
-| AP + SL(RK2) + JC(30 it)           | AP + SL(RK3) + JC(30 it)           | AP + MC(RK3) + JC(30 it)          |
-| ---------------------------------- | ---------------------------------- | --------------------------------- |
-| ![](results/proj-sl-jc-rk2.gif)    | ![](./results/proj-sl-jc-rk3.gif)  | ![](./results/proj-mc-jc-rk3.gif) |
-| **AR + MC(RK3) + SD(30 it)**       | **AR + MC(RK3) + SD(30 it)**       | **AP + MC(RK3) + SD(30 it)**      |
-| ![](results/reflect-sl-sd-rk3.gif) | ![](results/reflect-mc-sd-rk3.gif) | ![](./results/proj-mc-sd-rk3.gif) |
+The following results shows the density.
 
-The above results are showing the density.
+| AP + SL(RK2) + JC(30 it)           | AP + SL(RK3) + JC(30 it)           | **AP + MC(RK3) + SD(30 it)**            |
+| ---------------------------------- | ---------------------------------- | --------------------------------------- |
+| ![](results/proj-sl-jc-rk2.gif)    | ![](./results/proj-sl-jc-rk3.gif)  | ![](./results/proj-mc-sd-rk3.gif)       |
+| **AR + MC(RK3) + SD(30 it)**       | **AR + MC(RK3) + SD(30 it)**       | **AR + MC(RK3) + MGPCG**                |
+| ![](results/reflect-sl-sd-rk3.gif) | ![](results/reflect-mc-sd-rk3.gif) | ![](./results/reflect-mc-mgpcg-rk3.gif) |
+
+##### Other views
+
+Here shows other property( pixel value ) during simulation.
+
+| Divergence ( 0.01 * v + vec3(0.5) )                         | Curl( 0.03 * curl + vec3(0.5))                        | Velocity ( 0.01 * v + vec3(0.5))                     | Velocity-Norm( v.norm * 0.004) (Magma colormap)           |
+| ----------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
+| ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/divergence.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/Curl.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/vel.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/vel-norm.gif) |
+
+
 
 #### Mumbled Comparison
 
@@ -97,6 +108,7 @@ The above results are showing the density.
 ##### Paper
 
 - [Efficient and Conservative Fluids with Bidirectional Mapping](https://github.com/ziyinq/Bimocq#efficient-and-conservative-fluids-with-bidirectional-mapping)
+- A parallel multigrid poisson solver for fluids simulation on large grids
 
 
 

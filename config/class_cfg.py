@@ -16,13 +16,16 @@ class SceneEnum(Enum):
 class VisualizeEnum(Enum):
     Density = 0
     Velocity = 1
-    VelocityMagnitude = 4
     Divergence = 2
     Vorticity = 3
+    VelocityMagnitude = 4
 
     def __init__(self, *args):
         super().__init__()
+        self.map = ['Density', 'Velocity', 'Div', 'Curl', 'Vel-Norm']
 
+    def __str__(self):
+        return self.map[self.value]
 
 
 class SchemeType(Enum):
