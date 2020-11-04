@@ -7,6 +7,7 @@ from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
 from GridEmitter import ForceEmitter
+from utils import color_map
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
@@ -19,6 +20,7 @@ class EulerScheme(metaclass=ABCMeta):
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
+        self.emitters = cfg.Emitters
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
@@ -34,7 +36,13 @@ class EulerScheme(metaclass=ABCMeta):
             # add impulse from mouse
             self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
         elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
-            self.add_fixed_force_and_render(self.grid.v_pair.cur, dt)
+            #self.add_fixed_force_and_render(self.grid.v_pair.cur, dt)
+            for emitter in self.emitters:
+                emitter.stepEmitForce(
+                    self.grid.v,
+                    self.grid.density_bffr,
+                    dt
+                )
 
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
@@ -76,6 +84,14 @@ class EulerScheme(metaclass=ABCMeta):
             v = ts.vec(vf[I].x, vf[I].y, 0.0)
             # self.clr_bffr[I] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
             self.clr_bffr[I] = 0.01 * v + ts.vec3(0.5)
+
+    @ti.kernel
+    def vis_v_mag(self, vf: ti.template()):
+        # velocity magnitude
+        for I in ti.grouped(vf):
+            v_norm = vf[I].norm() * 0.002
+            self.clr_bffr[I] = color_map(v_norm)
+
 
     @ti.kernel
     def vis_vd(self, vf: ti.template()):
@@ -143,6 +159,8 @@ class EulerScheme(metaclass=ABCMeta):
             self.vis_vd(self.grid.v_divs.field)
         elif self.cfg.VisualType == VisualizeEnum.Vorticity:
             self.vis_vt(self.grid.v_curl.field)
+        elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
+            self.vis_v_mag(self.grid.v_pair.cur.field)
 
     @ti.kernel
     def emit(self):
@@ -188,6 +206,14 @@ class EulerScheme(metaclass=ABCMeta):
                     clld = self.boundarySolver.colliders[it]
                     if clld.is_inside_collider(I):
                         self.clr_bffr[I] = clld.color_at_world(I)
+
+    def materialize(self):
+        self.materialize_collider()
+        self.materialize_emitter()
+
+    def materialize_emitter(self):
+        for emitter in self.emitters:
+            emitter.kern_materialize()
 
     def materialize_collider(self):
         for collid in self.boundarySolver.colliders:

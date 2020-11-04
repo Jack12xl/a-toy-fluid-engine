@@ -5,6 +5,7 @@ from config import VisualizeEnum
 import taichi as ti
 from config.class_cfg import SchemeType
 from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
+import matplotlib.cm as cm
 
 if __name__ == '__main__':
     #s = EulerScheme(m_cfg)
@@ -13,13 +14,16 @@ if __name__ == '__main__':
     elif (m_cfg.run_scheme == SchemeType.Advection_Reflection):
         s = AdvectionReflectionEulerScheme(m_cfg)
 
-    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
+    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
     md_gen = utils.MouseDataGen(m_cfg)
     paused = False
 
     frame_count = 0
 
-    s.materialize_collider()
+    s.materialize()
+
+    cmap = cm.get_cmap('magma')
+    needcmap = False
 
     while gui.running:
         if gui.get_event(ti.GUI.PRESS):
@@ -45,6 +49,9 @@ if __name__ == '__main__':
                 m_cfg.VisualType = VisualizeEnum.Divergence
             elif e.key == '4':
                 m_cfg.VisualType = VisualizeEnum.Vorticity
+            elif e.key == '5':
+                m_cfg.VisualType = VisualizeEnum.VelocityMagnitude
+                needcmap = True
 
         if not paused:
             mouse_data = md_gen(gui)
@@ -59,7 +66,13 @@ if __name__ == '__main__':
             img = skimage.transform.resize(img, m_cfg.screen_res)
             gui.set_image(img)
         else:
-            gui.set_image(s.clr_bffr)
+            if needcmap:
+                gui.fast_gui = False
+                arr = s.clr_bffr.to_numpy()[:, :, 0]
+                gui.set_image(cmap(arr)[:, :, :3])
+            else:
+                gui.fast_gui = False
+                gui.set_image(s.clr_bffr)
         gui.show()
 
         if (m_cfg.bool_save):

@@ -16,6 +16,7 @@ class SceneEnum(Enum):
 class VisualizeEnum(Enum):
     Density = 0
     Velocity = 1
+    VelocityMagnitude = 4
     Divergence = 2
     Vorticity = 3
 

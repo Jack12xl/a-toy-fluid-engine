@@ -1,5 +1,5 @@
 # ref: https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi
-from abc import ABCMeta , abstractmethod
+from abc import ABCMeta, abstractmethod
 from utils import Vector, Float
 import taichi as ti
 from .surface import SurfaceToImplict, ImplicitSurface
@@ -7,29 +7,31 @@ from .surfaceShape import SurfaceShape, Ball
 from .transform import Transform2
 from .velocity import Velocity2
 
+
 class Collider(metaclass=ABCMeta):
-    '''
+    """
     class that integrated surfaceShape
     3.4.1.1
     conversion to signed-distance field enable cached the inside/outside testing
     and closest distance measuring into a grid
     => accelerate the collider queries
-    '''
-    def __init__(self, surface: SurfaceShape):
-        self._surface = surface
-        self._implicit = SurfaceToImplict(surface) if not isinstance(surface , ImplicitSurface) else surface
+    """
+
+    def __init__(self, surface_shape: SurfaceShape):
+        self._surface = surface_shape
+        self._implicit = SurfaceToImplict(surface_shape) if not isinstance(surface_shape,
+                                                                           ImplicitSurface) else surface_shape
 
     @ti.pyfunc
     def kern_materialize(self):
         self.surfaceshape.kern_materialize()
-
 
     @property
     def surfaceshape(self) -> SurfaceShape:
         return self._surface
 
     @property
-    def implict_surface(self) -> ImplicitSurface:
+    def implicit_surface(self) -> ImplicitSurface:
         return self._implicit
 
     @abstractmethod
@@ -43,10 +45,10 @@ class Collider(metaclass=ABCMeta):
     @ti.pyfunc
     def is_inside_collider(self, world_p: Vector) -> bool:
         local_p = self.surfaceshape.transform.to_local(world_p)
-        return self.implict_surface.is_inside_local(local_p)
+        return self.implicit_surface.is_inside_local(local_p)
 
     @ti.func
-    def color_at_world(self, world_p : Vector) -> Vector:
+    def color_at_world(self, world_p: Vector) -> Vector:
         local_p = self.surfaceshape.transform.to_local(world_p)
         return self.surfaceshape.color_at_local_point(local_p)
 
@@ -54,10 +56,11 @@ class Collider(metaclass=ABCMeta):
     def reset(self):
         self.kern_materialize()
 
+
 @ti.data_oriented
 class RigidBodyCollider(Collider):
-    def __init__(self, surface):
-        super().__init__(surface)
+    def __init__(self, surface_shape):
+        super().__init__(surface_shape)
 
     def update(self, time_interval: float):
         pass
@@ -68,7 +71,6 @@ class RigidBodyCollider(Collider):
         return sfs.velocity_at_local_point(sfs.transform.to_local(world_point))
 
 
-
 if __name__ == '__main__':
     ti.init(ti.cpu, debug=True)
     colld_ball = RigidBodyCollider(Ball(
@@ -77,7 +79,8 @@ if __name__ == '__main__':
 
     colld_ball.kern_materialize()
     world_p = ti.Vector([315.0, 150.0])
-    print(colld_ball.implict_surface.transform)
+    print(colld_ball.implicit_surface.transform)
+
 
     @ti.kernel
     def test():
@@ -85,5 +88,6 @@ if __name__ == '__main__':
         # bad value
 
         print(colld_ball.is_inside_collider(world_p))
+
 
     test()

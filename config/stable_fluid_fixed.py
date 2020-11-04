@@ -6,7 +6,8 @@ import sys
 import config.scene_config.shot_from_bottom_config as scene_cfg
 import config.default_config
 from geometry import RigidBodyCollider, Ball
-
+import math
+from Emitter import ForceEmitter
 
 debug = False
 
@@ -45,9 +46,31 @@ Colliders = []
 #     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
-from Emitter import ForceEmitter
-Emitters = []
-# Emitters.append( ForceEmitter() )
+
+Emitters=[]
+Emitters.append(ForceEmitter(
+    sys.modules[__name__],
+    t=Transform2(
+        translation=ti.Vector([300, 0]),
+        localscale=10000.0,
+        orientation=math.pi / 2.0
+    ),
+    v=Velocity2(),
+    force_radius=res[0] / 3.0
+    )
+)
+# shot to right
+# Emitters.append(ForceEmitter(
+#     sys.modules[__name__],
+#     t=Transform2(
+#         translation=ti.Vector([0, 300]),
+#         localscale=10000.0,
+#         orientation=0.0
+#     ),
+#     v=Velocity2(),
+#     force_radius=res[0] / 3.0
+#     )
+# )
 
 
 profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \

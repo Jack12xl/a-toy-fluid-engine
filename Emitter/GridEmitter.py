@@ -27,6 +27,8 @@ class GridEmitter(metaclass=ABCMeta):
         self.t = t
 
     def kern_materialize(self):
+        self.v.kern_materialize()
+        self.t.kern_materialize()
         pass
 
     @abstractmethod
@@ -65,9 +67,9 @@ class ForceEmitter(GridEmitter):
 
     def __init__(self,
                  # datagrid,
+                 cfg,
                  t: Transform2,
                  v: Velocity2,
-                 cfg,
                  force_radius,
                  ):
         """
@@ -116,7 +118,7 @@ class ForceEmitter(GridEmitter):
             den = df[I]
 
             d2 = (I + 0.5 - self.t.translation).norm_sqr()
-            momentum = ti.exp(- dt * self.inv_force_radius) * emit_force
+            momentum = ti.exp(- d2 * self.inv_force_radius) * emit_force * dt
 
             vf[I] += momentum
             den += ti.exp(- d2 * self.inv_force_radius)
