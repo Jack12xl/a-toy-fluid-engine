@@ -1,5 +1,5 @@
 import taichi as ti
-from .class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
+from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import os
 from utils import set_attribute_from_cfg, filterUpCase
 import sys

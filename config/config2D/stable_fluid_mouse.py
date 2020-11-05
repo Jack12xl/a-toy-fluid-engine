@@ -1,4 +1,4 @@
-from .class_cfg import SceneEnum, VisualizeEnum, SchemeType
+from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
 from utils import set_attribute_from_cfg, filterUpCase
 import sys
 import config.scene_config.mouse_drag_config as scene_cfg

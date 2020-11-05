@@ -1,9 +1,0 @@
-res : 600
-dx : 1.0
-inv_dx : "{{ 1.0 / dx }}"
-half_inv_dx : 0.5 * inv_dx
-dt : 0.03
-p_jacobi_iters : 30
-f_strength : 10000.0
-dye_decay : 0.99
-debug : False
