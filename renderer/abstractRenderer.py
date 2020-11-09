@@ -4,9 +4,12 @@ import taichi as ti
 
 @ti.data_oriented
 class renderer(metaclass=ABCMeta):
-    def __init__(self, cfg, ):
+    def __init__(self, cfg, grid):
         self.cfg = cfg
+        self.grid = grid
+
+        self.clr_bffr = ti.Vector.field(3, dtype=ti.float32, shape=cfg.res)
 
     @abstractmethod
-    def step(self, ):
+    def renderStep(self, ):
         pass

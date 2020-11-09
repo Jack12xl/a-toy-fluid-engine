@@ -7,7 +7,8 @@ from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
 from GridEmitter import ForceEmitter
-from utils import cmapper
+from renderer import renderer2D
+
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
@@ -15,13 +16,14 @@ class EulerScheme(metaclass=ABCMeta):
         self.cfg = cfg
         self.grid = collocatedGridData(cfg)
 
-        self.clr_bffr = ti.Vector.field(3, dtype=ti.float32, shape=cfg.res)
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
         self.emitters = cfg.Emitters
-        self.mapper = cmapper()
+
+        if cfg.dim == 2:
+            self.renderer = renderer2D(cfg, self.grid)
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
@@ -37,7 +39,6 @@ class EulerScheme(metaclass=ABCMeta):
             # add impulse from mouse
             self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
         elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
-            #self.add_fixed_force_and_render(self.grid.v_pair.cur, dt)
             for emitter in self.emitters:
                 emitter.stepEmitForce(
                     self.grid.v,
@@ -71,42 +72,6 @@ class EulerScheme(metaclass=ABCMeta):
                                abs(cl) - abs(cr)]).normalized(1e-3)
             force *= self.cfg.curl_strength * cc
             vf[I] = ts.clamp(vf[I] + force * self.cfg.dt, -1e3, 1e3)
-
-    @ti.kernel
-    def vis_density(self, vf: ti.template()):
-        ti.cache_read_only(vf.field)
-        for I in ti.grouped(vf.field):
-            self.clr_bffr[I] = ti.abs(vf[I])
-
-    @ti.kernel
-    def vis_v(self, vf: ti.template()):
-        # velocity
-        for I in ti.grouped(vf):
-            v = ts.vec(vf[I].x, vf[I].y, 0.0)
-            # self.clr_bffr[I] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
-            self.clr_bffr[I] = 0.01 * v + ts.vec3(0.5)
-
-    @ti.kernel
-    def vis_v_mag(self, vf: ti.template()):
-        # velocity magnitude
-        for I in ti.grouped(vf):
-            v_norm = vf[I].norm() * 0.004
-            self.clr_bffr[I] = self.mapper.color_map(v_norm)
-
-
-    @ti.kernel
-    def vis_vd(self, vf: ti.template()):
-        # divergence
-        for I in ti.grouped(vf):
-            v = ts.vec(vf[I], 0.0, 0.0)
-            self.clr_bffr[I] = 0.3 * v + ts.vec3(0.5)
-
-    @ti.kernel
-    def vis_vt(self, vf: ti.template()):
-        # visualize vorticity
-        for I in ti.grouped(vf):
-            v = ts.vec(vf[I], 0.0, 0.0)
-            self.clr_bffr[I] = 0.03 * v + ts.vec3(0.5)
 
     @ti.kernel
     def apply_mouse_input_and_render(self, vf: ti.template(), dyef: ti.template(),
@@ -152,18 +117,6 @@ class EulerScheme(metaclass=ABCMeta):
             den *= self.cfg.dye_decay
             self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
 
-    def render_frame(self):
-        if self.cfg.VisualType == VisualizeEnum.Velocity:
-            self.vis_v(self.grid.v_pair.cur.field)
-        elif self.cfg.VisualType == VisualizeEnum.Density:
-            self.vis_density(self.grid.density_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Divergence:
-            self.vis_vd(self.grid.v_divs.field)
-        elif self.cfg.VisualType == VisualizeEnum.Vorticity:
-            self.vis_vt(self.grid.v_curl.field)
-        elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
-            self.vis_v_mag(self.grid.v.field)
-
     @ti.kernel
     def emit(self):
         half_d = 30
@@ -174,7 +127,7 @@ class EulerScheme(metaclass=ABCMeta):
         shape = ti.Vector(self.grid.v.shape)
         l_b = ts.clamp(l_b, 0, shape - 1)
         r_u = ts.clamp(r_u, 0, shape - 1)
-        for I in ti.grouped(ti.ndrange( (l_b.x, r_u.x), (l_b.y, r_u.y) )):
+        for I in ti.grouped(ti.ndrange((l_b.x, r_u.x), (l_b.y, r_u.y))):
             self.grid.v[I] = ts.vec(0.0, 300.0)
             self.grid.density_bffr[I] = 1.0 * self.cfg.fluid_color
 
@@ -189,25 +142,11 @@ class EulerScheme(metaclass=ABCMeta):
         self.boundarySolver.ApplyBoundaryCondition()
 
         self.dye_fade()
-
-        self.render_frame()
-        if len(self.boundarySolver.colliders):
-            self.render_collider()
+        self.renderer.renderStep(self.boundarySolver)
 
     @abstractmethod
     def schemeStep(self, ext_input: np.array):
         pass
-
-    @ti.kernel
-    def render_collider(self):
-        for I in ti.grouped(self.clr_bffr):
-            if self.boundarySolver.marker_field[I] == int(PixelType.Collider):
-                for it in ti.static(range(len(self.boundarySolver.colliders))):
-                    # clld = self.boundarySolver.colliders[0]
-                    # TODO render function should be optimized
-                    clld = self.boundarySolver.colliders[it]
-                    if clld.is_inside_collider(I):
-                        self.clr_bffr[I] = clld.color_at_world(I)
 
     def materialize(self):
         self.materialize_collider()

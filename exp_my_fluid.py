@@ -1,5 +1,5 @@
 import utils
-import config.config2D.stable_fluid_mouse as m_cfg
+import config.config2D.stable_fluid_fixed as m_cfg
 from config import VisualizeEnum
 import taichi as ti
 from config.class_cfg import SchemeType
@@ -55,17 +55,17 @@ if __name__ == '__main__':
         if m_cfg.screen_res[0] != m_cfg.res[0]:
             import skimage
             import skimage.transform
-            img = s.clr_bffr.to_numpy()
+            img = s.renderer.clr_bffr.to_numpy()
             img = skimage.transform.resize(img, m_cfg.screen_res)
             gui.set_image(img)
         else:
-            gui.set_image(s.clr_bffr)
+            gui.set_image(s.renderer.clr_bffr)
         gui.show()
 
         if m_cfg.bool_save:
             if frame_count <= m_cfg.save_frame_length:
                 # not sure this would work
-                img = s.clr_bffr.to_numpy()
+                img = s.renderer.clr_bffr.to_numpy()
                 m_cfg.video_manager.write_frame(img)
             else:
                 m_cfg.video_manager.make_video(gif=True, mp4=False)
