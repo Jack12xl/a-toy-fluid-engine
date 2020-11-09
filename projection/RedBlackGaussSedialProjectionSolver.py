@@ -17,16 +17,7 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                    new_pf: ti.template(),
                    p_divs: ti.template()):
         # TODO: dimension independent coding
-        ti.cache_read_only(pf.field)
 
-        # for i, j in pf:
-        #     if (i + j) % 2 == 0:
-        #         pl = self.grid.sample(pf, i - 1, j)
-        #         pr = self.grid.sample(pf, i + 1, j)
-        #         pb = self.grid.sample(pf, i, j - 1)
-        #         pt = self.grid.sample(pf, i, j + 1)
-        #         div = p_divs[i, j]
-        #         new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
         for I in ti.grouped(pf.field):
             if ts.summation(I) % 2 == 0:
                 pl = pf.sample(I + ts.D.zy)
@@ -36,14 +27,6 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                 div = p_divs[I]
                 new_pf[I] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
 
-        # for i, j in pf:
-        #     if (i + j) % 2 == 1:
-        #         pl = self.grid.sample(new_pf, i - 1, j)
-        #         pr = self.grid.sample(new_pf, i + 1, j)
-        #         pb = self.grid.sample(new_pf, i, j - 1)
-        #         pt = self.grid.sample(new_pf, i, j + 1)
-        #         div = p_divs[i, j]
-        #         new_pf[i, j] = (pl + pr + pb + pt + self.cfg.jacobi_alpha * div) * self.cfg.jacobi_beta
         for I in ti.grouped(pf.field):
             if ts.summation(I) % 2 == 1:
                 pl = new_pf.sample(I + ts.D.zy)

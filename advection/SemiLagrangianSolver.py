@@ -95,7 +95,6 @@ class SemiLagrangeSolver(AdvectionSolver):
             p = float(I)
             coord = self.backtrace(vec_field, p, boundarySdf, dt)
             # sample its speed
-            #q_nxt[I] = self.grid.bilerp(q_cur, coord)
             q_nxt[I] = q_cur.bilerp(coord)
 
         return q_nxt
@@ -106,7 +105,6 @@ class SemiLagrangeSolver(AdvectionSolver):
                q_nxt: ti.template(),
                boundarySdf: Matrix,
                dt: ti.template() ):
-        ti.cache_read_only(vec_field.field)
         self.advect_func(vec_field, q_cur, q_nxt, boundarySdf, dt)
 
 

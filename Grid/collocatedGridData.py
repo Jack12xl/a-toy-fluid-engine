@@ -10,6 +10,7 @@ class collocatedGridData():
     class to store the grid data
     pressure, velocity both stores on grid cell corner
     '''
+
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
     def __init__(self, cfg, ):
         self.cfg = cfg
@@ -20,7 +21,7 @@ class collocatedGridData():
         self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
         # velocity divergence
         self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
-        #velocity vorticity
+        # velocity vorticity
         self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
 
         self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
@@ -37,17 +38,16 @@ class collocatedGridData():
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         # self.marker_pair = TexPair(self.marker, self.new_marker)
 
-
     @ti.func
     def sample(self, qf, u, v):
         raise DeprecationWarning
         # assure integer
         # i, j = int(u), int(v)
-        I = int( ti.Vector([u, v]) )
+        I = int(ti.Vector([u, v]))
         # clamp
         # i = clamp(i, 0, self.cfg.res[0] - 1)
         # j = clamp(j, 0, self.cfg.res[1] - 1)
-        I = max( 0, min(self.cfg.res[0] - 1, I) )
+        I = max(0, min(self.cfg.res[0] - 1, I))
 
         return qf[I]
 
@@ -66,15 +66,15 @@ class collocatedGridData():
         '''
         raise DeprecationWarning
         # get coordinate in grid
-        #TODO handle non-suqare cell
+        # TODO handle non-suqare cell
         grid_coord = phy_coord - 0.5
-        #TODO handle 3D input
+        # TODO handle 3D input
 
         # int -> floor https://github.com/taichi-dev/taichi/pull/1784
         iu, iv = ti.floor(grid_coord[0]), ti.floor(grid_coord[1])
         # fract
         fu, fv = grid_coord[0] - iu, grid_coord[1] - iv
-        #TODO test +0, +1
+        # TODO test +0, +1
         a = self.sample(values, iu + 0.5, iv + 0.5)
         b = self.sample(values, iu + 1.5, iv + 0.5)
         c = self.sample(values, iu + 0.5, iv + 1.5)
@@ -95,7 +95,6 @@ class collocatedGridData():
         d = self.sample(vf, iu + 1.5, iv + 1.5)
         return min(a, b, c, d), max(a, b, c, d)
 
-
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         for I in ti.grouped(vf.field):
@@ -110,7 +109,7 @@ class collocatedGridData():
             vt = vf.sample(I + ts.D.yx).y
             vc = vf.sample(I)
             # boundary
-            #TODO
+            # TODO
             # if i == 0:
             #     vl = -vc[0]
             # if i == self.cfg.res[0] - 1:
@@ -134,10 +133,10 @@ class collocatedGridData():
     # ref: taichi official stable fluid
     def calVorticity(self, vf: Vector):
         for I in ti.grouped(vf.field):
-            vl = vf.sample(I + ts.D.zy).x
-            vr = vf.sample(I + ts.D.xy).x
-            vb = vf.sample(I + ts.D.yz).y
-            vt = vf.sample(I + ts.D.yx).y
+            vl = vf.sample(I + ts.D.zy).y
+            vr = vf.sample(I + ts.D.xy).y
+            vb = vf.sample(I + ts.D.yz).x
+            vt = vf.sample(I + ts.D.yx).x
             self.v_curl[I] = (vr - vl - vt + vb) * 0.5
 
     @ti.kernel
@@ -157,7 +156,6 @@ class collocatedGridData():
             pb = pf.sample(I + ts.D.yz)
             pt = pf.sample(I + ts.D.yx)
             vf[I] -= 0.5 * ts.vec(pr - pl, pt - pb)
-
 
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)

@@ -1,5 +1,5 @@
 import utils
-import config.config2D.stable_fluid_fixed as m_cfg
+import config.config2D.stable_fluid_mouse as m_cfg
 from config import VisualizeEnum
 import taichi as ti
 from config.class_cfg import SchemeType
