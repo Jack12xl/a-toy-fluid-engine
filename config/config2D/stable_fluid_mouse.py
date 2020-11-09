@@ -29,13 +29,18 @@ dye_decay = 0.99
 curl_strength = 7.0
 
 Colliders = []
+Emitters = []
 
 profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
+               + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
-               + 'RK' + str(int(semi_order))
+               + 'RK' + str(int(semi_order)) + '-' \
+               + 'curl' + str(curl_strength) + '-' \
+               + 'dt-' + str(dt)
+
 print(profile_name)
 # save to video(gif)
 bool_save = False

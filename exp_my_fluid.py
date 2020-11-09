@@ -1,17 +1,14 @@
 import utils
-import config.config2D.stable_fluid_fixed as m_cfg
-#from EulerScheme.Euler_Scheme import EulerScheme
+import config.config2D.stable_fluid_mouse as m_cfg
 from config import VisualizeEnum
 import taichi as ti
 from config.class_cfg import SchemeType
 from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
-# import matplotlib.cm as cm
 
 if __name__ == '__main__':
-    #s = EulerScheme(m_cfg)
-    if (m_cfg.run_scheme == SchemeType.Advection_Projection):
+    if m_cfg.run_scheme == SchemeType.Advection_Projection:
         s = AdvectionProjectionEulerScheme(m_cfg)
-    elif (m_cfg.run_scheme == SchemeType.Advection_Reflection):
+    elif m_cfg.run_scheme == SchemeType.Advection_Reflection:
         s = AdvectionReflectionEulerScheme(m_cfg)
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
@@ -55,7 +52,7 @@ if __name__ == '__main__':
 
         # gui.set_image()
         # too slow
-        if (m_cfg.screen_res[0] != m_cfg.res[0]):
+        if m_cfg.screen_res[0] != m_cfg.res[0]:
             import skimage
             import skimage.transform
             img = s.clr_bffr.to_numpy()
@@ -65,8 +62,8 @@ if __name__ == '__main__':
             gui.set_image(s.clr_bffr)
         gui.show()
 
-        if (m_cfg.bool_save):
-            if (frame_count <= m_cfg.save_frame_length):
+        if m_cfg.bool_save:
+            if frame_count <= m_cfg.save_frame_length:
                 # not sure this would work
                 img = s.clr_bffr.to_numpy()
                 m_cfg.video_manager.write_frame(img)

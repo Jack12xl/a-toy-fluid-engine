@@ -70,7 +70,7 @@ class EulerScheme(metaclass=ABCMeta):
             force = ti.Vector([abs(ct) - abs(cb),
                                abs(cl) - abs(cr)]).normalized(1e-3)
             force *= self.cfg.curl_strength * cc
-            vf[I] = ts.clamp( vf[I] + force * self.cfg.dt, -1e3, 1e3)
+            vf[I] = ts.clamp(vf[I] + force * self.cfg.dt, -1e3, 1e3)
 
     @ti.kernel
     def vis_density(self, vf: ti.template()):
@@ -138,6 +138,7 @@ class EulerScheme(metaclass=ABCMeta):
     def add_fixed_force_and_render(self,
                                    vf: ti.template(),
                                    dt: ti.float32):
+        raise DeprecationWarning
         for i, j in vf.field:
             den = self.grid.density_pair.cur[i, j]
 
@@ -161,7 +162,7 @@ class EulerScheme(metaclass=ABCMeta):
         elif self.cfg.VisualType == VisualizeEnum.Vorticity:
             self.vis_vt(self.grid.v_curl.field)
         elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
-            self.vis_v_mag(self.grid.v_pair.cur.field)
+            self.vis_v_mag(self.grid.v.field)
 
     @ti.kernel
     def emit(self):
@@ -178,8 +179,6 @@ class EulerScheme(metaclass=ABCMeta):
             self.grid.density_bffr[I] = 1.0 * self.cfg.fluid_color
 
     def step(self, ext_input: np.array):
-        # self.emit()
-
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
         for colld in self.boundarySolver.colliders:
