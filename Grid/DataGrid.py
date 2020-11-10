@@ -41,16 +41,7 @@ class DataGrid(metaclass=ABCMeta):
         :return:
         '''
         #TODO support 3D
-        # t_P = P - 0.5
-        # iu, iv = ti.floor(t_P.x), ti.floor(t_P.y)
-        # fu, fv = t_P.x - iu, t_P.y - iv
-        #
-        # a = ts.sample(self.field, ts.vec(iu + 0.5, iv + 0.5))
-        # b = ts.sample(self.field, ts.vec(iu + 1.5, iv + 0.5))
-        # c = ts.sample(self.field, ts.vec(iu + 0.5, iv + 1.5))
-        # d = ts.sample(self.field, ts.vec(iu + 1.5, iv + 1.5))
-        #
-        # return lerp(lerp(a, b, fu), lerp(c, d, fu), fv)
+
         return ts.bilerp(self.field, P)
 
     @ti.pyfunc

@@ -97,23 +97,49 @@ class collocatedGridData():
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
-        for I in ti.grouped(vf.field):
-            vl = vf.sample(I + ts.D.zy).x
-            vr = vf.sample(I + ts.D.xy).x
-            vb = vf.sample(I + ts.D.yz).y
-            vt = vf.sample(I + ts.D.yx).y
-            vc = vf.sample(I)
-            # boundary
-            # TODO
-            if I.x == 0:
-                vl = -vc.x
-            if I.x == vf.shape[0] - 1:
-                vr = -vc.x
-            if I.y == 0:
-                vb = -vc.y
-            if I.y == vf.shape[1] - 1:
-                vt = -vc.y
-            vd[I] = (vr - vl + vt - vb) * 0.5
+        if self.cfg.dim == 2:
+            for I in ti.grouped(vf.field):
+                vl = vf.sample(I + ts.D.zy).x
+                vr = vf.sample(I + ts.D.xy).x
+                vb = vf.sample(I + ts.D.yz).y
+                vt = vf.sample(I + ts.D.yx).y
+                vc = vf.sample(I)
+                # boundary
+                # TODO
+                if I.x == 0:
+                    vl = -vc.x
+                if I.x == vf.shape[0] - 1:
+                    vr = -vc.x
+                if I.y == 0:
+                    vb = -vc.y
+                if I.y == vf.shape[1] - 1:
+                    vt = -vc.y
+                vd[I] = (vr - vl + vt - vb) * 0.5
+        # elif (self.cfg.dim == 3):
+        #     for I in ti.grouped(vf.field):
+        #         vl = vf.sample(I + ts.D.zyy).x
+        #         vr = vf.sample(I + ts.D.xyy).x
+        #         vb = vf.sample(I + ts.D.yzy).y
+        #         vt = vf.sample(I + ts.D.yxy).y
+        #         vh = vf.sample(I + ts.D.yyz).z
+        #         vq = vf.sample(I + ts.D.yyx).z
+        #         vc = vf.sample(I)
+        #         # boundary
+        #         # TODO
+        #         if I.x == 0:
+        #             vl = -vc.x
+        #         if I.x == vf.shape[0] - 1:
+        #             vr = -vc.x
+        #         if I.y == 0:
+        #             vb = -vc.y
+        #         if I.y == vf.shape[1] - 1:
+        #             vt = -vc.y
+        #         if I.z == 0:
+        #             vh = -vc.z
+        #         if I.z == vf.shape[2] - 1:
+        #             vq = -vc.z
+        #         vd[I] = (vr - vl + vt - vb + vq - vh) * 0.5
+
 
     @ti.kernel
     # ref: taichi official stable fluid
