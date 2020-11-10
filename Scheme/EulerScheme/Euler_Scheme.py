@@ -162,7 +162,7 @@ class EulerScheme(metaclass=ABCMeta):
 
     def reset(self):
         self.grid.reset()
-        self.clr_bffr.fill(ti.Vector([0, 0, 0]))
+        self.renderer.clr_bffr.fill(ti.Vector([0, 0, 0]))
         self.boundarySolver.reset()
 
     @ti.kernel

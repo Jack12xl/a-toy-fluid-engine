@@ -83,9 +83,9 @@ The following results shows the density.
 
 Here shows other property( pixel value ) during simulation.
 
-| Divergence ( 0.01 * v + vec3(0.5) )                         | Curl( 0.03 * curl + vec3(0.5))                        | Velocity ( 0.01 * v + vec3(0.5))                     | Velocity-Norm( v.norm * 0.004) (Magma colormap)           |
-| ----------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
-| ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/divergence.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/Curl.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/vel.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/vel-norm.gif) |
+| Density                                                  | Divergence ( 0.03 * v + vec3(0.5) )                  | Curl( 0.03 * curl + vec3(0.5))                        | Velocity ( 0.01 * v + vec3(0.5))                   | Velocity-Norm( v.norm * 0.004) (Magma colormap)         |
+| -------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------- |
+| ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/density.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/div.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/curl.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/v.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/v_norm.gif) |
 
 
 

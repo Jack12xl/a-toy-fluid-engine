@@ -117,7 +117,7 @@ class ForceEmitter(GridEmitter):
         for I in ti.grouped(vf.field):
             den = df[I]
 
-            d2 = (I + 0.5 - self.t.translation).norm_sqr()
+            d2 = (I - self.t.translation).norm_sqr()
             momentum = ti.exp(- d2 * self.inv_force_radius) * emit_force * dt
 
             vf[I] += momentum
