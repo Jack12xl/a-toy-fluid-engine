@@ -97,24 +97,39 @@ class collocatedGridData():
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
-        if self.cfg.dim == 2:
-            for I in ti.grouped(vf.field):
-                vl = vf.sample(I + ts.D.zy).x
-                vr = vf.sample(I + ts.D.xy).x
-                vb = vf.sample(I + ts.D.yz).y
-                vt = vf.sample(I + ts.D.yx).y
-                vc = vf.sample(I)
-                # boundary
-                # TODO
-                if I.x == 0:
-                    vl = -vc.x
-                if I.x == vf.shape[0] - 1:
-                    vr = -vc.x
-                if I.y == 0:
-                    vb = -vc.y
-                if I.y == vf.shape[1] - 1:
-                    vt = -vc.y
-                vd[I] = (vr - vl + vt - vb) * 0.5
+        for I in ti.grouped(vf.field):
+            ret = 0.0
+            vc = vf.sample(I)
+            for d in ti.static(range(self.cfg.dim)):
+                D = ti.Vector.unit(self.cfg.dim, d)
+                v0 = vf.sample(I + D)[d]
+                v1 = vf.sample(I - D)[d]
+                if (I[d] == 0):
+                    v0 = -vc[d]
+                if (I[d] == vf.shape[d] - 1):
+                    v1 = -vc[d]
+                ret += v0
+                ret -= v1
+
+            vd[I] = ret * 0.5
+            # vl = vf.sample(I + ts.D.zy).x
+            # vr = vf.sample(I + ts.D.xy).x
+            # vb = vf.sample(I + ts.D.yz).y
+            # vt = vf.sample(I + ts.D.yx).y
+            # vc = vf.sample(I)
+            # # boundary
+            # # TODO
+            # if I.x == 0:
+            #     vl = -vc.x
+            # if I.x == vf.shape[0] - 1:
+            #     vr = -vc.x
+            # if I.y == 0:
+            #     vb = -vc.y
+            # if I.y == vf.shape[1] - 1:
+            #     vt = -vc.y
+            # vd[I] = (vr - vl + vt - vb) * 0.5
+
+
         # elif (self.cfg.dim == 3):
         #     for I in ti.grouped(vf.field):
         #         vl = vf.sample(I + ts.D.zyy).x
