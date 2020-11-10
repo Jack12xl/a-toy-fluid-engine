@@ -1,6 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from abstractRenderer import renderer
+from .abstractRenderer import renderer
 from config import PixelType, VisualizeEnum
 from utils import cmapper
 

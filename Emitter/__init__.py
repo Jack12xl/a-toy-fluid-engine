@@ -1,1 +1,1 @@
-from GridEmitter import *
+from .GridEmitter import *
