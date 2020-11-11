@@ -26,11 +26,11 @@ class MacCormackSolver(AdvectionSolver):
             pos = float(I)
             p_mid = self.subsolver.backtrace(vec_field, pos, boundarySdf,  dt)
             #q_mid = self.grid.bilerp(q_cur, p_mid)
-            q_mid = q_cur.bilerp(p_mid)
+            q_mid = q_cur.LinearlyLerp(p_mid)
 
             p_fin = self.subsolver.backtrace(vec_field, p_mid, boundarySdf, -dt)
             #q_fin = self.grid.bilerp(q_cur, p_fin)
-            q_fin = q_cur.bilerp(p_fin)
+            q_fin = q_cur.LinearlyLerp(p_fin)
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
             # clipping to prevent overshooting

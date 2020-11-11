@@ -33,7 +33,7 @@ dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
-curl_strength = 6.0
+curl_strength = 0.0
 
 # collider
 from geometry import Transform2, Velocity2
