@@ -37,34 +37,34 @@ class SemiLagrangeSolver(AdvectionSolver):
 
         if ti.static(self.RK == SemiLagrangeOrder.RK_1):
             #pos -= dt * self.grid.bilerp(vel_field, pos)
-            pos -= dt * vel_field.LinearlyLerp(pos)
+            pos -= dt * vel_field.interpolate(pos)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_2):
             # mid_p = pos - 0.5 * dt * self.grid.bilerp(vel_field, pos)
             # pos -= dt * self.grid.bilerp(vel_field, mid_p)
-            mid_p = pos - 0.5 * dt * vel_field.LinearlyLerp(pos)
-            pos -= dt * vel_field.LinearlyLerp(mid_p)
+            mid_p = pos - 0.5 * dt * vel_field.interpolate(pos)
+            pos -= dt * vel_field.interpolate(mid_p)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_3):
             # v1 = self.grid.bilerp(vel_field, pos)
             # p1 = pos - 0.5 * dt * v1
-            v1 = vel_field.LinearlyLerp(pos)
+            v1 = vel_field.interpolate(pos)
             p1 = pos - 0.5 * dt * v1
 
             # v2 = self.grid.bilerp(vel_field, p1)
             # p2 = pos - 0.75 * dt * v2
-            v2 = vel_field.LinearlyLerp(p1)
+            v2 = vel_field.interpolate(p1)
             p2 = pos - 0.75 * dt * v2
 
             # v3 = self.grid.bilerp(vel_field, p2)
             # pos -= dt * ( 2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3 )
-            v3 = vel_field.LinearlyLerp(p2)
+            v3 = vel_field.interpolate(p2)
             pos -= dt * (2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3)
 
         # TODO boundary handling
         # 3.4.2.4
         # phi0 = self.grid.bilerp(boundarySdf, start_pos)
         # phi1 = self.grid.bilerp(boundarySdf, pos)
-        phi0 = boundarySdf.LinearlyLerp(start_pos)
-        phi1 = boundarySdf.LinearlyLerp(pos)
+        phi0 = boundarySdf.interpolate(start_pos)
+        phi1 = boundarySdf.interpolate(pos)
         if (phi0 * phi1 < 0.0):
             w = ti.abs(phi1) / (ti.abs(phi0) + ti.abs(phi1))
             # pos = w * start_pos + (1.0 - w) * pos
@@ -95,7 +95,7 @@ class SemiLagrangeSolver(AdvectionSolver):
             p = float(I)
             coord = self.backtrace(vec_field, p, boundarySdf, dt)
             # sample its speed
-            q_nxt[I] = q_cur.LinearlyLerp(coord)
+            q_nxt[I] = q_cur.interpolate(coord)
 
         return q_nxt
     @ti.kernel
