@@ -6,6 +6,7 @@ dim = 2
 @ti.kernel
 def play_unit():
     for i in ti.static(range(dim)):
+        print(i)
         D = ti.Vector.unit(dim, i)
         print(D)
 
