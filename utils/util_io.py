@@ -41,7 +41,7 @@ class MouseDataGen(object):
         # [4:7]: color
         mouse_data = np.array([0] * 8, dtype=np.float32)
         if gui.is_pressed(ti.GUI.LMB):
-            mxy = vec2_npf32(gui.get_cursor_pos()) * self.cfg.res
+            mxy = vec2_npf32(gui.get_cursor_pos()) * self.cfg.screen_res
             if self.prev_mouse is None:
                 self.prev_mouse = mxy
                 # Set lower bound to 0.3 to prevent too dark colors

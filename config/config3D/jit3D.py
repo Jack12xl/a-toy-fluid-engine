@@ -1,4 +1,5 @@
 import taichi as ti
+import taichi_glsl as ts
 import sys
 import math
 import os
@@ -43,9 +44,9 @@ Emitters = []
 Emitters.append(ForceEmitter3(
     sys.modules[__name__],
     t=Transform3(
-        translation=ti.Vector([300, 0]),
-        localscale=10000.0,
-        orientation=math.pi / 2.0
+        translation=ti.Vector([res[0] // 2, res[1] // 2, 0]),
+        localscale=ts.vec3(10000.0),
+        orientation=ts.vec2(0.0, 0.0)
     ),
     v=Velocity3(),
     force_radius=res[0] / 3.0

@@ -11,7 +11,7 @@ class DataGrid(metaclass=ABCMeta):
 
     '''
     def __init__(self,
-                 data_field:ti.template(), dim=2):
+                 data_field:ti.template(), dim=3):
         self._field = data_field
         # self.dim = len(self.shape)
 

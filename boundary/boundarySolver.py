@@ -1,4 +1,5 @@
 import taichi as ti
+import taichi_glsl as ts
 from abc import ABCMeta , abstractmethod
 from Grid import collocatedGridData
 from utils import Vector, Matrix
@@ -36,7 +37,7 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
 
     def step_update_sdfs(self, colliders:List[Collider]):
         self.collider_sdf_field.fill(1e8)
-        self.collider_velocity_field.fill(ti.Vector([0.0, 0.0]))
+        self.collider_velocity_field.fill(ts.vecND(self.cfg.dim, 0.0))
         for idx, cllider in enumerate(colliders):
             self.kern_update_collid(idx, cllider)
 

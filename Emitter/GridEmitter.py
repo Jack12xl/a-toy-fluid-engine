@@ -14,8 +14,8 @@ class GridEmitter(metaclass=ABCMeta):
     def __init__(self,
                  # datagrid,
                  cfg,
-                 t: Transform2,
-                 v: Velocity2):
+                 t,
+                 v):
         """
 
         :param cfg:
@@ -166,9 +166,9 @@ class ForceEmitter3(GridEmitter):
         theta = self.t.orientation[0]
         phi = self.t.orientation[1]
         emit_force = ts.vec3(
+            ti.sin(phi) * ti.cos(theta),
             ti.cos(phi) * ti.cos(theta),
-            ti.cos(phi) * ti.sin(theta),
-            ti.sin(phi)
+            ti.cos(phi)
         ) * self.t.localScale
 
         for I in ti.grouped(vf.field):
@@ -180,3 +180,13 @@ class ForceEmitter3(GridEmitter):
             vf[I] += momentum
             den += ti.exp(- d2 * self.inv_force_radius)
             df[I] = min(den, self.cfg.fluid_color)
+
+    @ti.kernel
+    def stepEmitHardCode(self,
+                         # vf
+                         ):
+        """
+        Left blank on purpose for force emitter
+        :return:
+        """
+        pass

@@ -27,7 +27,7 @@ class Velocity3:
                  velocity_to_world: Vector = ts.vec3(0.0),
                  angular_velocity_to_centroid: Vector = ts.vec2(0.0)):
         self._v_world = ti.Vector.field(3, dtype=ti.f32, shape=[])
-        self._w_centroid = ti.Vector.field(3, dtype=ti.f32, shape=[])
+        self._w_centroid = ti.Vector.field(2, dtype=ti.f32, shape=[])
 
         self.v_world_buf = velocity_to_world
         self.w_centroid_buf = angular_velocity_to_centroid
