@@ -29,7 +29,7 @@ projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 
-curl_strength = 14.0
+curl_strength = 2.0
 
 Colliders = []
 Emitters = []

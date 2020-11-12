@@ -23,21 +23,41 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
 
         for I in ti.grouped(pf.field):
             if ts.summation(I) % 2 == 0:
-                pl = pf.sample(I + ts.D.zy)
-                pr = pf.sample(I + ts.D.xy)
-                pb = pf.sample(I + ts.D.yz)
-                pt = pf.sample(I + ts.D.yx)
                 div = p_divs[I]
-                new_pf[I] = (pl + pr + pb + pt + alpha * div) * beta
+                ret = 0.0
+                for d in ti.static(range(self.cfg.dim)):
+                    D = ti.Vector.unit(self.cfg.dim, d)
+
+                    p0 = pf.sample(I + D)
+                    p1 = pf.sample(I - D)
+
+                    ret += p0 + p1
+                new_pf[I] = ( ret + alpha * div ) * beta
+                # pl = pf.sample(I + ts.D.zy)
+                # pr = pf.sample(I + ts.D.xy)
+                # pb = pf.sample(I + ts.D.yz)
+                # pt = pf.sample(I + ts.D.yx)
+                # div = p_divs[I]
+                # new_pf[I] = (pl + pr + pb + pt + alpha * div) * beta
 
         for I in ti.grouped(pf.field):
             if ts.summation(I) % 2 == 1:
-                pl = new_pf.sample(I + ts.D.zy)
-                pr = new_pf.sample(I + ts.D.xy)
-                pb = new_pf.sample(I + ts.D.yz)
-                pt = new_pf.sample(I + ts.D.yx)
                 div = p_divs[I]
-                new_pf[I] = (pl + pr + pb + pt + alpha * div) * beta
+                ret = 0.0
+                for d in ti.static(range(self.cfg.dim)):
+                    D = ti.Vector.unit(self.cfg.dim, d)
+
+                    p0 = pf.sample(I + D)
+                    p1 = pf.sample(I - D)
+
+                    ret += p0 + p1
+                new_pf[I] = (ret + alpha * div) * beta
+                # pl = new_pf.sample(I + ts.D.zy)
+                # pr = new_pf.sample(I + ts.D.xy)
+                # pb = new_pf.sample(I + ts.D.yz)
+                # pt = new_pf.sample(I + ts.D.yx)
+                # div = p_divs[I]
+                # new_pf[I] = (pl + pr + pb + pt + alpha * div) * beta
 
     def runPressure(self):
         # self.cfg.jacobi_alpha = self.cfg.poisson_pressure_alpha
