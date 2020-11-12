@@ -38,6 +38,8 @@ class collocatedGridData():
 
         if self.dim == 2:
             self.calVorticity = self.calVorticity2D
+        elif self.dim == 3:
+            self.calVorticity = self.calVorticity3D
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         for I in ti.grouped(vf.field):
@@ -68,7 +70,23 @@ class collocatedGridData():
     @ti.kernel
     def calVorticity3D(self, vf: Matrix):
         for I in ti.grouped(vf.field):
-            pass
+            curl = ts.vec3(0.0)
+            # left & right
+            v_l = vf.sample(I + ts.D.zyy)
+            v_r = vf.sample(I + ts.D.xyy)
+            # top & down
+            v_t = vf.sample(I + ts.D.yxy)
+            v_d = vf.sample(I + ts.D.yzy)
+            # forward & backward
+            v_f = vf.sample(I + ts.D.yyx)
+            v_b = vf.sample(I - ts.D.yyz)
+
+            curl[0] = (v_f.y - v_b.y) - (v_t.z - v_d.z)
+            curl[1] = (v_r.z - v_l.z) - (v_f.x - v_b.x)
+            curl[2] = (v_t.x - v_d.x) - (v_r.y - v_l.y)
+
+            self.v_curl[I] = curl
+
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
