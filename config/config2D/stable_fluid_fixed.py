@@ -6,7 +6,7 @@ import sys
 import config.config2D.scene_config.scene_jit2D as scene_cfg
 import config.euler_config
 import math
-from Emitter import ForceEmitter
+from Emitter import ForceEmitter2
 
 debug = False
 
@@ -52,7 +52,7 @@ Colliders.append(RigidBodyCollider(Ball(
 
 
 Emitters = []
-Emitters.append(ForceEmitter(
+Emitters.append(ForceEmitter2(
     sys.modules[__name__],
     t=Transform2(
         translation=ti.Vector([300, 0]),

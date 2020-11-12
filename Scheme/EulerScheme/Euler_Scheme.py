@@ -6,7 +6,7 @@ from config import VisualizeEnum, SceneEnum, SchemeType
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
-from Emitter import ForceEmitter
+from Emitter import ForceEmitter2
 from renderer import renderer2D
 
 
