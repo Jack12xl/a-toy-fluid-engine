@@ -23,7 +23,10 @@ class collocatedGridData():
         # velocity divergence
         self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
         # velocity vorticity
-        self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+        if self.dim == 2:
+            self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+        elif self.dim == 3:
+            self.v_curl = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
 
         self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
         self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))

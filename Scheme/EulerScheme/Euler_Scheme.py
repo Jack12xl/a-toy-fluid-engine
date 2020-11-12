@@ -7,7 +7,7 @@ from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
 from Emitter import ForceEmitter2
-from renderer import renderer2D
+from renderer import renderer2D, renderer25D
 
 
 @ti.data_oriented
@@ -26,6 +26,8 @@ class EulerScheme(metaclass=ABCMeta):
 
         if self.dim == 2:
             self.renderer = renderer2D(cfg, self.grid)
+        elif self.dim == 3:
+            self.renderer = renderer25D(cfg, self.grid, self.cfg.res[2] // 2)
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,

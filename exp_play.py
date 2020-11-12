@@ -18,6 +18,9 @@ def parse_args():
     elif args.cfg == "jit2d":
         import config.config2D.stable_fluid_fixed
         cfg = config.config2D.stable_fluid_fixed
+    elif args.cfg == "jit3d":
+        import config.config3D.jit3D
+        cfg = config.config3D.jit3D
 
     return cfg
 if __name__ == '__main__':
