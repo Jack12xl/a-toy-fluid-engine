@@ -14,6 +14,7 @@ class collocatedGridData():
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
     def __init__(self, cfg, ):
         self.cfg = cfg
+        self.dim = self.cfg.dim
 
         self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
         self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
@@ -56,7 +57,8 @@ class collocatedGridData():
 
     @ti.kernel
     # ref: taichi official stable fluid
-    def calVorticity(self, vf: Vector):
+    def calVorticity(self, vf: Matrix):
+        # TODO extend to 3D
         for I in ti.grouped(vf.field):
             vl = vf.sample(I + ts.D.zy).y
             vr = vf.sample(I + ts.D.xy).y
@@ -66,21 +68,21 @@ class collocatedGridData():
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
-        # for i, j in vf:
-        #     pl = self.sample(pf, i - 1, j)
-        #     pr = self.sample(pf, i + 1, j)
-        #     pb = self.sample(pf, i, j - 1)
-        #     pt = self.sample(pf, i, j + 1)
-        #
-        #     vf[i, j] = self.sample(vf, i, j) - \
-        #                self.cfg.half_inv_dx * ti.Vector([pr - pl, pt - pb])
-        ti.cache_read_only(pf.field)
         for I in ti.grouped(pf.field):
-            pl = pf.sample(I + ts.D.zy)
-            pr = pf.sample(I + ts.D.xy)
-            pb = pf.sample(I + ts.D.yz)
-            pt = pf.sample(I + ts.D.yx)
-            vf[I] -= 0.5 * ts.vec(pr - pl, pt - pb)
+            ret = ts.vecND(self.dim, 0.0)
+            for d in ti.static(range(self.dim)):
+                D = ti.Vector.unit(self.dim, d)
+
+                p0 = pf.sample(I + D)
+                p1 = pf.sample(I - D)
+
+                ret[d] = p0 - p1
+            vf[I] -= 0.5 * ret
+            # pl = pf.sample(I + ts.D.zy)
+            # pr = pf.sample(I + ts.D.xy)
+            # pb = pf.sample(I + ts.D.yz)
+            # pt = pf.sample(I + ts.D.yx)
+            # vf[I] -= 0.5 * ts.vec(pr - pl, pt - pb)
 
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)

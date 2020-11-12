@@ -25,8 +25,8 @@ advection_solver = MacCormackSolver
 semi_order = SemiLagrangeOrder.RK_3
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = JacobiProjectionSolver
-p_jacobi_iters = 160
+projection_solver = RedBlackGaussSedialProjectionSolver
+p_jacobi_iters = 30
 dye_decay = 0.99
 
 curl_strength = 14.0

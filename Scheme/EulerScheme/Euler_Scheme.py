@@ -114,25 +114,7 @@ class EulerScheme(metaclass=ABCMeta):
                     [imp_data[4], imp_data[5], imp_data[6]])
             dc *= self.cfg.dye_decay
             dyef[I] = dc
-
-    @ti.kernel
-    def add_fixed_force_and_render(self,
-                                   vf: ti.template(),
-                                   dt: ti.float32):
-        raise DeprecationWarning
-        for i, j in vf.field:
-            den = self.grid.density_pair.cur[i, j]
-
-            dx, dy = i + 0.5 - self.cfg.source_x, j + 0.5 - self.cfg.source_y
-            d2 = dx * dx + dy * dy
-            momentum = (self.cfg.direct_X_force * ti.exp(-d2 * self.cfg.inv_force_radius) - self.cfg.f_gravity) * dt
-            vf[i, j] += momentum
-            # vf[i, j] *= self.cfg.dye_decay
-            den += ti.exp(- d2 * self.cfg.inv_force_radius) * self.cfg.fluid_color
-
-            den *= self.cfg.dye_decay
-            self.grid.density_pair.cur[i, j] = min(den, self.cfg.fluid_color)
-
+            
     @ti.kernel
     def emit(self):
         raise DeprecationWarning
