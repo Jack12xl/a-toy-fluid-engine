@@ -16,3 +16,47 @@ class Transform3:
         self.translation_buf = translation
         self.orientation_buf = orientation % (2 * math.pi)
         self.localscale_buf = localscale
+
+
+    def __repr__(self):
+        return '{} ( Trsln : {}, Ornttn: {}, lclScl: {})'.format(
+            self.__class__.__name__,
+            self.translation,
+            self.orientation,
+            self.localScale)
+
+    @ti.pyfunc
+    def kern_materialize(self):
+        self._translation[None] = self.translation_buf
+        self._orientation[None] = self.orientation_buf
+        self._localScale[None] = self.localscale_buf
+
+    @property
+    @ti.pyfunc
+    def translation(self) -> Vector:
+        return self._translation[None]
+
+    @translation.setter
+    def translation(self, translation:ti.Vector):
+        self._translation[None] = translation
+
+    @property
+    @ti.pyfunc
+    def orientation(self) -> Float:
+        return self._orientation[None]
+
+    @orientation.setter
+    def orientation(self, orientation:Float):
+        self._orientation[None] = orientation % (2 * math.pi)
+
+    @property
+    @ti.pyfunc
+    def localScale(self) -> Float:
+        return self._localScale[None]
+
+    @localScale.setter
+    def localScale(self, localScale: Float):
+        # clamp above zero
+        self._localScale[None] = max(localScale, error)
+
+    # TODO other method
