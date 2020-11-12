@@ -36,6 +36,8 @@ class collocatedGridData():
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         # self.marker_pair = TexPair(self.marker, self.new_marker)
 
+        if self.dim == 2:
+            self.calVorticity = self.calVorticity2D
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         for I in ti.grouped(vf.field):
@@ -55,15 +57,18 @@ class collocatedGridData():
             vd[I] = ret * 0.5
 
     @ti.kernel
-    # ref: taichi official stable fluid
-    def calVorticity(self, vf: Matrix):
-        # TODO extend to 3D
+    def calVorticity2D(self, vf: Matrix):
         for I in ti.grouped(vf.field):
             vl = vf.sample(I + ts.D.zy).y
             vr = vf.sample(I + ts.D.xy).y
             vb = vf.sample(I + ts.D.yz).x
             vt = vf.sample(I + ts.D.yx).x
             self.v_curl[I] = (vr - vl - vt + vb) * 0.5
+
+    @ti.kernel
+    def calVorticity3D(self, vf: Matrix):
+        for I in ti.grouped(vf.field):
+            pass
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
