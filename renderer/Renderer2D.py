@@ -4,6 +4,7 @@ from .abstractRenderer import renderer
 from config import PixelType, VisualizeEnum
 from utils import cmapper
 
+
 @ti.data_oriented
 class renderer2D(renderer):
     def __init__(self, cfg, grid):
@@ -23,7 +24,6 @@ class renderer2D(renderer):
 
     @ti.kernel
     def vis_density(self, vf: ti.template()):
-        ti.cache_read_only(vf.field)
         for I in ti.grouped(vf.field):
             self.clr_bffr[I] = ti.abs(vf[I])
 
