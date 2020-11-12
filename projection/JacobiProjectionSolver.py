@@ -18,6 +18,7 @@ class JacobiProjectionSolver(ProjectionSolver):
                     alpha: Float,
                     beta: Float):
         for I in ti.grouped(pf.field):
+
             pl = pf.sample(I + ts.D.zy)
             pr = pf.sample(I + ts.D.xy)
             pb = pf.sample(I + ts.D.yz)

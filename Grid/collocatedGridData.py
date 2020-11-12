@@ -50,8 +50,7 @@ class collocatedGridData():
                     v1 = -vc[d]
                 if I[d] == vf.shape[d] - 1:
                     v0 = -vc[d]
-                ret += v0
-                ret -= v1
+                ret += v0 - v1
 
             vd[I] = ret * 0.5
 

@@ -124,7 +124,8 @@ class Ball(SurfaceShape):
     @ti.func
     def closest_point_local(self, local_p) -> Vector:
         ## TODO if local_p is [0, 0]
-        return tiNormalize(local_p)
+        # return tiNormalize(local_p)
+        return local_p.normalized(1e-3)
 
     @ti.pyfunc
     def is_inside_local(self, local_p: Vector) -> bool:
