@@ -14,6 +14,8 @@ from renderer import renderer2D
 class EulerScheme(metaclass=ABCMeta):
     def __init__(self, cfg, ):
         self.cfg = cfg
+        self.dim = cfg.dim
+
         self.grid = collocatedGridData(cfg)
 
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
@@ -22,7 +24,7 @@ class EulerScheme(metaclass=ABCMeta):
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
         self.emitters = cfg.Emitters
 
-        if cfg.dim == 2:
+        if self.dim == 2:
             self.renderer = renderer2D(cfg, self.grid)
 
     def advect(self, dt):
@@ -63,13 +65,26 @@ class EulerScheme(metaclass=ABCMeta):
         vf = ti.static(self.grid.v_pair.cur)
         vc = ti.static(self.grid.v_curl)
         for I in ti.grouped(vc.field):
-            cl = vc.sample(I + ts.D.zy)
-            cr = vc.sample(I + ts.D.xy)
-            cb = vc.sample(I + ts.D.yz)
-            ct = vc.sample(I + ts.D.yx)
             cc = vc.sample(I)
-            force = ti.Vector([abs(ct) - abs(cb),
-                               abs(cl) - abs(cr)]).normalized(1e-3)
+            force = ts.vecND(self.dim, 0.0)
+            for d in ti.static(range(self.dim)):
+                D = ti.Vector.unit(self.dim, d)
+                c0 = vc.sample(I + D)
+                c1 = vc.sample(I - D)
+                # TODO refine 3D cases
+                force[self.dim - 1 - d] = abs(c0) - abs(c1)
+                if not d & 1:
+                    # even
+                    force[self.dim - 1 - d] *= -1
+            # in 2d this is equivalent to :
+            # cl = vc.sample(I + ts.D.zy)
+            # cr = vc.sample(I + ts.D.xy)
+            # cb = vc.sample(I + ts.D.yz)
+            # ct = vc.sample(I + ts.D.yx)
+            # cc = vc.sample(I)
+            # force = ti.Vector([abs(ct) - abs(cb),
+            #                    abs(cl) - abs(cr)]).normalized(1e-3)
+            force = force.normalized(1e-3)
             force *= self.cfg.curl_strength * cc
             vf[I] = ts.clamp(vf[I] + force * self.cfg.dt, -1e3, 1e3)
 
