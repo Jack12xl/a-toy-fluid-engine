@@ -1,6 +1,6 @@
 from .surface import Surface
 from .transform2 import Transform2
-from .velocity import Velocity2
+from .velocity2 import Velocity2
 import taichi as ti
 from utils import Vector, Matrix, Float
 from utils import tiNormalize

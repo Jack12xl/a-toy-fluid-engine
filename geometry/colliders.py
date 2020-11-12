@@ -5,7 +5,7 @@ import taichi as ti
 from .surface import SurfaceToImplict, ImplicitSurface
 from .surfaceShape import SurfaceShape, Ball
 from .transform2 import Transform2
-from .velocity import Velocity2
+from .velocity2 import Velocity2
 
 
 class Collider(metaclass=ABCMeta):
