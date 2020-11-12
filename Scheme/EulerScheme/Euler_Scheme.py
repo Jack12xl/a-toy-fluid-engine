@@ -37,7 +37,7 @@ class EulerScheme(metaclass=ABCMeta):
         # TODO
         if (self.cfg.SceneType == SceneEnum.MouseDragDye):
             # add impulse from mouse
-            self.apply_mouse_input_and_render(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
+            self.apply_impulse(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
         elif (self.cfg.SceneType == SceneEnum.ShotFromBottom):
             for emitter in self.emitters:
                 emitter.stepEmitForce(
@@ -74,30 +74,31 @@ class EulerScheme(metaclass=ABCMeta):
             vf[I] = ts.clamp(vf[I] + force * self.cfg.dt, -1e3, 1e3)
 
     @ti.kernel
-    def apply_mouse_input_and_render(self, vf: ti.template(), dyef: ti.template(),
-                                     imp_data: ti.ext_arr(),
-                                     dt: ti.template()):
+    def apply_impulse(self, vf: ti.template(), dyef: ti.template(),
+                      imp_data: ti.ext_arr(),
+                      dt: ti.template()):
 
-        for i, j in vf.field:
-            mdir = ti.Vector([imp_data[0], imp_data[1]])
-            omx, omy = imp_data[2], imp_data[3]
+        for I in ti.grouped(vf.field):
+            mdir = ts.vec(imp_data[0], imp_data[1])
+            o = ts.vec(imp_data[2], imp_data[3])
             # move to cell center
-            dx, dy = (i + 0.5 - omx), (j + 0.5 - omy)
-            d2 = dx * dx + dy * dy
+            # dx, dy = I + 0.5 - o
+            # d2 = dx * dx + dy * dy
+            d2 = (I - o).norm_sqr()
             # ref: https://developer.download.nvidia.cn/books/HTML/gpugems/gpugems_ch38.html
             # apply the force
             factor = ti.exp(-d2 * self.cfg.inv_force_radius)
             momentum = mdir * self.cfg.f_strength * dt * factor
 
-            vf[i, j] += momentum
+            vf[I] += momentum
             # add dye
-            dc = dyef[i, j]
+            dc = dyef[I]
             # TODO what the hell is this?
             if mdir.norm() > 0.5:
                 dc += ti.exp(-d2 * self.cfg.inv_dye_denom) * ti.Vector(
                     [imp_data[4], imp_data[5], imp_data[6]])
             dc *= self.cfg.dye_decay
-            dyef[i, j] = dc
+            dyef[I] = dc
 
     @ti.kernel
     def add_fixed_force_and_render(self,
@@ -119,6 +120,7 @@ class EulerScheme(metaclass=ABCMeta):
 
     @ti.kernel
     def emit(self):
+        raise DeprecationWarning
         half_d = 30
         p = ts.vec(self.cfg.source_x, self.cfg.source_y)
         l_b = p - half_d

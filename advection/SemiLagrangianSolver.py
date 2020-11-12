@@ -23,49 +23,38 @@ class SemiLagrangeSolver(AdvectionSolver):
                   boundarySdf: Matrix,
                   dt) :
         # TODO abstract grid
-        '''
+        """
 
         :param vel_field:
         :param pos: input backtrace coordinate in grid
         :boundarySdf: selfexplained
         :param dt:
         :return: backtraced pos
-        '''
+        """
 
         # start
         start_pos = pos
 
         if ti.static(self.RK == SemiLagrangeOrder.RK_1):
-            #pos -= dt * self.grid.bilerp(vel_field, pos)
             pos -= dt * vel_field.interpolate(pos)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_2):
-            # mid_p = pos - 0.5 * dt * self.grid.bilerp(vel_field, pos)
-            # pos -= dt * self.grid.bilerp(vel_field, mid_p)
             mid_p = pos - 0.5 * dt * vel_field.interpolate(pos)
             pos -= dt * vel_field.interpolate(mid_p)
         elif ti.static(self.RK == SemiLagrangeOrder.RK_3):
-            # v1 = self.grid.bilerp(vel_field, pos)
-            # p1 = pos - 0.5 * dt * v1
             v1 = vel_field.interpolate(pos)
             p1 = pos - 0.5 * dt * v1
 
-            # v2 = self.grid.bilerp(vel_field, p1)
-            # p2 = pos - 0.75 * dt * v2
             v2 = vel_field.interpolate(p1)
             p2 = pos - 0.75 * dt * v2
 
-            # v3 = self.grid.bilerp(vel_field, p2)
-            # pos -= dt * ( 2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3 )
             v3 = vel_field.interpolate(p2)
             pos -= dt * (2.0 / 9.0 * v1 + 1.0 / 3.0 * v2 + 4.0 / 9.0 * v3)
 
         # TODO boundary handling
         # 3.4.2.4
-        # phi0 = self.grid.bilerp(boundarySdf, start_pos)
-        # phi1 = self.grid.bilerp(boundarySdf, pos)
         phi0 = boundarySdf.interpolate(start_pos)
         phi1 = boundarySdf.interpolate(pos)
-        if (phi0 * phi1 < 0.0):
+        if phi0 * phi1 < 0.0:
             w = ti.abs(phi1) / (ti.abs(phi0) + ti.abs(phi1))
             # pos = w * start_pos + (1.0 - w) * pos
             # why the previous line would trigger:
@@ -81,7 +70,7 @@ class SemiLagrangeSolver(AdvectionSolver):
                     q_nxt: ti.template(),
                     boundarySdf: Matrix,
                     dt: ti.template()):
-        '''
+        """
 
         :param vec_field:
         :param q_cur:
@@ -89,7 +78,7 @@ class SemiLagrangeSolver(AdvectionSolver):
         :param boundarySdf:
         :param dt:
         :return:
-        '''
+        """
         for I in ti.grouped(vec_field.field):
             # get predicted position
             p = float(I)

@@ -1,11 +1,10 @@
 import taichi as ti
-from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
+from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import os
 from utils import set_attribute_from_cfg, filterUpCase
 import sys
-import config.scene_config.shot_from_bottom_config as scene_cfg
-import config.default_config
-from geometry import RigidBodyCollider, Ball
+import scene_config.shot_from_bottom_config as scene_cfg
+import config.euler_config
 import math
 from Emitter import ForceEmitter
 
@@ -14,18 +13,18 @@ debug = False
 # simulate_type = SimulateType.Gas
 
 FILTER_TYPE = 'm_'
-set_attribute_from_cfg(config.default_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
-from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
+from advection import MacCormackSolver, SemiLagrangeOrder
 
 advection_solver = MacCormackSolver
 
-from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
+from projection import RedBlackGaussSedialProjectionSolver
 
 projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30

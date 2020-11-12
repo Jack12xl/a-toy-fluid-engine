@@ -15,9 +15,9 @@ class DataGrid(metaclass=ABCMeta):
         self._field = data_field
         # self.dim = len(self.shape)
 
-        if (dim == 2):
+        if dim == 2:
             self._sampler = LinearSampler2D(self.field)
-        elif (dim == 3):
+        elif dim == 3:
             self._sampler = LinearSampler3D(self.field)
 
     @ti.pyfunc
