@@ -1,7 +1,7 @@
 import taichi as ti
-from projection import JacobiProjectionSolver, RedBlackGaussSedialProjectionSolver
-from config.euler_config.basic_config import m_dx as dx
-from config.euler_config.basic_config import m_dt as dt
+from projection import JacobiProjectionSolver
+# from basic_config2D import m_dx as dx
+from config.config2D.basic_config2D import m_dx as dx
 
 m_projection_solver = JacobiProjectionSolver
 m_p_jacobi_iters = 30

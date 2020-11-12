@@ -3,7 +3,7 @@ from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import os
 from utils import set_attribute_from_cfg, filterUpCase
 import sys
-import scene_config.shot_from_bottom_config as scene_cfg
+import config.config2D.scene_config.shot_from_bottom_config as scene_cfg
 import config.euler_config
 import math
 from Emitter import ForceEmitter
@@ -15,6 +15,8 @@ debug = False
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+
 SceneType = SceneEnum.ShotFromBottom
 VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme

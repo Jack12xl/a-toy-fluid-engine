@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
-from Sampler import LinearSampler2D, LinearSampler3D
+from .Sampler import LinearSampler2D, LinearSampler3D
 
 @ti.data_oriented
 class DataGrid(metaclass=ABCMeta):

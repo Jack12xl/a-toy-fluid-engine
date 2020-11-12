@@ -1,6 +1,5 @@
-from config.euler_config.basic_config import m_dx as dx
-from config.euler_config.basic_config import m_dt as dt
-from config.euler_config.basic_config import m_res as res
+from basic_config2D import m_dt as dt
+from basic_config2D import m_res as res
 import taichi as ti
 import numpy as np
 
