@@ -24,7 +24,7 @@ from advection import MacCormackSolver, SemiLagrangeOrder
 
 advection_solver = MacCormackSolver
 
-from projection import RedBlackGaussSedialProjectionSolver
+from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
 projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
