@@ -12,7 +12,8 @@ pip install taichi taichi_glsl
 ##### Fast Run
 
 ```bash
-python exp_play.py
+python exp_play.py --cfg mouse2d # use mouse to drag the fluid
+python exp_play.py --cfg jit2d   # shot the jit from below
 ```
 
 #### Feature:

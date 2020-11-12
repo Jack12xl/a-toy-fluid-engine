@@ -1,5 +1,5 @@
-from basic_config2D import m_dt as dt
-from basic_config2D import m_res as res
+from config.config2D.basic_config2D import m_dt as dt
+from config.config2D.basic_config2D import m_res as res
 import taichi as ti
 import numpy as np
 

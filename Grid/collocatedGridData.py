@@ -54,7 +54,6 @@ class collocatedGridData():
 
             vd[I] = ret * 0.5
 
-
     @ti.kernel
     # ref: taichi official stable fluid
     def calVorticity(self, vf: Vector):

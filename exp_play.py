@@ -1,11 +1,28 @@
 import utils
-import config.config2D.stable_fluid_fixed as m_cfg
+# import config.config2D.stable_fluid_mouse as m_cfg
 from config import VisualizeEnum
 import taichi as ti
 from config.class_cfg import SchemeType
 from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
+import argparse
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run which config")
+
+    parser.add_argument("--cfg", help="configure file", type=str)
+    args = parser.parse_args()
+    if args.cfg == "mouse2d":
+        import config.config2D.stable_fluid_mouse
+        cfg = config.config2D.stable_fluid_mouse
+    elif args.cfg == "jit2d":
+        import config.config2D.stable_fluid_fixed
+        cfg = config.config2D.stable_fluid_fixed
+
+    return cfg
 if __name__ == '__main__':
+    m_cfg = parse_args()
+
     if m_cfg.run_scheme == SchemeType.Advection_Projection:
         s = AdvectionProjectionEulerScheme(m_cfg)
     elif m_cfg.run_scheme == SchemeType.Advection_Reflection:
@@ -30,10 +47,10 @@ if __name__ == '__main__':
                 s.reset()
             # change visualize type
             elif e.key == ',':
-                #TODO
+                # TODO
                 print(e.key)
             elif e.key == ',':
-                #TODO
+                # TODO
                 print(e.key)
             elif e.key == '1':
                 m_cfg.VisualType = VisualizeEnum.Density
@@ -55,6 +72,7 @@ if __name__ == '__main__':
         if m_cfg.screen_res[0] != m_cfg.res[0]:
             import skimage
             import skimage.transform
+
             img = s.renderer.clr_bffr.to_numpy()
             img = skimage.transform.resize(img, m_cfg.screen_res)
             gui.set_image(img)
