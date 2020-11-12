@@ -88,7 +88,8 @@ Emitters.append(ForceEmitter2(
 # )
 
 
-profile_name = str(res[0]) + 'x' + str(res[1]) + '-' \
+profile_name = '2D' + '-'\
+               + str(res[0]) + 'x' + str(res[1]) + '-' \
                + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \
