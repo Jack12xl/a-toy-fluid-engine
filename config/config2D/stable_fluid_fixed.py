@@ -3,7 +3,7 @@ from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import os
 from utils import set_attribute_from_cfg, filterUpCase
 import sys
-import config.config2D.scene_config.shot_from_bottom_config as scene_cfg
+import config.config2D.scene_config.scene_jit2D as scene_cfg
 import config.euler_config
 import math
 from Emitter import ForceEmitter
@@ -17,7 +17,7 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
-SceneType = SceneEnum.ShotFromBottom
+SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection

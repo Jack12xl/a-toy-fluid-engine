@@ -79,7 +79,7 @@ class collocatedGridData():
             v_d = vf.sample(I + ts.D.yzy)
             # forward & backward
             v_f = vf.sample(I + ts.D.yyx)
-            v_b = vf.sample(I - ts.D.yyz)
+            v_b = vf.sample(I + ts.D.yyz)
 
             curl[0] = (v_f.y - v_b.y) - (v_t.z - v_d.z)
             curl[1] = (v_r.z - v_l.z) - (v_f.x - v_b.x)

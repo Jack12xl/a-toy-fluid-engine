@@ -1,5 +1,5 @@
 import taichi as ti
-from .transform import Transform2
+from .transform2 import Transform2
 from abc import ABCMeta , abstractmethod
 from utils import Vector, Float, EuclideanDistance
 

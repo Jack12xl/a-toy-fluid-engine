@@ -9,7 +9,7 @@ class PreConditioner(Enum):
 
 class SceneEnum(Enum):
     MouseDragDye = 0
-    ShotFromBottom = 1
+    Jit = 1
     pass
 
 

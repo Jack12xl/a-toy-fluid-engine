@@ -1,5 +1,5 @@
 from .surface import Surface
-from .transform import Transform2
+from .transform2 import Transform2
 import taichi as ti
 from basic_types import Vector, Matrix, Float
 from utils import tiNormalize

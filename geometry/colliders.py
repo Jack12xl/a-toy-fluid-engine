@@ -4,7 +4,7 @@ from utils import Vector, Float
 import taichi as ti
 from .surface import SurfaceToImplict, ImplicitSurface
 from .surfaceShape import SurfaceShape, Ball
-from .transform import Transform2
+from .transform2 import Transform2
 from .velocity import Velocity2
 
 
