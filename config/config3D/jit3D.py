@@ -18,7 +18,7 @@ SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.Density
 
 # run scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 Colliders = []
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
@@ -29,7 +29,7 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
-semi_order = SemiLagrangeOrder.RK_2
+semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
 curl_strength = 0.0

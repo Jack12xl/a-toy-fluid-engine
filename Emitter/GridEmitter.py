@@ -119,11 +119,13 @@ class ForceEmitter2(GridEmitter):
         for I in ti.grouped(vf.field):
             den = df[I]
 
-            d2 = (I - self.t.translation).norm_sqr()
-            momentum = ti.exp(- d2 * self.inv_force_radius) * emit_force * dt
+            d2 = (I + 0.5 - self.t.translation).norm_sqr()
+            # add 0.5 can get less artifacts... strange
+            factor = ti.exp(- d2 * self.inv_force_radius)
+            momentum = factor * emit_force * dt
 
             vf[I] += momentum
-            den += ti.exp(- d2 * self.inv_force_radius)
+            den += factor * self.cfg.fluid_color
             df[I] = min(den, self.cfg.fluid_color)
 
 
@@ -174,12 +176,12 @@ class ForceEmitter3(GridEmitter):
         for I in ti.grouped(vf.field):
             den = df[I]
 
-            d2 = (I - self.t.translation).norm_sqr()
+            d2 = (I + 0.5 - self.t.translation).norm_sqr()
             factor = ti.exp(- d2 * self.inv_force_radius)
             momentum = factor * emit_force * dt
 
             vf[I] += momentum
-            den += factor
+            den += factor * self.cfg.fluid_color
             df[I] = min(den, self.cfg.fluid_color)
 
     @ti.kernel
