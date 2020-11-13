@@ -1,7 +1,7 @@
 m_dim = 3
-m_res = [128, 128, 64]
+m_res = [256, 256, 64]
 
-m_screen_res = [128, 128]
+m_screen_res = [256, 256]
 
 m_dx = 1.0
 m_inv_dx = 1.0 / m_dx

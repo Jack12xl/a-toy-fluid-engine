@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
         # gui.set_image()
         # too slow
-        if m_cfg.screen_res[0] != m_cfg.res[0]:
+        if m_cfg.screen_res != m_cfg.res[:2]:
             import skimage
             import skimage.transform
 
@@ -94,5 +94,6 @@ if __name__ == '__main__':
                 m_cfg.video_manager.get_output_filename(".gif")
                 break
         frame_count += 1
+        print("frame", frame_count)
 
     ti.kernel_profiler_print()

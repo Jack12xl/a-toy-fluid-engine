@@ -15,21 +15,21 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
 SceneType = SceneEnum.Jit
-VisualType = VisualizeEnum.VelocityMagnitude
+VisualType = VisualizeEnum.Density
 
 # run scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 Colliders = []
 
-from advection import MacCormackSolver, SemiLagrangeOrder
+from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
-advection_solver = MacCormackSolver
+advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
-semi_order = SemiLagrangeOrder.RK_3
+semi_order = SemiLagrangeOrder.RK_2
 
 # vorticity enhancement
 curl_strength = 0.0
@@ -44,7 +44,7 @@ Emitters = []
 Emitters.append(ForceEmitter3(
     sys.modules[__name__],
     t=Transform3(
-        translation=ti.Vector([res[0] // 2, res[1] // 2, 0]),
+        translation=ts.vec3(res[0] // 2, 0, res[0] // 2),
         localscale=ts.vec3(10000.0),
         orientation=ts.vec2(0.0, 0.0)
     ),
