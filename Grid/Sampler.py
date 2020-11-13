@@ -65,7 +65,7 @@ class LinearSampler3D(Sampler):
         c0 = c00 * w1.y + c10 * w0.y
         c1 = c01 * w1.y + c11 * w0.y
 
-        return c0 * w1.z + c1 * w1.z
+        return c0 * w1.z + c1 * w0.z
 
     @ti.pyfunc
     def sample_minmax(self, P):

@@ -167,7 +167,7 @@ class ForceEmitter3(GridEmitter):
         phi = self.t.orientation[1]
         emit_force = ts.vec3(
             ti.sin(phi) * ti.cos(theta),
-            ti.cos(phi) * ti.cos(theta),
+            ti.sin(phi) * ti.sin(theta),
             ti.cos(phi)
         ) * self.t.localScale
 
@@ -175,10 +175,11 @@ class ForceEmitter3(GridEmitter):
             den = df[I]
 
             d2 = (I - self.t.translation).norm_sqr()
-            momentum = ti.exp(- d2 * self.inv_force_radius) * emit_force * dt
+            factor = ti.exp(- d2 * self.inv_force_radius)
+            momentum = factor * emit_force * dt
 
             vf[I] += momentum
-            den += ti.exp(- d2 * self.inv_force_radius)
+            den += factor
             df[I] = min(den, self.cfg.fluid_color)
 
     @ti.kernel

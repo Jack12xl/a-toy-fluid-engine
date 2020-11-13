@@ -19,6 +19,8 @@ class DataGrid(metaclass=ABCMeta):
             self._sampler = LinearSampler2D(self.field)
         elif dim == 3:
             self._sampler = LinearSampler3D(self.field)
+        else:
+            raise NotImplemented
 
     @ti.pyfunc
     def __getitem__(self, I):

@@ -45,16 +45,18 @@ Emitters.append(ForceEmitter3(
     sys.modules[__name__],
     t=Transform3(
         translation=ts.vec3(res[0] // 2, 0, res[0] // 2),
-        localscale=ts.vec3(10000.0),
-        orientation=ts.vec2(0.0, 0.0)
+        localscale=ts.vec3(0.01),
+        orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0) # Up along Y axis
     ),
     v=Velocity3(),
     force_radius=res[0] / 3.0
 )
 )
 
+dt = 0.01
+
 profile_name = '3D' + '-'\
-               + str(res[0]) + 'x' + str(res[1]) + '-' \
+               + 'x'.join(map(str, res)) + '-' \
                + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \

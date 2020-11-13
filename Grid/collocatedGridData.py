@@ -16,23 +16,23 @@ class collocatedGridData():
         self.cfg = cfg
         self.dim = self.cfg.dim
 
-        self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
-        self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
+        self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
         # another buffer for advection-reflection
-        self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
+        self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
         # velocity divergence
-        self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+        self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
         # velocity vorticity
         if self.dim == 2:
-            self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+            self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
         elif self.dim == 3:
-            self.v_curl = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res))
+            self.v_curl = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
 
-        self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
-        self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res))
+        self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
         # here density is just for visualization, which does not involve in calculation
-        self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res))
-        self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res))
+        self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
 
         self.v_pair = bufferPair(self.v, self.new_v)
         self.p_pair = bufferPair(self.p, self.new_p)

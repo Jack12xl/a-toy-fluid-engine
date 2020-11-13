@@ -54,7 +54,7 @@ class renderer25D(renderer):
         # visualize vorticity
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
             v = vf[I]
-            self.clr_bffr[I.xy] = 0.03 * v + ts.vec3(0.5)
+            self.clr_bffr[I.xy] = 0.03 * ti.abs(v) + ts.vec3(0.5)
 
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:

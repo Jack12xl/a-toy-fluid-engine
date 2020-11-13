@@ -16,8 +16,8 @@ def parse_args():
         import config.config2D.stable_fluid_mouse
         cfg = config.config2D.stable_fluid_mouse
     elif args.cfg == "jit2d":
-        import config.config2D.stable_fluid_fixed
-        cfg = config.config2D.stable_fluid_fixed
+        import config.config2D.stable_fluid_jit2D
+        cfg = config.config2D.stable_fluid_jit2D
     elif args.cfg == "jit3d":
         import config.config3D.jit3D
         cfg = config.config3D.jit3D

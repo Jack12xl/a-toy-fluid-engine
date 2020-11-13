@@ -17,12 +17,12 @@ class GridBoudaryConditionSolver(metaclass = ABCMeta):
         self.cfg = cfg
         self.grid = grid
 
-        self.collider_sdf_field = DataGrid( ti.field(dtype = ti.f32, shape= self.cfg.res) )
-        self.collider_velocity_field = DataGrid( ti.Vector.field(cfg.dim, dtype = ti.f32, shape= self.cfg.res) )
-        self.collider_marker_field = DataGrid( ti.field(dtype = ti.int32, shape= self.cfg.res) )
+        self.collider_sdf_field = DataGrid( ti.field(dtype = ti.f32, shape= self.cfg.res), cfg.dim)
+        self.collider_velocity_field = DataGrid( ti.Vector.field(cfg.dim, dtype = ti.f32, shape= self.cfg.res), cfg.dim)
+        self.collider_marker_field = DataGrid( ti.field(dtype = ti.int32, shape= self.cfg.res), cfg.dim)
 
-        self.marker_field = DataGrid( ti.field(dtype = ti.i32 , shape= self.cfg.res) )
-        self.marker_bffr_field = DataGrid( ti.field(dtype = ti.i32 , shape= self.cfg.res) )
+        self.marker_field = DataGrid( ti.field(dtype = ti.i32 , shape= self.cfg.res), cfg.dim)
+        self.marker_bffr_field = DataGrid( ti.field(dtype = ti.i32 , shape= self.cfg.res), cfg.dim)
         self.colliders = self.cfg.Colliders
 
     @ti.kernel
