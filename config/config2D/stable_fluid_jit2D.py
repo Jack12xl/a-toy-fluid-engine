@@ -20,7 +20,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeOrder
 
@@ -43,13 +43,13 @@ ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 
 from geometry import RigidBodyCollider, Ball
 Colliders = []
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
-
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
+#
 
 Emitters = []
 Emitters.append(ForceEmitter2(

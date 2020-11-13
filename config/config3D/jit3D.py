@@ -45,15 +45,16 @@ Emitters.append(ForceEmitter3(
     sys.modules[__name__],
     t=Transform3(
         translation=ts.vec3(res[0] // 2, 0, res[0] // 2),
-        localscale=ts.vec3(0.01),
+        localscale=ts.vec3(1000.0),
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0) # Up along Y axis
     ),
     v=Velocity3(),
-    force_radius=res[0] / 3.0
+    # force_radius=res[0] / 3.0
+    force_radius = 256.0
 )
 )
 
-dt = 0.01
+dt = 0.0001
 
 profile_name = '3D' + '-'\
                + 'x'.join(map(str, res)) + '-' \

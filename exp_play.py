@@ -94,6 +94,6 @@ if __name__ == '__main__':
                 m_cfg.video_manager.get_output_filename(".gif")
                 break
         frame_count += 1
-        print("frame", frame_count)
+        # print("frame", frame_count)
 
     ti.kernel_profiler_print()
