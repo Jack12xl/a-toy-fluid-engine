@@ -27,7 +27,7 @@ from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_1
@@ -53,28 +53,28 @@ Colliders = []
 dt = 0.03
 
 Emitters = []
-# Emitters.append(ForceEmitter2(
-#     t=Transform2(
-#         translation=ti.Vector([300.0, 0.0]),
-#         localscale=10000.0,
-#         orientation=math.pi / 2.0
-#     ),
-#     v=Velocity2(),
-#     fluid_color=fluid_color,
-#     force_radius=res[0] / 3.0,
-#     )
-# )
-
-Emitters.append(SquareEmitter2D(
+Emitters.append(ForceEmitter2(
     t=Transform2(
-        translation=ti.Vector([300, 0]),
-        localscale=20,
+        translation=ti.Vector([300.0, 0.0]),
+        localscale=10000.0,
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
     fluid_color=fluid_color,
+    force_radius=res[0] / 3.0,
     )
 )
+
+# Emitters.append(SquareEmitter2D(
+#     t=Transform2(
+#         translation=ti.Vector([300, 0]),
+#         localscale=20,
+#         orientation=math.pi / 2.0
+#     ),
+#     v=Velocity2(),
+#     fluid_color=fluid_color,
+#     )
+# )
 # Emitters.append(ForceEmitter(
 #     sys.modules[__name__],
 #     t=Transform2(

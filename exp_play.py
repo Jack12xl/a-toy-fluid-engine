@@ -23,6 +23,7 @@ def parse_args():
         cfg = config.config3D.jit3D
 
     return cfg
+
 if __name__ == '__main__':
     m_cfg = parse_args()
 

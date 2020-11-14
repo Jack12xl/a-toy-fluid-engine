@@ -20,12 +20,12 @@ VisualType = VisualizeEnum.Density
 run_scheme = SchemeType.Advection_Projection
 # run_scheme = SchemeType.Advection_Reflection
 
-from advection import SemiLagrangeOrder, MacCormackSolver
-advection_solver = MacCormackSolver
-semi_order = SemiLagrangeOrder.RK_3
+from advection import SemiLagrangeOrder, MacCormackSolver, SemiLagrangeSolver
+advection_solver = SemiLagrangeSolver
+semi_order = SemiLagrangeOrder.RK_1
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 

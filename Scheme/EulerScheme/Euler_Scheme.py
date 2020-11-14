@@ -49,6 +49,7 @@ class EulerScheme(metaclass=ABCMeta):
                     self.grid.density_bffr,
                     dt
                 )
+        # self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)

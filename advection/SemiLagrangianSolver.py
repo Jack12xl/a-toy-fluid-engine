@@ -3,10 +3,12 @@ from enum import Enum, IntEnum
 from .AbstractAdvectionSolver import AdvectionSolver
 from utils import Vector, Matrix
 
+
 class SemiLagrangeOrder(IntEnum):
     RK_1 = 1
     RK_2 = 2
     RK_3 = 3
+
 
 @ti.data_oriented
 class SemiLagrangeSolver(AdvectionSolver):
@@ -21,7 +23,7 @@ class SemiLagrangeSolver(AdvectionSolver):
                   vel_field: Matrix,
                   pos: Vector,
                   boundarySdf: Matrix,
-                  dt) :
+                  dt):
         # TODO abstract grid
         """
 
@@ -87,13 +89,12 @@ class SemiLagrangeSolver(AdvectionSolver):
             q_nxt[I] = q_cur.interpolate(coord)
 
         return q_nxt
+
     @ti.kernel
     def advect(self,
                vec_field: ti.template(),
                q_cur: ti.template(),
                q_nxt: ti.template(),
                boundarySdf: Matrix,
-               dt: ti.template() ):
+               dt: ti.template()):
         self.advect_func(vec_field, q_cur, q_nxt, boundarySdf, dt)
-
-
