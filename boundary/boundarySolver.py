@@ -31,7 +31,7 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
     def kern_update_marker(self):
         # TODO support more type
         for I in ti.grouped(self.marker_field.field):
-            if (self.collider_sdf_field[I] <= 0.0):
+            if self.collider_sdf_field[I] <= 0.0:
                 # in collider
                 self.marker_field[I] = int(PixelType.Collider)
             else:

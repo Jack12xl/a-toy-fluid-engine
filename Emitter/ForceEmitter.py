@@ -41,8 +41,7 @@ class ForceEmitter2(GridEmitter):
     @ti.kernel
     def stepEmitHardCode(self,
                          vf: Matrix,
-                         df: Matrix,
-                         dt: ti.f32
+                         df: Matrix
                          ):
         """
         Left blank on purpose for force emitter
@@ -134,7 +133,6 @@ class ForceEmitter3(GridEmitter):
     def stepEmitHardCode(self,
                          vf: Matrix,
                          df: Matrix,
-                         dt: ti.f32
                          ):
         """
         Left blank on purpose for force emitter

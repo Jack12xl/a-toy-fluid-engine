@@ -39,10 +39,10 @@ class EulerScheme(metaclass=ABCMeta):
 
     def externalForce(self, ext_input, dt):
         # TODO
-        if (self.cfg.SceneType == SceneEnum.MouseDragDye):
+        if self.cfg.SceneType == SceneEnum.MouseDragDye:
             # add impulse from mouse
             self.apply_impulse(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
-        elif (self.cfg.SceneType == SceneEnum.Jit):
+        elif self.cfg.SceneType == SceneEnum.Jit:
             for emitter in self.emitters:
                 emitter.stepEmitForce(
                     self.grid.v,
@@ -133,6 +133,9 @@ class EulerScheme(metaclass=ABCMeta):
             self.grid.density_bffr[I] = 1.0 * self.cfg.fluid_color
 
     def step(self, ext_input: np.array):
+        for emitter in self.emitters:
+            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
         for colld in self.boundarySolver.colliders:
@@ -141,7 +144,8 @@ class EulerScheme(metaclass=ABCMeta):
         self.schemeStep(ext_input)
 
         self.boundarySolver.ApplyBoundaryCondition()
-
+        # for emitter in self.emitters:
+        #     emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
         self.dye_fade()
         self.renderer.renderStep(self.boundarySolver)
 

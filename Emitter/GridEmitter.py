@@ -16,7 +16,6 @@ class GridEmitter(metaclass=ABCMeta):
                  fluid_color):
         """
 
-        :param cfg:
         :param t: self transform
         :param v: self velocity
         """
@@ -34,8 +33,8 @@ class GridEmitter(metaclass=ABCMeta):
     @abstractmethod
     def stepEmitHardCode(self,
                          vf,
-                         df,
-                         dt):
+                         df
+                         ):
         """
         hard code Velocity and Density in an area
         :param vf: velocity field

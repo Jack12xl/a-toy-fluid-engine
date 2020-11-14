@@ -6,7 +6,7 @@ import sys
 import config.config2D.scene_config.scene_jit2D as scene_cfg
 import config.euler_config
 import math
-from Emitter import ForceEmitter2
+from Emitter import ForceEmitter2, SquareEmitter2D
 
 debug = False
 
@@ -20,7 +20,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
@@ -30,7 +30,7 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
-semi_order = SemiLagrangeOrder.RK_3
+semi_order = SemiLagrangeOrder.RK_1
 
 # vorticity enhancement
 curl_strength = 0.0
@@ -43,25 +43,36 @@ ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 
 from geometry import RigidBodyCollider, Ball
 Colliders = []
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
-Colliders.append(RigidBodyCollider(Ball(
-    transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
-    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
+# Colliders.append(RigidBodyCollider(Ball(
+#     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
+#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
 dt = 0.03
 
 Emitters = []
-Emitters.append(ForceEmitter2(
+# Emitters.append(ForceEmitter2(
+#     t=Transform2(
+#         translation=ti.Vector([300.0, 0.0]),
+#         localscale=10000.0,
+#         orientation=math.pi / 2.0
+#     ),
+#     v=Velocity2(),
+#     fluid_color=fluid_color,
+#     force_radius=res[0] / 3.0,
+#     )
+# )
+
+Emitters.append(SquareEmitter2D(
     t=Transform2(
-        translation=ti.Vector([300.0, 0.0]),
-        localscale=10000.0,
+        translation=ti.Vector([300, 0]),
+        localscale=20,
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
     fluid_color=fluid_color,
-    force_radius=res[0] / 3.0,
     )
 )
 # Emitters.append(ForceEmitter(
