@@ -8,7 +8,6 @@ from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
 from utils import set_attribute_from_cfg, filterUpCase
 
-
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
@@ -26,6 +25,7 @@ from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
+
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
@@ -39,24 +39,23 @@ ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True)
 # init should put before init ti.field
 
 from geometry import Transform3, Velocity3
-from Emitter import ForceEmitter3
+from Emitter import ForceEmitter3, SquareEmitter3D
+
 Emitters = []
-Emitters.append(ForceEmitter3(
-    sys.modules[__name__],
+Emitters.append(SquareEmitter3D(
     t=Transform3(
-        translation=ts.vec3(res[0] // 2, 0, res[0] // 2),
-        localscale=ts.vec3(1000.0),
-        orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0) # Up along Y axis
+        translation=ts.vec3(res[0] // 2, 0, res[2] // 2),
+        localscale=ts.vec3(16.0),
+        orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
-    # force_radius=res[0] / 3.0
-    force_radius = 256.0
+    fluid_color=fluid_color
 )
 )
 
-dt = 0.0001
+dt = 0.03
 
-profile_name = '3D' + '-'\
+profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
                + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
