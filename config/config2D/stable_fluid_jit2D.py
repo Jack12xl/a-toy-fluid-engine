@@ -53,28 +53,28 @@ Colliders = []
 dt = 0.03
 
 Emitters = []
-Emitters.append(ForceEmitter2(
-    t=Transform2(
-        translation=ti.Vector([300.0, 0.0]),
-        localscale=10000.0,
-        orientation=math.pi / 2.0
-    ),
-    v=Velocity2(),
-    fluid_color=fluid_color,
-    force_radius=res[0] / 3.0,
-    )
-)
-
-# Emitters.append(SquareEmitter2D(
+# Emitters.append(ForceEmitter2(
 #     t=Transform2(
-#         translation=ti.Vector([300, 0]),
-#         localscale=20,
+#         translation=ti.Vector([300.0, 0.0]),
+#         localscale=10000.0,
 #         orientation=math.pi / 2.0
 #     ),
 #     v=Velocity2(),
 #     fluid_color=fluid_color,
+#     force_radius=res[0] / 3.0,
 #     )
 # )
+
+Emitters.append(SquareEmitter2D(
+    t=Transform2(
+        translation=ti.Vector([300, 0]),
+        localscale=3,
+        orientation=math.pi / 2.0
+    ),
+    v=Velocity2(),
+    fluid_color=fluid_color,
+    )
+)
 # Emitters.append(ForceEmitter(
 #     sys.modules[__name__],
 #     t=Transform2(
@@ -110,6 +110,7 @@ profile_name = '2D' + '-'\
                + 'RK' + str(int(semi_order)) + '-' \
                + 'curl' + str(curl_strength) + '-' \
                + 'dt-' + str(dt)
+
 if Colliders:
     profile_name += '-Collider'
 print(profile_name)

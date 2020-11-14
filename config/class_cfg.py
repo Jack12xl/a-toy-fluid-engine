@@ -49,6 +49,7 @@ class PixelType(IntEnum):
     Liquid = 0
     Collider = 1
     Air = 2
+    Emitter = 16
 
 
 class SurfaceShapeType(IntEnum):

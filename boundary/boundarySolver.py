@@ -7,6 +7,7 @@ from config import PixelType
 from geometry import Collider
 from typing import List
 from Grid import DataGrid
+from Emitter import SquareEmitter2D
 
 
 # ref : https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi/blob/master/src/python/Eulerian_method.py
@@ -60,8 +61,24 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
                 vf[I] = collid.surfaceshape.velocity_at_world_point(I)
 
     def ApplyBoundaryCondition(self):
-        if (self.colliders):
+        if self.colliders:
             self.kernBoundaryCondition()
+
+    @ti.kernel
+    def updateEmitterMark(self, emitter: ti.template()):
+        # l_b = emitter.t.translation - emitter.t.localScale
+        # r_u = emitter.t.translation + emitter.t.localScale
+        #
+        # shape = ti.Vector(self.cfg.res)
+        #
+        # l_b = ti.cast(ts.clamp(l_b, 0, shape - 1), ti.i32)
+        # r_u = ti.cast(ts.clamp(r_u, 0, shape - 1), ti.i32)
+        #
+        # for I in ti.grouped(ti.ndrange((l_b.x, r_u.x), (l_b.y, r_u.y))):
+        #     pass
+
+        pass
+
 
     @abstractmethod
     def kernBoundaryCondition(self):
