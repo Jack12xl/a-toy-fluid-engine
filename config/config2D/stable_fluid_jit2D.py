@@ -43,25 +43,26 @@ ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 
 from geometry import RigidBodyCollider, Ball
 Colliders = []
-# Colliders.append(RigidBodyCollider(Ball(
-#     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
-#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
-# Colliders.append(RigidBodyCollider(Ball(
-#     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
-#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
-#
+Colliders.append(RigidBodyCollider(Ball(
+    transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
+    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
+Colliders.append(RigidBodyCollider(Ball(
+    transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
+    velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
+
+dt = 0.03
 
 Emitters = []
 Emitters.append(ForceEmitter2(
-    sys.modules[__name__],
     t=Transform2(
-        translation=ti.Vector([300, 0]),
+        translation=ti.Vector([300.0, 0.0]),
         localscale=10000.0,
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    force_radius=res[0] / 3.0
-)
+    fluid_color=fluid_color,
+    force_radius=res[0] / 3.0,
+    )
 )
 # Emitters.append(ForceEmitter(
 #     sys.modules[__name__],
@@ -98,7 +99,7 @@ profile_name = '2D' + '-'\
                + 'RK' + str(int(semi_order)) + '-' \
                + 'curl' + str(curl_strength) + '-' \
                + 'dt-' + str(dt)
-if (Colliders):
+if Colliders:
     profile_name += '-Collider'
 print(profile_name)
 
