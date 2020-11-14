@@ -121,6 +121,16 @@ class SurfaceToImplict(ImplicitSurface):
             else \
                 EuclideanDistance(p, local_point)
 
+    @ti.pyfunc
+    def signed_vector_l(self, world_point: Vector) -> Vector:
+        """
+        To
+        :param world_point:
+        :return:
+        """
+        # p = self.surface.closest_point_local(local_point)
+        pass
+
     @ti.func
     def is_inside_local(self, local_p: Vector) -> bool:
         return self.surface.is_inside_local(local_p)

@@ -1,4 +1,5 @@
 import taichi as ti
+import taichi_glsl as ts
 import math
 from utils import Vector, Matrix, tiNormalize, Float
 from config.base_cfg import error
@@ -14,7 +15,7 @@ class Transform2:
                  localscale=1.0):
         self._translation = ti.Vector.field(2, dtype=ti.f32, shape=[])
         self._orientation = ti.field(dtype=ti.f32, shape=[])
-        self._localScale = ti.field(dtype=ti.f32, shape=[])
+        self._localScale = ti.Vector.field(2, dtype=ti.f32, shape=[])
         # use buffer for later materialization
         self.translation_buf = translation
         self.orientation_buf = orientation % (2 * math.pi)
@@ -31,7 +32,7 @@ class Transform2:
     def kern_materialize(self):
         self._translation[None] = self.translation_buf
         self._orientation[None] = self.orientation_buf
-        self._localScale[None] = self.localscale_buf
+        self.localScale = self.localscale_buf
 
     @property
     @ti.pyfunc
@@ -61,13 +62,13 @@ class Transform2:
 
     @property
     @ti.pyfunc
-    def localScale(self) -> Float:
+    def localScale(self) -> Vector:
         return self._localScale[None]
 
     @localScale.setter
-    def localScale(self, localScale: Float):
+    def localScale(self, localScale: Vector):
         # clamp above zero
-        self._localScale[None] = max(localScale, error)
+        self._localScale[None] = ti.max(ts.vec2(localScale), ts.vec2(error))
 
     @ti.pyfunc
     def to_local(self, p_world: Vector) -> Vector:
