@@ -122,7 +122,7 @@ class ForceEmitter2(GridEmitter):
             d2 = (I + 0.5 - self.t.translation).norm_sqr()
             # add 0.5 can get less artifacts... strange
             factor = ti.exp(- d2 * self.inv_force_radius)
-            momentum = factor * emit_force * dt
+            momentum = (factor * emit_force - self.cfg.f_gravity) * dt
 
             vf[I] += momentum
             den += factor * self.cfg.fluid_color

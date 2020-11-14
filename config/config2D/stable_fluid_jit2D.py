@@ -22,9 +22,9 @@ VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
 run_scheme = SchemeType.Advection_Projection
 
-from advection import MacCormackSolver, SemiLagrangeOrder
+from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
-advection_solver = MacCormackSolver
+advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
