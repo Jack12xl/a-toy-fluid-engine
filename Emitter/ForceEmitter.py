@@ -3,7 +3,7 @@ import taichi_glsl as ts
 from .GridEmitter import GridEmitter
 from geometry import Transform2, Velocity2
 from geometry import Transform3, Velocity3
-from utils import Vector
+from utils import Vector, Matrix
 
 
 @ti.data_oriented
@@ -40,7 +40,9 @@ class ForceEmitter2(GridEmitter):
 
     @ti.kernel
     def stepEmitHardCode(self,
-                         # vf
+                         vf: Matrix,
+                         df: Matrix,
+                         dt: ti.f32
                          ):
         """
         Left blank on purpose for force emitter
@@ -130,7 +132,9 @@ class ForceEmitter3(GridEmitter):
 
     @ti.kernel
     def stepEmitHardCode(self,
-                         # vf
+                         vf: Matrix,
+                         df: Matrix,
+                         dt: ti.f32
                          ):
         """
         Left blank on purpose for force emitter

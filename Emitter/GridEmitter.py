@@ -34,9 +34,10 @@ class GridEmitter(metaclass=ABCMeta):
     @abstractmethod
     def stepEmitHardCode(self,
                          vf,
-                         df):
+                         df,
+                         dt):
         """
-        Emit Velocity and Density and hard code
+        hard code Velocity and Density in an area
         :param vf: velocity field
         :param df: density field
         :return:
