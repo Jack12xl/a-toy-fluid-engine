@@ -20,9 +20,8 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
-        self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
-        self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
-
+        self.advection_solver = self.cfg.advection_solver(cfg, self.grid, self.boundarySolver.marker_field)
+        self.projection_solver = self.cfg.projection_solver(cfg, self.grid, self.boundarySolver.marker_field)
 
         self.emitters = cfg.Emitters
 
@@ -119,7 +118,7 @@ class EulerScheme(metaclass=ABCMeta):
                     [imp_data[4], imp_data[5], imp_data[6]])
             dc *= self.cfg.dye_decay
             dyef[I] = dc
-            
+
     @ti.kernel
     def emit(self):
         raise DeprecationWarning
@@ -143,7 +142,7 @@ class EulerScheme(metaclass=ABCMeta):
         self.boundarySolver.kern_update_marker()
         for emitter in self.emitters:
             if isinstance(emitter, SquareEmitter2D):
-                #TODO suuport 3D
+                # TODO suuport 3D
                 self.boundarySolver.updateEmitterMark(emitter)
 
         for colld in self.boundarySolver.colliders:

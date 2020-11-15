@@ -2,7 +2,7 @@ import taichi as ti
 from enum import Enum, IntEnum
 from .AbstractAdvectionSolver import AdvectionSolver
 from utils import Vector, Matrix
-
+from config import PixelType
 
 class SemiLagrangeOrder(IntEnum):
     RK_1 = 1
@@ -13,10 +13,11 @@ class SemiLagrangeOrder(IntEnum):
 @ti.data_oriented
 class SemiLagrangeSolver(AdvectionSolver):
 
-    def __init__(self, cfg, intpltr):
+    def __init__(self, cfg, datagrid, pixel_marker):
         super().__init__(cfg)
         self.RK = cfg.semi_order
-        self.grid = intpltr
+        self.grid = datagrid
+        self.pixel_marker = pixel_marker
 
     @ti.func
     def backtrace(self,
@@ -82,6 +83,8 @@ class SemiLagrangeSolver(AdvectionSolver):
         :return:
         """
         for I in ti.grouped(vec_field.field):
+            if self.pixel_marker[I] != PixelType.Liquid:
+                continue
             # get predicted position
             p = float(I)
             coord = self.backtrace(vec_field, p, boundarySdf, dt)

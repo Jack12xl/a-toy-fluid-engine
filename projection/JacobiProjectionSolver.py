@@ -2,11 +2,12 @@ import taichi as ti
 import taichi_glsl as ts
 from .AbstractProjectionSolver import ProjectionSolver
 from utils import Float
+from config import PixelType
 
 @ti.data_oriented
 class JacobiProjectionSolver(ProjectionSolver):
 
-    def __init__(self, cfg, grid):
+    def __init__(self, cfg, grid, pixel_marker):
         super().__init__(cfg, grid)
 
 
@@ -18,6 +19,8 @@ class JacobiProjectionSolver(ProjectionSolver):
                     alpha: Float,
                     beta: Float):
         for I in ti.grouped(pf.field):
+            if self.pixel_marker[I] != PixelType.Liquid:
+                continue
             ret = 0.0
             div = v_divs[I]
             for d in ti.static(range(self.cfg.dim)):

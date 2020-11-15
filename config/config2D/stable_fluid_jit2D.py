@@ -30,7 +30,7 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
-semi_order = SemiLagrangeOrder.RK_1
+semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
 curl_strength = 0.0
