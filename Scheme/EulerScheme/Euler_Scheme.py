@@ -55,8 +55,8 @@ class EulerScheme(metaclass=ABCMeta):
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
+        self.grid.calVorticity(self.grid.v_pair.cur)
         if self.cfg.curl_strength:
-            self.grid.calVorticity(self.grid.v_pair.cur)
             self.enhance_vorticity()
 
         self.projection_solver.runPressure()
@@ -140,10 +140,6 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
-        # for emitter in self.emitters:
-        #     if isinstance(emitter, SquareEmitter2D):
-        #         # TODO suuport 3D
-        #         self.boundarySolver.updateEmitterMark(emitter)
 
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)

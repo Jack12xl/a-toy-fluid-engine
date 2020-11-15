@@ -17,7 +17,7 @@ SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.Density
 
 # run scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 Colliders = []
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
@@ -28,7 +28,7 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 30
-dye_decay = 0.99
+dye_decay = 1.0
 semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
@@ -49,12 +49,12 @@ Emitters.append(SquareEmitter(
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
-    jit_v=ts.vec3(0.0, 128.0, 0.0),
+    jit_v=ts.vec3(0.0, 64.0, 0.0),
     fluid_color=fluid_color
 )
 )
 
-dt = 0.03
+dt = 0.1
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
