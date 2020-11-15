@@ -113,6 +113,6 @@ class collocatedGridData():
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
 
     def reset(self):
-        self.v_pair.cur.fill(ti.Vector([0, 0]))
+        self.v_pair.cur.fill(ts.vecND(self.dim, 0.0))
         self.p_pair.cur.fill(0.0)
         self.density_pair.cur.fill(ti.Vector([0, 0, 0]))

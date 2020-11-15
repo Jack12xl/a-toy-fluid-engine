@@ -17,7 +17,7 @@ SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.Density
 
 # run scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 Colliders = []
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
@@ -39,16 +39,17 @@ ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True)
 # init should put before init ti.field
 
 from geometry import Transform3, Velocity3
-from Emitter import ForceEmitter3, SquareEmitter3D
+from Emitter import ForceEmitter3, SquareEmitter
 
 Emitters = []
-Emitters.append(SquareEmitter3D(
+Emitters.append(SquareEmitter(
     t=Transform3(
         translation=ts.vec3(res[0] // 2, 0, res[2] // 2),
         localscale=ts.vec3(16.0),
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
+    jit_v=ts.vec3(0.0, 128.0, 0.0),
     fluid_color=fluid_color
 )
 )

@@ -7,7 +7,7 @@ from config import PixelType
 from geometry import Collider
 from typing import List
 from Grid import DataGrid
-from Emitter import SquareEmitter2D
+from Emitter import SquareEmitter
 
 
 # ref : https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi/blob/master/src/python/Eulerian_method.py

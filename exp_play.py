@@ -40,6 +40,7 @@ if __name__ == '__main__':
 
     s.materialize()
 
+    print("Press 1 ")
     while gui.running:
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event

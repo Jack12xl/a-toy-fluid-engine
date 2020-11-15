@@ -6,7 +6,8 @@ import sys
 import config.config2D.scene_config.scene_jit2D as scene_cfg
 import config.euler_config
 import math
-from Emitter import ForceEmitter2, SquareEmitter2D
+from Emitter import ForceEmitter2, SquareEmitter
+import taichi_glsl as ts
 
 debug = False
 
@@ -20,17 +21,17 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.VelocityMagnitude
 ## run Scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = JacobiProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
-semi_order = SemiLagrangeOrder.RK_1
+semi_order = SemiLagrangeOrder.RK_3
 
 # vorticity enhancement
 curl_strength = 0.0
@@ -65,13 +66,14 @@ Emitters = []
 #     )
 # )
 
-Emitters.append(SquareEmitter2D(
+Emitters.append(SquareEmitter(
     t=Transform2(
         translation=ti.Vector([300, 0]),
         localscale=10.0,
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
+    jit_v=ts.vec2(0.0, 128.0),
     fluid_color=fluid_color,
     )
 )
