@@ -56,10 +56,10 @@ class SquareEmitter2D(GridEmitter):
         r_u = self.t.translation + self.t.localScale
         shape = ti.Vector(vf.shape)
 
-        l_b = ti.cast(ts.clamp(l_b, 0, shape - 1), ti.i32)
-        r_u = ti.cast(ts.clamp(r_u, 0, shape - 1), ti.i32)
+        l_b = ts.clamp(l_b, 0, shape - 1)
+        r_u = ts.clamp(r_u, 0, shape - 1)
 
-        for I in ti.grouped(ti.ndrange((l_b.x, r_u.x), (l_b.y, r_u.y))):
+        for I in ti.grouped(ti.ndrange((int(l_b.x), int(r_u.x)), (int(l_b.y), int(r_u.y)))):
             vf[I] = ts.vec2(0.0, 128.0)
             # here CFL u * dt / dx
             # vf * 0.03 / 1

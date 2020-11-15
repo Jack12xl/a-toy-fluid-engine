@@ -68,7 +68,7 @@ Emitters = []
 Emitters.append(SquareEmitter2D(
     t=Transform2(
         translation=ti.Vector([300, 0]),
-        localscale=3,
+        localscale=10.0,
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
