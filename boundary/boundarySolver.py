@@ -66,7 +66,7 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
 
     @ti.kernel
     def updateEmitterMark(self, emitter: ti.template()):
-        #TODO support multiple shape emitter
+        # TODO support multiple shape emitter
         l_b = emitter.t.translation - emitter.t.localScale
         r_u = emitter.t.translation + emitter.t.localScale
 
@@ -75,13 +75,9 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
         l_b = ts.clamp(l_b, 0, shape - 1)
         r_u = ts.clamp(r_u, 0, shape - 1)
 
-        for I in ti.grouped(ti.ndrange(
-                (int(l_b.x), int(r_u.x)),
-                (int(l_b.y), int(r_u.y))
-            )
-        ):
-            self.marker_field[I] = PixelType.Emitter
-
+        bbox = [(int(l_b[i]), int(r_u[i])) for i in range(len(l_b))]
+        for I in ti.grouped(ti.ndrange(*bbox)):
+            self.marker_field[I] = int(PixelType.Emitter)
 
     @abstractmethod
     def kernBoundaryCondition(self):

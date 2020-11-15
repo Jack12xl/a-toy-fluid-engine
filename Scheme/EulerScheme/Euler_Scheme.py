@@ -6,7 +6,7 @@ from config import VisualizeEnum, SceneEnum, SchemeType
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
-from Emitter import ForceEmitter2
+from Emitter import ForceEmitter2, SquareEmitter2D
 from renderer import renderer2D, renderer25D
 
 
@@ -18,10 +18,12 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.grid = collocatedGridData(cfg)
 
+        self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
+
         self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
-        self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
+
         self.emitters = cfg.Emitters
 
         if self.dim == 2:
@@ -139,6 +141,11 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
+        for emitter in self.emitters:
+            if isinstance(emitter, SquareEmitter2D):
+                #TODO suuport 3D
+                self.boundarySolver.updateEmitterMark(emitter)
+
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)
         # do advection projection here
