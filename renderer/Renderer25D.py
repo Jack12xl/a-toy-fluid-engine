@@ -33,7 +33,8 @@ class renderer25D(renderer):
     def vis_v(self, vf: ti.template()):
         # velocity
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
-            self.clr_bffr[I.xy] = 0.01 * vf[I] + ts.vec3(0.5)
+            # self.clr_bffr[I.xy] = 0.01 * vf[I] + ts.vec3(0.5)
+            self.clr_bffr[I.xy] = ti.abs(vf[I])
 
     @ti.kernel
     def vis_v_mag(self, vf: ti.template()):
@@ -46,8 +47,11 @@ class renderer25D(renderer):
     def vis_vd(self, vf: ti.template()):
         # divergence
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
-            v = ts.vec(vf[I], 0.0, 0.0)
-            self.clr_bffr[I.xy] = 0.3 * v + ts.vec3(0.5)
+
+            # v = ts.vec3(vf[I], 0.0, 0.0)
+            # self.clr_bffr[I.xy] = 0.3 * ti.abs(v) + ts.vec3(0.5)
+            v = ts.vec3(vf[I])
+            self.clr_bffr[I.xy] = ti.abs(v)
 
     @ti.kernel
     def vis_vt(self, vf: ti.template()):
