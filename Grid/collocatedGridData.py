@@ -43,6 +43,7 @@ class collocatedGridData():
             self.calVorticity = self.calVorticity2D
         elif self.dim == 3:
             self.calVorticity = self.calVorticity3D
+
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         for I in ti.grouped(vf.field):
@@ -91,7 +92,6 @@ class collocatedGridData():
             curl[2] = (v_t.x - v_d.x) - (v_r.y - v_l.y)
 
             self.v_curl[I] = curl
-
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):

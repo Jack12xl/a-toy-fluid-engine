@@ -20,9 +20,11 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
-
-        self.advection_solver = self.cfg.advection_solver(cfg, self.grid, self.boundarySolver.collider_sdf_field)
-        self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
+        self.advection_solver = self.cfg.advection_solver(cfg, self.grid,
+                                                          self.boundarySolver.collider_sdf_field,
+                                                          self.boundarySolver.marker_field)
+        self.projection_solver = self.cfg.projection_solver(cfg, self.grid,
+                                                            self.boundarySolver.marker_field)
 
         self.emitters = cfg.Emitters
 
@@ -128,6 +130,8 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
+        # for emitter in self.emitters:
+        #     self.boundarySolver.updateEmitterMark(emitter)
 
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)

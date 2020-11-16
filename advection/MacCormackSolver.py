@@ -7,12 +7,13 @@ from utils import Vector, Matrix
 @ti.data_oriented
 class MacCormackSolver(AdvectionSolver):
 
-    def __init__(self, cfg, grid, bdrySdf):
+    def __init__(self, cfg, grid, bdrySdf, pixel_marker):
         super().__init__(cfg)
         self.RK = cfg.semi_order
         self.grid = grid
+        self.pixel_marker = pixel_marker
 
-        self.subsolver = SemiLagrangeSolver(cfg, grid, bdrySdf)
+        self.subsolver = SemiLagrangeSolver(cfg, grid, bdrySdf, pixel_marker)
 
     @ti.func
     def advect_func(self,

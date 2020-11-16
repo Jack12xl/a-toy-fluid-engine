@@ -4,6 +4,7 @@ from .AbstractAdvectionSolver import AdvectionSolver
 from utils import Vector, Matrix
 from config import PixelType
 
+
 class SemiLagrangeOrder(IntEnum):
     RK_1 = 1
     RK_2 = 2
@@ -13,13 +14,12 @@ class SemiLagrangeOrder(IntEnum):
 @ti.data_oriented
 class SemiLagrangeSolver(AdvectionSolver):
 
-
-
-    def __init__(self, cfg, intpltr, bdrySdf):
+    def __init__(self, cfg, intpltr, bdrySdf, pixel_marker):
         super().__init__(cfg)
         self.RK = cfg.semi_order
         self.grid = intpltr
         self.bdrySdf = bdrySdf
+        self.pixel_marker = pixel_marker
 
     @ti.func
     def backtrace(self,
@@ -78,7 +78,6 @@ class SemiLagrangeSolver(AdvectionSolver):
         :param vec_field:
         :param q_cur:
         :param q_nxt:
-        :param boundarySdf:
         :param dt:
         :return:
         """

@@ -4,12 +4,13 @@ from .AbstractProjectionSolver import ProjectionSolver
 from utils import Float
 from config import PixelType
 
+
 @ti.data_oriented
 class JacobiProjectionSolver(ProjectionSolver):
 
     def __init__(self, cfg, grid, pixel_marker):
         super().__init__(cfg, grid)
-
+        self.pixel_marker = pixel_marker
 
     @ti.kernel
     def Jacobi_Step(self,
@@ -40,7 +41,6 @@ class JacobiProjectionSolver(ProjectionSolver):
             # div = v_divs[I]
             # new_pf[I] = (pl + pr + pb + pt + alpha * div) * beta
 
-
     def runPressure(self):
         # self.cfg.jacobi_alpha = self.cfg.poisson_pressure_alpha
         # self.cfg.jacobi_beta = self.cfg.poisson_pressure_beta
@@ -66,5 +66,3 @@ class JacobiProjectionSolver(ProjectionSolver):
                 self.cfg.poisson_viscosity_beta
             )
             self.grid.p_pair.swap()
-
-
