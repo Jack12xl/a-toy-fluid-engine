@@ -26,8 +26,8 @@ advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
-projection_solver = JacobiProjectionSolver
-p_jacobi_iters = 30
+projection_solver = RedBlackGaussSedialProjectionSolver
+p_jacobi_iters = 64
 dye_decay = 1.0
 semi_order = SemiLagrangeOrder.RK_3
 
@@ -45,7 +45,7 @@ Emitters = []
 Emitters.append(SquareEmitter(
     t=Transform3(
         translation=ts.vec3(res[0] // 2, 0, res[2] // 2),
-        localscale=ts.vec3(16.0),
+        localscale=ts.vec3(16.0, 16.0, res[2]),
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
@@ -54,7 +54,7 @@ Emitters.append(SquareEmitter(
 )
 )
 
-dt = 0.05
+dt = 0.03
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \

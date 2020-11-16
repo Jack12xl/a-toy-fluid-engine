@@ -82,3 +82,5 @@ class LinearSampler3D(Sampler):
         h = ts.sample(self.field, I + ts.D.yxy)
 
         return min(a, b, c, d, e, f, g, h), max(a, b, c, d, e, f, g, h)
+
+#TODO Bspline interpolation

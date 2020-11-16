@@ -33,14 +33,14 @@ class renderer25D(renderer):
     def vis_v(self, vf: ti.template()):
         # velocity
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
-            # self.clr_bffr[I.xy] = 0.01 * vf[I] + ts.vec3(0.5)
-            self.clr_bffr[I.xy] = ti.abs(vf[I])
+            self.clr_bffr[I.xy] = 0.01 * ti.abs(vf[I])
+            # self.clr_bffr[I.xy] = ti.abs(vf[I])
 
     @ti.kernel
     def vis_v_mag(self, vf: ti.template()):
         # velocity magnitude
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
-            v_norm = vf[I].norm() * 0.004
+            v_norm = vf[I].norm() * 0.04
             self.clr_bffr[I.xy] = self.mapper.color_map(v_norm)
 
     @ti.kernel
@@ -48,17 +48,17 @@ class renderer25D(renderer):
         # divergence
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
 
-            # v = ts.vec3(vf[I], 0.0, 0.0)
-            # self.clr_bffr[I.xy] = 0.3 * ti.abs(v) + ts.vec3(0.5)
-            v = ts.vec3(vf[I])
-            self.clr_bffr[I.xy] = ti.abs(v)
+            v = ts.vec3(vf[I], 0.0, 0.0)
+            self.clr_bffr[I.xy] = 0.3 * v + ts.vec3(0.5)
+            # v = ts.vec3(vf[I])
+            # self.clr_bffr[I.xy] = ti.abs(v)
 
     @ti.kernel
     def vis_vt(self, vf: ti.template()):
         # visualize vorticity
         for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
             v = vf[I]
-            self.clr_bffr[I.xy] = 0.03 * ti.abs(v) + ts.vec3(0.5)
+            self.clr_bffr[I.xy] = 0.03 * v + ts.vec3(0.5)
 
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:
