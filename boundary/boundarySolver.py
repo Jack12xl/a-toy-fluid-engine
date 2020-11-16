@@ -99,7 +99,7 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
         # no flux
         # slip
         for I in ti.grouped(self.grid.v.field):
-            if (self.collider_sdf_field[I] < ti.static(0.0)):
+            if self.collider_sdf_field[I] < ti.static(0.0):
                 collider_vel = self.collider_velocity_field[I]
                 vel = self.grid.v[I]
 
@@ -111,7 +111,7 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
                 # normal = self.colliders[collid_idx].surfaceshape.closest_normal(I)
                 # normal = self.colliders[0].surfaceshape.closest_normal(I)
 
-                if (normal.norm() > 0):
+                if normal.norm() > 0:
                     vel_r = vel - collider_vel
                     self.grid.v[I] = vel_r - vel_r.dot(normal) * normal
                 else:

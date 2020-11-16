@@ -17,7 +17,7 @@ SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.Density
 
 # run scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 Colliders = []
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
