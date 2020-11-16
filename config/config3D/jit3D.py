@@ -54,7 +54,7 @@ Emitters.append(SquareEmitter(
 )
 )
 
-dt = 0.1
+dt = 0.05
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \

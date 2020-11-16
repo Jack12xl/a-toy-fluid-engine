@@ -20,7 +20,7 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
-        self.advection_solver = self.cfg.advection_solver(cfg, self.grid)
+        self.advection_solver = self.cfg.advection_solver(cfg, self.grid, self.boundarySolver.collider_sdf_field)
         self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
         self.emitters = cfg.Emitters
@@ -32,9 +32,11 @@ class EulerScheme(metaclass=ABCMeta):
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
-                                     self.boundarySolver.collider_sdf_field, dt)
+                                     # self.boundarySolver.collider_sdf_field,
+                                     dt)
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt,
-                                     self.boundarySolver.collider_sdf_field, dt)
+                                     # self.boundarySolver.collider_sdf_field,
+                                     dt)
         self.grid.v_pair.swap()
         self.grid.density_pair.swap()
 
