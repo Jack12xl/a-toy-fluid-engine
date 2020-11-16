@@ -12,9 +12,9 @@ from Emitter import SquareEmitter
 
 # ref : https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi/blob/master/src/python/Eulerian_method.py
 class GridBoudaryConditionSolver(metaclass=ABCMeta):
-    '''
+    """
     solve boundary condition and manager C
-    '''
+    """
 
     def __init__(self, cfg, grid: collocatedGridData):
         self.cfg = cfg
@@ -44,13 +44,14 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
         for idx, cllider in enumerate(colliders):
             self.kern_update_collid(idx, cllider)
 
+
     @ti.kernel
     def kern_update_collid(self, idx: ti.int32, collid: ti.template()):
-        '''
+        """
         update the sdf and velocity
         :param collid:
         :return:
-        '''
+        """
         sdf = ti.static(self.collider_sdf_field)
         vf = ti.static(self.collider_velocity_field)
         cmf = ti.static(self.collider_marker_field)
