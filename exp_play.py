@@ -16,13 +16,14 @@ def parse_args():
         import config.config2D.stable_fluid_mouse
         cfg = config.config2D.stable_fluid_mouse
     elif args.cfg == "jit2d":
-        import config.config2D.stable_fluid_jit2D
-        cfg = config.config2D.stable_fluid_jit2D
+        import config.config2D.jit2D
+        cfg = config.config2D.jit2D
     elif args.cfg == "jit3d":
         import config.config3D.jit3D
         cfg = config.config3D.jit3D
 
     return cfg
+
 
 if __name__ == '__main__':
     m_cfg = parse_args()
@@ -39,7 +40,10 @@ if __name__ == '__main__':
     frame_count = 0
 
     s.materialize()
+    # print the instruction
 
+    for k in VisualizeEnum:
+        print("Press {} to visualize {}".format(k.value, k.name))
     while gui.running:
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
@@ -56,15 +60,15 @@ if __name__ == '__main__':
             elif e.key == ',':
                 # TODO
                 print(e.key)
-            elif e.key == '1':
+            elif e.key == '0':
                 m_cfg.VisualType = VisualizeEnum.Density
-            elif e.key == '2':
+            elif e.key == '1':
                 m_cfg.VisualType = VisualizeEnum.Velocity
-            elif e.key == '3':
+            elif e.key == '2':
                 m_cfg.VisualType = VisualizeEnum.Divergence
-            elif e.key == '4':
+            elif e.key == '3':
                 m_cfg.VisualType = VisualizeEnum.Vorticity
-            elif e.key == '5':
+            elif e.key == '4':
                 m_cfg.VisualType = VisualizeEnum.VelocityMagnitude
 
         if not paused:

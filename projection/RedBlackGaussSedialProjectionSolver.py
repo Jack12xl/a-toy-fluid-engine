@@ -3,23 +3,22 @@ import taichi_glsl as ts
 from .AbstractProjectionSolver import ProjectionSolver
 from utils import Float
 
-#ref1 : https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf
-#ref2 : https://github.com/ShaneFX/GAMES201/blob/330d9c75cacfad6901605d3f589eea11954d9a93/HW01/Smoke3d/smoke_3D.py
+
+# ref1 : https://www.cs.cornell.edu/~bindel/class/cs5220-s10/slides/lec14.pdf
+# ref2 : https://github.com/ShaneFX/GAMES201/blob/330d9c75cacfad6901605d3f589eea11954d9a93/HW01/Smoke3d/smoke_3D.py
 @ti.data_oriented
 class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
 
     def __init__(self, cfg, grid):
         super().__init__(cfg, grid)
 
-
     @ti.kernel
     def Gauss_Step(self,
                    pf: ti.template(),
                    new_pf: ti.template(),
                    p_divs: ti.template(),
-                   alpha : Float,
-                   beta : Float):
-        # TODO: dimension independent coding
+                   alpha: Float,
+                   beta: Float):
 
         for I in ti.grouped(pf.field):
             if ts.summation(I) % 2 == 0:
@@ -32,7 +31,7 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                     p1 = pf.sample(I - D)
 
                     ret += p0 + p1
-                new_pf[I] = ( ret + alpha * div ) * beta
+                new_pf[I] = (ret + alpha * div) * beta
                 # pl = pf.sample(I + ts.D.zy)
                 # pr = pf.sample(I + ts.D.xy)
                 # pb = pf.sample(I + ts.D.yz)

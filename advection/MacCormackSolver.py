@@ -7,29 +7,32 @@ from utils import Vector, Matrix
 @ti.data_oriented
 class MacCormackSolver(AdvectionSolver):
 
-    def __init__(self, cfg, grid):
+    def __init__(self, cfg, grid, bdrySdf):
         super().__init__(cfg)
         self.RK = cfg.semi_order
         self.grid = grid
-        self.subsolver = SemiLagrangeSolver(cfg, grid)
+
+        self.subsolver = SemiLagrangeSolver(cfg, grid, bdrySdf)
 
     @ti.func
     def advect_func(self,
                     vec_field: ti.template(),
                     q_cur: ti.template(),
                     q_nxt: ti.template(),
-                    boundarySdf: Matrix,
+                    # boundarySdf: Matrix,
                     dt: ti.template()):
 
         for I in ti.grouped(vec_field.field):
             # pos = I + 0.5
             pos = float(I)
-            p_mid = self.subsolver.backtrace(vec_field, pos, boundarySdf,  dt)
-            #q_mid = self.grid.bilerp(q_cur, p_mid)
+            p_mid = self.subsolver.backtrace(vec_field, pos,
+                                             # boundarySdf,
+                                             dt)
             q_mid = q_cur.interpolate(p_mid)
 
-            p_fin = self.subsolver.backtrace(vec_field, p_mid, boundarySdf, -dt)
-            #q_fin = self.grid.bilerp(q_cur, p_fin)
+            p_fin = self.subsolver.backtrace(vec_field, p_mid,
+                                             # boundarySdf,
+                                             -dt)
             q_fin = q_cur.interpolate(p_fin)
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
@@ -49,8 +52,10 @@ class MacCormackSolver(AdvectionSolver):
                vec_field: ti.template(),
                q_cur: ti.template(),
                q_nxt: ti.template(),
-               boundarySdf: Matrix,
+               # boundarySdf: Matrix,
                dt: ti.template()):
-        self.advect_func(vec_field, q_cur, q_nxt, boundarySdf, dt)
+        self.advect_func(vec_field, q_cur, q_nxt,
+                         # boundarySdf,
+                         dt)
 
 

@@ -7,14 +7,14 @@ from config import PixelType
 from geometry import Collider
 from typing import List
 from Grid import DataGrid
-from Emitter import SquareEmitter2D
+from Emitter import SquareEmitter
 
 
 # ref : https://github.com/JYLeeLYJ/Fluid-Engine-Dev-on-Taichi/blob/master/src/python/Eulerian_method.py
 class GridBoudaryConditionSolver(metaclass=ABCMeta):
-    '''
+    """
     solve boundary condition and manager C
-    '''
+    """
 
     def __init__(self, cfg, grid: collocatedGridData):
         self.cfg = cfg
@@ -44,13 +44,14 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
         for idx, cllider in enumerate(colliders):
             self.kern_update_collid(idx, cllider)
 
+
     @ti.kernel
     def kern_update_collid(self, idx: ti.int32, collid: ti.template()):
-        '''
+        """
         update the sdf and velocity
         :param collid:
         :return:
-        '''
+        """
         sdf = ti.static(self.collider_sdf_field)
         vf = ti.static(self.collider_velocity_field)
         cmf = ti.static(self.collider_marker_field)
@@ -75,7 +76,7 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
         l_b = ts.clamp(l_b, 0, shape - 1)
         r_u = ts.clamp(r_u, 0, shape - 1)
 
-        bbox = [(int(l_b[i]), int(r_u[i])) for i in range(len(l_b))]
+        bbox = [(int(l_b[i]), int(r_u[i]) + 1) for i in range(len(l_b))]
         for I in ti.grouped(ti.ndrange(*bbox)):
             self.marker_field[I] = int(PixelType.Emitter)
 
@@ -98,7 +99,7 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
         # no flux
         # slip
         for I in ti.grouped(self.grid.v.field):
-            if (self.collider_sdf_field[I] < ti.static(0.0)):
+            if self.collider_sdf_field[I] < ti.static(0.0):
                 collider_vel = self.collider_velocity_field[I]
                 vel = self.grid.v[I]
 
@@ -110,7 +111,7 @@ class StdGridBoundaryConditionSolver(GridBoudaryConditionSolver):
                 # normal = self.colliders[collid_idx].surfaceshape.closest_normal(I)
                 # normal = self.colliders[0].surfaceshape.closest_normal(I)
 
-                if (normal.norm() > 0):
+                if normal.norm() > 0:
                     vel_r = vel - collider_vel
                     self.grid.v[I] = vel_r - vel_r.dot(normal) * normal
                 else:

@@ -6,7 +6,7 @@ from config import VisualizeEnum, SceneEnum, SchemeType
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
-from Emitter import ForceEmitter2, SquareEmitter2D
+from Emitter import ForceEmitter2, SquareEmitter
 from renderer import renderer2D, renderer25D
 
 
@@ -20,8 +20,9 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
-        self.advection_solver = self.cfg.advection_solver(cfg, self.grid, self.boundarySolver.marker_field)
-        self.projection_solver = self.cfg.projection_solver(cfg, self.grid, self.boundarySolver.marker_field)
+
+        self.advection_solver = self.cfg.advection_solver(cfg, self.grid, self.boundarySolver.collider_sdf_field)
+        self.projection_solver = self.cfg.projection_solver(cfg, self.grid)
 
         self.emitters = cfg.Emitters
 
@@ -32,9 +33,11 @@ class EulerScheme(metaclass=ABCMeta):
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
-                                     self.boundarySolver.collider_sdf_field, dt)
+                                     # self.boundarySolver.collider_sdf_field,
+                                     dt)
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt,
-                                     self.boundarySolver.collider_sdf_field, dt)
+                                     # self.boundarySolver.collider_sdf_field,
+                                     dt)
         self.grid.v_pair.swap()
         self.grid.density_pair.swap()
 
@@ -55,8 +58,8 @@ class EulerScheme(metaclass=ABCMeta):
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
+        self.grid.calVorticity(self.grid.v_pair.cur)
         if self.cfg.curl_strength:
-            self.grid.calVorticity(self.grid.v_pair.cur)
             self.enhance_vorticity()
 
         self.projection_solver.runPressure()
@@ -119,42 +122,33 @@ class EulerScheme(metaclass=ABCMeta):
             dc *= self.cfg.dye_decay
             dyef[I] = dc
 
-    @ti.kernel
-    def emit(self):
-        raise DeprecationWarning
-        half_d = 30
-        p = ts.vec(self.cfg.source_x, self.cfg.source_y)
-        l_b = p - half_d
-        r_u = p + half_d
-
-        shape = ti.Vector(self.grid.v.shape)
-        l_b = ts.clamp(l_b, 0, shape - 1)
-        r_u = ts.clamp(r_u, 0, shape - 1)
-        for I in ti.grouped(ti.ndrange((l_b.x, r_u.x), (l_b.y, r_u.y))):
-            self.grid.v[I] = ts.vec(0.0, 300.0)
-            self.grid.density_bffr[I] = 1.0 * self.cfg.fluid_color
-
     def step(self, ext_input: np.array):
-        for emitter in self.emitters:
-            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+        # for emitter in self.emitters:
+        #     emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
 
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
-        for emitter in self.emitters:
-            if isinstance(emitter, SquareEmitter2D):
-                # TODO suuport 3D
-                self.boundarySolver.updateEmitterMark(emitter)
 
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)
+
         # do advection projection here
         self.schemeStep(ext_input)
 
         self.boundarySolver.ApplyBoundaryCondition()
-        # for emitter in self.emitters:
-        #     emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+
         self.dye_fade()
+        # refill
+        for emitter in self.emitters:
+            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+
+        # self.print_v()
         self.renderer.renderStep(self.boundarySolver)
+
+    @ti.kernel
+    def print_v(self):
+        for I in ti.grouped(self.grid.v.field):
+            print(self.grid.v[I])
 
     @abstractmethod
     def schemeStep(self, ext_input: np.array):
@@ -167,6 +161,8 @@ class EulerScheme(metaclass=ABCMeta):
     def materialize_emitter(self):
         for emitter in self.emitters:
             emitter.kern_materialize()
+            # init the density and velocity for advection
+            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
 
     def materialize_collider(self):
         for collid in self.boundarySolver.colliders:

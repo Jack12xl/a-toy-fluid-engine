@@ -13,24 +13,24 @@ class SemiLagrangeOrder(IntEnum):
 @ti.data_oriented
 class SemiLagrangeSolver(AdvectionSolver):
 
-    def __init__(self, cfg, datagrid, pixel_marker):
+
+
+    def __init__(self, cfg, intpltr, bdrySdf):
         super().__init__(cfg)
         self.RK = cfg.semi_order
-        self.grid = datagrid
-        self.pixel_marker = pixel_marker
+        self.grid = intpltr
+        self.bdrySdf = bdrySdf
 
     @ti.func
     def backtrace(self,
                   vel_field: Matrix,
                   pos: Vector,
-                  boundarySdf: Matrix,
+                  # boundarySdf: Matrix,
                   dt):
-        # TODO abstract grid
         """
 
         :param vel_field:
         :param pos: input backtrace coordinate in grid
-        :boundarySdf: selfexplained
         :param dt:
         :return: backtraced pos
         """
@@ -55,8 +55,8 @@ class SemiLagrangeSolver(AdvectionSolver):
 
         # TODO boundary handling
         # 3.4.2.4
-        phi0 = boundarySdf.interpolate(start_pos)
-        phi1 = boundarySdf.interpolate(pos)
+        phi0 = self.bdrySdf.interpolate(start_pos)
+        phi1 = self.bdrySdf.interpolate(pos)
         if phi0 * phi1 < 0.0:
             w = ti.abs(phi1) / (ti.abs(phi0) + ti.abs(phi1))
             # pos = w * start_pos + (1.0 - w) * pos
@@ -71,7 +71,7 @@ class SemiLagrangeSolver(AdvectionSolver):
                     vec_field: ti.template(),
                     q_cur: ti.template(),
                     q_nxt: ti.template(),
-                    boundarySdf: Matrix,
+                    # boundarySdf: Matrix,
                     dt: ti.template()):
         """
 
@@ -87,7 +87,7 @@ class SemiLagrangeSolver(AdvectionSolver):
                 continue
             # get predicted position
             p = float(I)
-            coord = self.backtrace(vec_field, p, boundarySdf, dt)
+            coord = self.backtrace(vec_field, p, dt)
             # sample its speed
             q_nxt[I] = q_cur.interpolate(coord)
 
@@ -98,6 +98,8 @@ class SemiLagrangeSolver(AdvectionSolver):
                vec_field: ti.template(),
                q_cur: ti.template(),
                q_nxt: ti.template(),
-               boundarySdf: Matrix,
+               # boundarySdf: Matrix,
                dt: ti.template()):
-        self.advect_func(vec_field, q_cur, q_nxt, boundarySdf, dt)
+        self.advect_func(vec_field, q_cur, q_nxt,
+                         # boundarySdf,
+                         dt)
