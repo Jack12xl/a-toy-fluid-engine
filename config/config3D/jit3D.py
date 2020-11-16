@@ -26,10 +26,10 @@ advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 1.0
-semi_order = SemiLagrangeOrder.RK_3
+semi_order = SemiLagrangeOrder.RK_1
 
 # vorticity enhancement
 curl_strength = 0.0
@@ -44,17 +44,18 @@ from Emitter import ForceEmitter3, SquareEmitter
 Emitters = []
 Emitters.append(SquareEmitter(
     t=Transform3(
-        translation=ts.vec3(res[0] // 2, 0, res[2] // 2),
-        localscale=ts.vec3(16.0, 16.0, res[2]),
+        translation=ts.vec3(res[0] // 2, res[2] // 8, res[2] // 2),
+        localscale=ts.vec3(8.0, 8.0, 8.0),
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
-    jit_v=ts.vec3(0.0, 64.0, 0.0),
+    jit_v=ts.vec3(0.0, 16.0, 0.0),
     fluid_color=fluid_color
 )
 )
 
-dt = 0.03
+dt = 0.01
+half_dt = dt / 2.0
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
@@ -66,7 +67,7 @@ profile_name = '3D' + '-' \
                + 'RK' + str(int(semi_order)) + '-' \
                + 'curl' + str(curl_strength) + '-' \
                + 'dt-' + str(dt)
-if (Colliders):
+if Colliders:
     profile_name += '-Collider'
 print(profile_name)
 

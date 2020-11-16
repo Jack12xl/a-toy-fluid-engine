@@ -62,7 +62,7 @@ class SquareEmitter(GridEmitter):
         l_b = ts.clamp(l_b, 0, shape - 1)
         r_u = ts.clamp(r_u, 0, shape - 1)
 
-        r = [(int(l_b[i]), int(r_u[i])) for i in range(len(l_b))]
+        r = [(int(l_b[i]), int(r_u[i]) + 1) for i in range(len(l_b))]
 
         for I in ti.grouped(ti.ndrange(*r)):
             vf[I] = self.jit_v

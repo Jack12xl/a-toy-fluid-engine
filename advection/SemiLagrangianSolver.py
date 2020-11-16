@@ -25,12 +25,10 @@ class SemiLagrangeSolver(AdvectionSolver):
                   pos: Vector,
                   # boundarySdf: Matrix,
                   dt):
-        # TODO abstract grid
         """
 
         :param vel_field:
         :param pos: input backtrace coordinate in grid
-        :boundarySdf: selfexplained
         :param dt:
         :return: backtraced pos
         """

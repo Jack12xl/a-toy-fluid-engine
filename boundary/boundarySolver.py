@@ -76,7 +76,7 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
         l_b = ts.clamp(l_b, 0, shape - 1)
         r_u = ts.clamp(r_u, 0, shape - 1)
 
-        bbox = [(int(l_b[i]), int(r_u[i])) for i in range(len(l_b))]
+        bbox = [(int(l_b[i]), int(r_u[i]) + 1) for i in range(len(l_b))]
         for I in ti.grouped(ti.ndrange(*bbox)):
             self.marker_field[I] = int(PixelType.Emitter)
 

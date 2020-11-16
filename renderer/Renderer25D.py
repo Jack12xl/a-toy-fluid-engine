@@ -18,7 +18,7 @@ class renderer25D(renderer):
         super(renderer25D, self).__init__(cfg, grid)
         self.mapper = cmapper()
         self.z_plane = z_plane
-        self.dim = ts.vec3(cfg.res)
+        self.res = ts.vec3(cfg.res)
 
     @ti.kernel
     def render_collider(self, bdrySolver: ti.template()):
@@ -26,27 +26,27 @@ class renderer25D(renderer):
 
     @ti.kernel
     def vis_density(self, vf: ti.template()):
-        for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
+        for I in ti.grouped(ti.ndrange(self.res.x, self.res.y, (self.z_plane, self.z_plane + 1))):
             self.clr_bffr[I.xy] = ti.abs(vf[I])
 
     @ti.kernel
     def vis_v(self, vf: ti.template()):
         # velocity
-        for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
+        for I in ti.grouped(ti.ndrange(self.res.x, self.res.y, (self.z_plane, self.z_plane + 1))):
             self.clr_bffr[I.xy] = 0.01 * ti.abs(vf[I])
             # self.clr_bffr[I.xy] = ti.abs(vf[I])
 
     @ti.kernel
     def vis_v_mag(self, vf: ti.template()):
         # velocity magnitude
-        for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
-            v_norm = vf[I].norm() * 0.04
+        for I in ti.grouped(ti.ndrange(self.res.x, self.res.y, (self.z_plane, self.z_plane + 1))):
+            v_norm = vf[I].norm() * 0.4
             self.clr_bffr[I.xy] = self.mapper.color_map(v_norm)
 
     @ti.kernel
     def vis_vd(self, vf: ti.template()):
         # divergence
-        for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
+        for I in ti.grouped(ti.ndrange(self.res.x, self.res.y, (self.z_plane, self.z_plane + 1))):
 
             v = ts.vec3(vf[I], 0.0, 0.0)
             self.clr_bffr[I.xy] = 0.3 * v + ts.vec3(0.5)
@@ -56,7 +56,7 @@ class renderer25D(renderer):
     @ti.kernel
     def vis_vt(self, vf: ti.template()):
         # visualize vorticity
-        for I in ti.grouped(ti.ndrange(self.dim.x, self.dim.y, (self.z_plane, self.z_plane + 1))):
+        for I in ti.grouped(ti.ndrange(self.res.x, self.res.y, (self.z_plane, self.z_plane + 1))):
             v = vf[I]
             self.clr_bffr[I.xy] = 0.03 * v + ts.vec3(0.5)
 

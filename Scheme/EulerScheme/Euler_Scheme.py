@@ -121,21 +121,6 @@ class EulerScheme(metaclass=ABCMeta):
             dc *= self.cfg.dye_decay
             dyef[I] = dc
 
-    @ti.kernel
-    def emit(self):
-        raise DeprecationWarning
-        half_d = 30
-        p = ts.vec(self.cfg.source_x, self.cfg.source_y)
-        l_b = p - half_d
-        r_u = p + half_d
-
-        shape = ti.Vector(self.grid.v.shape)
-        l_b = ts.clamp(l_b, 0, shape - 1)
-        r_u = ts.clamp(r_u, 0, shape - 1)
-        for I in ti.grouped(ti.ndrange((l_b.x, r_u.x), (l_b.y, r_u.y))):
-            self.grid.v[I] = ts.vec(0.0, 300.0)
-            self.grid.density_bffr[I] = 1.0 * self.cfg.fluid_color
-
     def step(self, ext_input: np.array):
         # for emitter in self.emitters:
         #     emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
@@ -145,17 +130,24 @@ class EulerScheme(metaclass=ABCMeta):
 
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)
+
         # do advection projection here
         self.schemeStep(ext_input)
 
         self.boundarySolver.ApplyBoundaryCondition()
-        # for emitter in self.emitters:
-        #     emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+
         self.dye_fade()
         # refill
         for emitter in self.emitters:
             emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+
+        # self.print_v()
         self.renderer.renderStep(self.boundarySolver)
+
+    @ti.kernel
+    def print_v(self):
+        for I in ti.grouped(self.grid.v.field):
+            print(self.grid.v[I])
 
     @abstractmethod
     def schemeStep(self, ext_input: np.array):

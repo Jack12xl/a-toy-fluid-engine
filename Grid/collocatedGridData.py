@@ -55,8 +55,10 @@ class collocatedGridData():
                 # TODO boundary condition
                 if I[d] == 0:
                     v1 = -vc[d]
+                    # v1 = 0.0
                 if I[d] == vf.shape[d] - 1:
                     v0 = -vc[d]
+                    # v0 = 0.0
                 ret += v0 - v1
 
             vd[I] = ret * 0.5
