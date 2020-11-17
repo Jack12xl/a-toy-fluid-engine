@@ -2,13 +2,12 @@ from Grid import collocatedGridData
 import taichi as ti
 import taichi_glsl as ts
 import numpy as np
-from config import VisualizeEnum, SceneEnum, SchemeType
+from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType
 from abc import ABCMeta, abstractmethod
 from Emitter import ForceEmitter2, SquareEmitter
 from renderer import renderer2D, renderer25D
-
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
@@ -55,7 +54,9 @@ class EulerScheme(metaclass=ABCMeta):
                     self.grid.density_bffr,
                     dt
                 )
-        # self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
+        if self.cfg.SimType == SimulateType:
+            # calculate buoyancy
+            
 
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)

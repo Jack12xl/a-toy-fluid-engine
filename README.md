@@ -1,5 +1,5 @@
 # A toy fluid engine
-A repo that tries to reimplement Euler based fluid simulation.
+A repo that tries to reimplement Euler based fluid simulation, currently target on smoke simulation.
 
 The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embeds both GPU and CPU  parralleled computing.
 
@@ -121,6 +121,7 @@ From the results, the 3D perspective does have more details than 2D.
 
 - [Efficient and Conservative Fluids with Bidirectional Mapping](https://github.com/ziyinq/Bimocq#efficient-and-conservative-fluids-with-bidirectional-mapping)
 - A parallel multigrid poisson solver for fluids simulation on large grids
+- Visual simulation of Smoke
 
 
 

@@ -1,15 +1,16 @@
 import taichi as ti
-from utils import bufferPair, clamp, lerp, Vector, Matrix
+from utils import bufferPair, Vector, Matrix
 from .DataGrid import DataGrid
 import taichi_glsl as ts
 from config import SimulateType
 
+
 @ti.data_oriented
 class collocatedGridData():
-    '''
+    """
     class to store the grid data
     pressure, velocity both stores on grid cell corner
-    '''
+    """
 
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
     def __init__(self, cfg, ):
@@ -42,13 +43,12 @@ class collocatedGridData():
             # temperature
             self.t = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
             self.t_bffr = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
-
+            self.t_ambient = ti.field(dtype=ti.f32, shape=[])
 
         if self.dim == 2:
             self.calVorticity = self.calVorticity2D
         elif self.dim == 3:
             self.calVorticity = self.calVorticity3D
-
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
@@ -69,6 +69,7 @@ class collocatedGridData():
                 ret += v0 - v1
 
             vd[I] = ret * 0.5
+
 
     @ti.kernel
     def calVorticity2D(self, vf: Matrix):
