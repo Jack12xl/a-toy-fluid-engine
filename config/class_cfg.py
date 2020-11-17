@@ -9,7 +9,7 @@ class PreConditioner(Enum):
 
 class SceneEnum(Enum):
     MouseDragDye = 0
-    Jit = 1
+    Jet = 1
     pass
 
 
@@ -40,9 +40,11 @@ class SchemeType(Enum):
         return self.map[self.value]
 
 
-class SimulateType(Enum):
-    Liquid = 0
-    Gas = 1
+class SimulateType(IntEnum):
+    Test = 0
+    Liquid = 1
+    Gas = 2
+    Flame = 3
 
 
 class PixelType(IntEnum):

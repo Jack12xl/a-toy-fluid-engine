@@ -48,7 +48,7 @@ class EulerScheme(metaclass=ABCMeta):
         if self.cfg.SceneType == SceneEnum.MouseDragDye:
             # add impulse from mouse
             self.apply_impulse(self.grid.v_pair.cur, self.grid.density_pair.cur, ext_input, dt)
-        elif self.cfg.SceneType == SceneEnum.Jit:
+        elif self.cfg.SceneType == SceneEnum.Jet:
             for emitter in self.emitters:
                 emitter.stepEmitForce(
                     self.grid.v,

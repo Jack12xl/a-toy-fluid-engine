@@ -6,6 +6,7 @@ import os
 import config.euler_config
 from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
+from config.class_cfg import SimulateType
 from utils import set_attribute_from_cfg, filterUpCase
 
 FILTER_TYPE = 'm_'
@@ -13,8 +14,9 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
-SceneType = SceneEnum.Jit
+SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
+SimType = SimulateType.Gas
 
 # run scheme
 run_scheme = SchemeType.Advection_Projection

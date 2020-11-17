@@ -2,7 +2,7 @@ import taichi as ti
 from utils import bufferPair, clamp, lerp, Vector, Matrix
 from .DataGrid import DataGrid
 import taichi_glsl as ts
-
+from config import SimulateType
 
 @ti.data_oriented
 class collocatedGridData():
@@ -37,12 +37,18 @@ class collocatedGridData():
         self.v_pair = bufferPair(self.v, self.new_v)
         self.p_pair = bufferPair(self.p, self.new_p)
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
-        # self.marker_pair = TexPair(self.marker, self.new_marker)
+
+        if self.cfg.SimType == SimulateType.Gas:
+            # temperature
+            self.t = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+            self.t_bffr = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+
 
         if self.dim == 2:
             self.calVorticity = self.calVorticity2D
         elif self.dim == 3:
             self.calVorticity = self.calVorticity3D
+
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
