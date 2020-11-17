@@ -15,12 +15,12 @@ def parse_args():
     if args.cfg == "mouse2d":
         import config.config2D.stable_fluid_mouse
         cfg = config.config2D.stable_fluid_mouse
-    elif args.cfg == "jit2d":
-        import config.config2D.jit2D
-        cfg = config.config2D.jit2D
-    elif args.cfg == "jit3d":
-        import config.config3D.jit3D
-        cfg = config.config3D.jit3D
+    elif args.cfg == "jet2d":
+        import config.config2D.jet2D
+        cfg = config.config2D.jet2D
+    elif args.cfg == "jet3d":
+        import config.config3D.jet3D
+        cfg = config.config3D.jet3D
 
     return cfg
 

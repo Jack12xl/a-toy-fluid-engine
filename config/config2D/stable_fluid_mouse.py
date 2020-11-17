@@ -21,8 +21,8 @@ run_scheme = SchemeType.Advection_Projection
 # run_scheme = SchemeType.Advection_Reflection
 
 from advection import SemiLagrangeOrder, MacCormackSolver, SemiLagrangeSolver
-advection_solver = SemiLagrangeSolver
-semi_order = SemiLagrangeOrder.RK_1
+advection_solver = MacCormackSolver
+semi_order = SemiLagrangeOrder.RK_3
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = JacobiProjectionSolver

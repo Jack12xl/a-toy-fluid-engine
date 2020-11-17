@@ -13,7 +13,8 @@ pip install taichi taichi_glsl
 
 ```bash
 python exp_play.py --cfg mouse2d # use mouse to drag the fluid
-python exp_play.py --cfg jit2d   # shot the jit from below
+python exp_play.py --cfg jet2d   # shot the jet from below
+python exp_play.py --cfg jet3d   # 3D jet
 ```
 
 #### Feature:
@@ -76,7 +77,7 @@ The following results shows the density.
 
 ##### 2D views
 
-Here we simulate a 2D jit by adding **force** from bottom.
+Here we simulate a 2D jet by adding **force** from bottom.
 
 | Density                                                  | Divergence ( 0.03 * div + vec3(0.5) )                | Curl( 0.03 * curl + vec3(0.5))                        | Velocity ( 0.01 * v + vec3(0.5))                   | Velocity-Norm( v.norm * 0.004) (Magma colormap)         |
 | -------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------- |
