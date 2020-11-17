@@ -1,6 +1,6 @@
 import utils
 # import config.config2D.stable_fluid_mouse as m_cfg
-from config import VisualizeEnum
+from config import VisualizeEnum, SimulateType
 import taichi as ti
 from config.class_cfg import SchemeType
 from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
@@ -70,6 +70,8 @@ if __name__ == '__main__':
                 m_cfg.VisualType = VisualizeEnum.Vorticity
             elif e.key == '4':
                 m_cfg.VisualType = VisualizeEnum.VelocityMagnitude
+            elif e.key == '5' and m_cfg.SimType == SimulateType.Gas:
+                m_cfg.VisualType = VisualizeEnum.Temperature
 
         if not paused:
             mouse_data = md_gen(gui)

@@ -63,7 +63,7 @@ def filterUpCase(c: str) -> str:
     return re.sub('[^A-Z]', '', c)
 
 
-def getFieldMax(f: ti.field):
+def getFieldMeanCpu(f: ti.field):
     return np.mean(f.to_numpy())
 
 

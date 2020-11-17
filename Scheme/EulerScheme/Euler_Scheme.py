@@ -8,6 +8,8 @@ from config import PixelType
 from abc import ABCMeta, abstractmethod
 from Emitter import ForceEmitter2, SquareEmitter
 from renderer import renderer2D, renderer25D
+from utils import getFieldMeanCpu
+
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
@@ -34,11 +36,15 @@ class EulerScheme(metaclass=ABCMeta):
 
     def advect(self, dt):
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
-                                     # self.boundarySolver.collider_sdf_field,
                                      dt)
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt,
-                                     # self.boundarySolver.collider_sdf_field,
                                      dt)
+
+        if self.cfg.SimType == SimulateType.Gas:
+            self.advection_solver.advect(self.grid.v_pair.cur, self.grid.t_pair.cur, self.grid.t_pair.nxt,
+                                         dt)
+            self.grid.t_pair.swap()
+
         self.grid.v_pair.swap()
         self.grid.density_pair.swap()
 
@@ -56,7 +62,15 @@ class EulerScheme(metaclass=ABCMeta):
                 )
         if self.cfg.SimType == SimulateType:
             # calculate buoyancy
-            
+            self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t)
+            self.ApplyBuoyancyForce(dt)
+
+    @ti.kernel
+    def ApplyBuoyancyForce(self, dt: ti.f32):
+        for I in ti.grouped(self.grid.v.field):
+            f_buoy = - self.cfg.GasAlpha * self.grid.density_bffr \
+                     + self.cfg.GasBeta * (self.grid.t[I] - self.grid.t_ambient)
+            self.grid.v[I].y += f_buoy * dt
 
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
@@ -143,9 +157,9 @@ class EulerScheme(metaclass=ABCMeta):
         self.boundarySolver.ApplyBoundaryCondition()
 
         self.dye_fade()
-        # refill
+        # refill the fluid
         for emitter in self.emitters:
-            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr, self.grid.t)
 
         # self.print_v()
         self.renderer.renderStep(self.boundarySolver)
@@ -160,6 +174,11 @@ class EulerScheme(metaclass=ABCMeta):
         pass
 
     def materialize(self):
+        """
+        Serve as the initialization process
+        Init the field variable
+        :return:
+        """
         self.materialize_collider()
         self.materialize_emitter()
 
@@ -167,7 +186,7 @@ class EulerScheme(metaclass=ABCMeta):
         for emitter in self.emitters:
             emitter.kern_materialize()
             # init the density and velocity for advection
-            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
+            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr, self.grid.t)
 
     def materialize_collider(self):
         for collid in self.boundarySolver.colliders:

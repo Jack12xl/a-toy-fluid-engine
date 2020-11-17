@@ -2,7 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 from .abstractRenderer import renderer
 from config import PixelType, VisualizeEnum
-from utils import cmapper
+from utils import cmapper, Matrix
 
 @ti.data_oriented
 class renderer25D(renderer):
@@ -60,6 +60,12 @@ class renderer25D(renderer):
         for I in ti.grouped(ti.ndrange(self.res.x, self.res.y)):
             v = vf[I, self.z_plane]
             self.clr_bffr[I] = 0.03 * v + ts.vec3(0.5)
+
+    @ti.kernel
+    def vis_t(self, tf: Matrix, MaxT: ti.f32):
+        # visualize temperature
+        for I in ti.grouped(tf):
+            self.clr_bffr[I] = tf[I] / MaxT
 
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:

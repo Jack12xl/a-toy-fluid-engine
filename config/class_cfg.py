@@ -19,6 +19,7 @@ class VisualizeEnum(Enum):
     Divergence = 2
     Vorticity = 3
     VelocityMagnitude = 4
+    Temperature = 5
 
     def __init__(self, *args):
         super().__init__()

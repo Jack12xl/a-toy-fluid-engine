@@ -9,14 +9,19 @@ from utils import Vector, Matrix
 @ti.data_oriented
 class SquareEmitter(GridEmitter):
     """
-    Directly HardCode the velocity and Density in an area
+    Directly HardCode the
+    velocity
+    Density
+    Temperature
+    in an area
     Support both 2D and 3D now
     """
 
     def __init__(self,
                  t,
                  v,
-                 jit_v,
+                 jet_v,
+                 jet_t,
                  fluid_color):
         """
         
@@ -28,7 +33,8 @@ class SquareEmitter(GridEmitter):
         :param fluid_color: 
         """
         super(SquareEmitter, self).__init__(t, v, fluid_color)
-        self.jit_v = jit_v
+        self.jet_v = jet_v
+        self.jet_t = jet_t
 
     @ti.kernel
     def stepEmitForce(self,
@@ -46,10 +52,11 @@ class SquareEmitter(GridEmitter):
         pass
 
     @ti.kernel
-    def stepEmitHardCode(self, vf: Matrix, df: Matrix):
+    def stepEmitHardCode(self, vf: Matrix, df: Matrix, tf: Matrix):
         """
         Hard code Velocity and Density in an area,
         A square this time
+        :param tf:
         :param vf:
         :param df:
         :return:
@@ -65,7 +72,8 @@ class SquareEmitter(GridEmitter):
         r = [(int(l_b[i]), int(r_u[i]) + 1) for i in range(len(l_b))]
 
         for I in ti.grouped(ti.ndrange(*r)):
-            vf[I] = self.jit_v
+            vf[I] = self.jet_v
+            tf[I] = self.jet_t
             # here CFL u * dt / dx
             # vf * 0.03 / 1
             # should be 1 ~ 10

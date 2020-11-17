@@ -34,16 +34,15 @@ class collocatedGridData():
         # here density is just for visualization, which does not involve in calculation
         self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
         self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        # temperature
+        self.t = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.t_bffr = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.t_ambient = ti.field(dtype=ti.f32, shape=[])
 
         self.v_pair = bufferPair(self.v, self.new_v)
         self.p_pair = bufferPair(self.p, self.new_p)
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
-
-        if self.cfg.SimType == SimulateType.Gas:
-            # temperature
-            self.t = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
-            self.t_bffr = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
-            self.t_ambient = ti.field(dtype=ti.f32, shape=[])
+        self.t_pair = bufferPair(self.t, self.t_bffr)
 
         if self.dim == 2:
             self.calVorticity = self.calVorticity2D
@@ -69,7 +68,6 @@ class collocatedGridData():
                 ret += v0 - v1
 
             vd[I] = ret * 0.5
-
 
     @ti.kernel
     def calVorticity2D(self, vf: Matrix):
@@ -121,7 +119,13 @@ class collocatedGridData():
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
 
+    def materialize(self):
+        if self.SimType == SimulateType.Gas:
+            self.t.fill(self.cfg.GasInitAmbientT)
+
     def reset(self):
         self.v_pair.cur.fill(ts.vecND(self.dim, 0.0))
         self.p_pair.cur.fill(0.0)
         self.density_pair.cur.fill(ti.Vector([0, 0, 0]))
+        if self.SimType == SimulateType.Gas:
+            self.t.fill(self.cfg.GasInitAmbientT)

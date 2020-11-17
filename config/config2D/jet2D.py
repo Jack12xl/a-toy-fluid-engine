@@ -8,6 +8,7 @@ import config.euler_config
 import math
 from Emitter import ForceEmitter2, SquareEmitter
 import taichi_glsl as ts
+from config.class_cfg import SimulateType
 
 debug = False
 
@@ -20,6 +21,13 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.VelocityMagnitude
+
+SimType = SimulateType.Gas
+GasAlpha = 2.0
+GasBeta = 2.0
+GasInitAmbientT = 23.33
+GasMaxT = 50.0
+
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
@@ -73,7 +81,8 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jit_v=ts.vec2(0.0, 128.0),
+    jet_v=ts.vec2(0.0, 128.0),
+    jet_t=GasMaxT,
     fluid_color=fluid_color,
     )
 )

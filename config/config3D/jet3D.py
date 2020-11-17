@@ -16,7 +16,11 @@ set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FI
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
+
 SimType = SimulateType.Gas
+GasAlpha = 2.0
+GasBeta = 2.0
+GasInitAmbientT = 23.33
 
 # run scheme
 run_scheme = SchemeType.Advection_Projection
@@ -53,7 +57,8 @@ Emitters.append(SquareEmitter(
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
-    jit_v=ts.vec3(0.0, 256.0, 0.0),
+    jet_v=ts.vec3(0.0, 256.0, 0.0),
+    jet_t=50.0,
     fluid_color=fluid_color
 )
 )
