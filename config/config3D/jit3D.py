@@ -17,18 +17,18 @@ SceneType = SceneEnum.Jit
 VisualType = VisualizeEnum.Density
 
 # run scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 Colliders = []
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
-advection_solver = MacCormackSolver
+advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 poisson_pressure_beta = ti.static(1.0 / 6.0)
 poisson_viscosity_beta = ti.static(1.0 / 6.0)
 
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 1.0
 semi_order = SemiLagrangeOrder.RK_3
@@ -56,7 +56,7 @@ Emitters.append(SquareEmitter(
 )
 )
 
-dt = 0.01
+dt = 0.03
 half_dt = dt / 2.0
 
 profile_name = '3D' + '-' \
@@ -74,9 +74,9 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
-save_frame_length = 120
+save_frame_length = 240
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,
