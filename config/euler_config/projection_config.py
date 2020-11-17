@@ -7,7 +7,10 @@ m_projection_solver = JacobiProjectionSolver
 m_p_jacobi_iters = 30
 
 m_poisson_pressure_alpha = ti.static(- dx * dx)
-m_poisson_pressure_beta = ti.static(0.25)
+# dim == 2 should be 1.0/4.0
+# dim == 3 1.0 / 6.0
+# damn this takes me almost three days
+m_poisson_pressure_beta = ti.static(1.0 / 4.0)
 
 dynamic_viscosity_coefficient = 500
 # m_poisson_viscosity_alpha = ti.static(dx * dx) / (dt * dynamic_viscosity_coefficient )

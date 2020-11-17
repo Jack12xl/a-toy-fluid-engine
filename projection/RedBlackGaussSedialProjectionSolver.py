@@ -9,8 +9,9 @@ from utils import Float
 @ti.data_oriented
 class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
 
-    def __init__(self, cfg, grid):
+    def __init__(self, cfg, grid, pixel_marker):
         super().__init__(cfg, grid)
+        self.pixel_marker = pixel_marker
 
     @ti.kernel
     def Gauss_Step(self,
