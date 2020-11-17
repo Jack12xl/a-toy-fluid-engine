@@ -23,10 +23,10 @@ SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.VelocityMagnitude
 
 SimType = SimulateType.Gas
-GasAlpha = 2.0
-GasBeta = 2.0
+GasAlpha = 30.0
+GasBeta = 1024.0
 GasInitAmbientT = 23.33
-GasMaxT = 50.0
+GasMaxT = 85.0
 
 ## run Scheme
 run_scheme = SchemeType.Advection_Reflection

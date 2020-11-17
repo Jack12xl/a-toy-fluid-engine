@@ -181,6 +181,7 @@ class EulerScheme(metaclass=ABCMeta):
         """
         self.materialize_collider()
         self.materialize_emitter()
+        self.grid.materialize()
 
     def materialize_emitter(self):
         for emitter in self.emitters:

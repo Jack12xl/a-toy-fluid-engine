@@ -5,6 +5,7 @@ import config.config2D.scene_config.mouse_drag_config as scene_cfg
 import config.euler_config as default_cfg
 import taichi as ti
 import config
+from config.class_cfg import SimulateType
 
 debug = False
 ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
@@ -19,6 +20,7 @@ VisualType = VisualizeEnum.Density
 # run Scheme
 run_scheme = SchemeType.Advection_Projection
 # run_scheme = SchemeType.Advection_Reflection
+SimType = SimulateType.Liquid
 
 from advection import SemiLagrangeOrder, MacCormackSolver, SemiLagrangeSolver
 advection_solver = MacCormackSolver
