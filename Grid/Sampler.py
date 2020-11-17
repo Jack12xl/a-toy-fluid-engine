@@ -60,7 +60,7 @@ class LinearSampler3D(Sampler):
         c00 = ts.sample(self.field, I + ts.D.yyy) * w1.x + ts.sample(self.field, I + ts.D.xyy) * w0.x
         c01 = ts.sample(self.field, I + ts.D.yyx) * w1.x + ts.sample(self.field, I + ts.D.xyx) * w0.x
         c10 = ts.sample(self.field, I + ts.D.yxy) * w1.x + ts.sample(self.field, I + ts.D.xxy) * w0.x
-        c11 = ts.sample(self.field, I + ts.D.xyy) * w1.x + ts.sample(self.field, I + ts.D.xxx) * w0.x
+        c11 = ts.sample(self.field, I + ts.D.yxx) * w1.x + ts.sample(self.field, I + ts.D.xxx) * w0.x
 
         c0 = c00 * w1.y + c10 * w0.y
         c1 = c01 * w1.y + c11 * w0.y
