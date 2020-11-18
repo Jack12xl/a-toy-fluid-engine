@@ -140,11 +140,11 @@ class EulerScheme(metaclass=ABCMeta):
             dyef[I] = dc
 
     def step(self, ext_input: np.array):
-        # for emitter in self.emitters:
-        #     emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr)
 
         self.boundarySolver.step_update_sdfs(self.boundarySolver.colliders)
         self.boundarySolver.kern_update_marker()
+
+        # if we don't want do advection projection on emitter area
         # for emitter in self.emitters:
         #     self.boundarySolver.updateEmitterMark(emitter)
 

@@ -100,5 +100,4 @@ class SemiLagrangeSolver(AdvectionSolver):
                # boundarySdf: Matrix,
                dt: ti.template()):
         self.advect_func(vec_field, q_cur, q_nxt,
-                         # boundarySdf,
                          dt)
