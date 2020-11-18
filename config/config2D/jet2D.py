@@ -20,7 +20,7 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
 SceneType = SceneEnum.Jet
-VisualType = VisualizeEnum.VelocityMagnitude
+VisualType = VisualizeEnum.Density
 
 SimType = SimulateType.Gas
 GasAlpha = 30.0
@@ -81,7 +81,7 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jet_v=ts.vec2(0.0, 128.0),
+    jet_v=ts.vec2(0.0, 256.0),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     )
@@ -127,7 +127,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
 save_frame_length = 240
 save_root = './tmp_result'
