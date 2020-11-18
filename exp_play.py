@@ -1,11 +1,10 @@
-import utils
-# import config.config2D.stable_fluid_mouse as m_cfg
 from config import VisualizeEnum, SimulateType
 import taichi as ti
 from config.class_cfg import SchemeType
 from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
 import argparse
-
+from config import EulerCFG
+import utils
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run which config")
@@ -22,7 +21,7 @@ def parse_args():
         import config.config3D.jet3D
         cfg = config.config3D.jet3D
 
-    return cfg
+    return EulerCFG(cfg)
 
 
 if __name__ == '__main__':

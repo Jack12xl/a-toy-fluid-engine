@@ -37,7 +37,7 @@ advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = JacobiProjectionSolver
-p_jacobi_iters = 30
+p_jacobi_iters = 60
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 

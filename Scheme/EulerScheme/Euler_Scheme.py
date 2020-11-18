@@ -80,7 +80,7 @@ class EulerScheme(metaclass=ABCMeta):
             self.enhance_vorticity()
 
         self.projection_solver.runPressure()
-        self.projection_solver.runViscosity()
+        # self.projection_solver.runViscosity()
 
     @ti.kernel
     def enhance_vorticity(self):

@@ -20,6 +20,8 @@ SimType = SimulateType.Gas
 GasAlpha = 2.0
 GasBeta = 2.0
 GasInitAmbientT = 23.33
+GasMaxT = 85.0
+
 
 # run scheme
 run_scheme = SchemeType.Advection_Projection
@@ -57,7 +59,7 @@ Emitters.append(SquareEmitter(
     ),
     v=Velocity3(),
     jet_v=ts.vec3(0.0, 256.0, 0.0),
-    jet_t=50.0,
+    jet_t=GasMaxT,
     fluid_color=fluid_color
 )
 )

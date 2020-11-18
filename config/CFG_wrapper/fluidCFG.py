@@ -1,11 +1,9 @@
 import taichi as ti
 from abc import ABCMeta, abstractmethod
-from utils import Vector, Matrix, Float
-from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
+
 from utils import SetterProperty
 
 
-@ti.data_oriented
 class FluidCFG(metaclass=ABCMeta):
     def __init__(self, cfg):
         """
@@ -27,21 +25,15 @@ class FluidCFG(metaclass=ABCMeta):
         # pixel length in physical world
         self.dx = cfg.dx
 
-        self._simulation_type = cfg.SimType
-        # set these if simulate the gas
-        self.GasAlpha = None
-        self.GasBeta = None
-        self.GasInitAmbientT = None
-
-        #
         self.Colliders = cfg.Colliders
         self.Emitters = cfg.Emitters
 
+        self.profile_name = cfg.profile_name
         self.bool_save = cfg.bool_save
 
 
     @SetterProperty
-    def dt(self, dt: Float):
+    def dt(self, dt):
         self.__dict__['dt'] = dt
         self.__dict__['half_dt'] = 0.5 * dt
         # self.half_dt = 0.5 * self.dt
@@ -54,18 +46,6 @@ class FluidCFG(metaclass=ABCMeta):
 
         self.half_dx = 0.5 * dx
         self.half_inv_dx = 0.5 * self.inv_dx
-
-    @property
-    def SimType(self):
-        return self._simulation_type
-
-    @SimType.setter
-    def SimType(self, T: SimulateType):
-        self._simulation_type = T
-        if T == SimulateType.Gas:
-            self.GasAlpha = self.cfg.GasAlpha
-            self.GasBeta = self.cfg.GasBeta
-            self.GasInitAmbientT = self.cfg.GasInitAmbientT
 
     @SetterProperty
     def bool_save(self, save):
