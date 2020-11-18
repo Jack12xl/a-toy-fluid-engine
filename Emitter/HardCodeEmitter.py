@@ -73,7 +73,7 @@ class SquareEmitter(GridEmitter):
 
         for I in ti.grouped(ti.ndrange(*r)):
             vf[I] = self.jet_v
-            tf[I] = self.jet_t
+            tf[I] = ts.vec(self.jet_t)
             # here CFL u * dt / dx
             # vf * 0.03 / 1
             # should be 1 ~ 10

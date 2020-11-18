@@ -76,7 +76,7 @@ Emitters = []
 
 Emitters.append(SquareEmitter(
     t=Transform2(
-        translation=ti.Vector([300, 0]),
+        translation=ti.Vector([res[0] // 2, 0]),
         localscale=10.0,
         orientation=math.pi / 2.0
     ),
@@ -127,7 +127,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
 save_frame_length = 240
 save_root = './tmp_result'

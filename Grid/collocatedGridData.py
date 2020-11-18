@@ -35,8 +35,8 @@ class collocatedGridData():
         self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
         self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
         # temperature
-        self.t = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
-        self.t_bffr = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.t = DataGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.t_bffr = DataGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim)
         self.t_ambient = ti.field(dtype=ti.f32, shape=[])
 
         self.v_pair = bufferPair(self.v, self.new_v)

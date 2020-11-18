@@ -1,4 +1,5 @@
 import taichi as ti
+import taichi_glsl as ts
 from enum import Enum
 from .AbstractAdvectionSolver import AdvectionSolver
 from .SemiLagrangianSolver import SemiLagrangeSolver
@@ -42,10 +43,13 @@ class MacCormackSolver(AdvectionSolver):
             if ti.static(self.cfg.macCormack_clipping):
                 # ref: advection.py from taichi class 4
                 min_val, max_val = q_cur.sample_minmax(p_mid)
-                cond = min_val < q_nxt[I] < max_val
+                cond = ts.vec(min_val < q_nxt[I] < max_val)
+
                 for k in ti.static(range(cond.n)):
                     if not cond[k]:
                         q_nxt[I][k] = q_mid[k]
+                # q_nxt[I] = q_mid
+
 
     @ti.kernel
     def advect(self,

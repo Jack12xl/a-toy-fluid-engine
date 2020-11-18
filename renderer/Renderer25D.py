@@ -65,7 +65,7 @@ class renderer25D(renderer):
     def vis_t(self, tf: Matrix, MaxT: ti.f32):
         # visualize temperature
         for I in ti.grouped(tf):
-            self.clr_bffr[I] = tf[I] / MaxT
+            self.clr_bffr[I] = tf[I][0] / MaxT
 
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:
