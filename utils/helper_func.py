@@ -6,6 +6,21 @@ import re
 import math
 
 
+class SetterProperty(object):
+    """
+    use this to reduce @property overhead
+    hope it works
+    """
+
+    # ref: https://stackoverflow.com/questions/17576009/python-class-property-use-setter-but-evade-getter
+    def __init__(self, func, doc=None):
+        self.func = func
+        self.__doc__ = doc if doc is not None else func.__doc__
+
+    def __set__(self, obj, value):
+        return self.func(obj, value)
+
+
 def vec2_npf32(m):
     return np.array([m[0], m[1]], dtype=np.float32)
 

@@ -2,21 +2,7 @@ import taichi as ti
 from abc import ABCMeta, abstractmethod
 from utils import Vector, Matrix, Float
 from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
-
-
-class SetterProperty(object):
-    """
-    use this to reduce @property overhead
-    hope it works
-    """
-
-    # ref: https://stackoverflow.com/questions/17576009/python-class-property-use-setter-but-evade-getter
-    def __init__(self, func, doc=None):
-        self.func = func
-        self.__doc__ = doc if doc is not None else func.__doc__
-
-    def __set__(self, obj, value):
-        return self.func(obj, value)
+from utils import SetterProperty
 
 
 @ti.data_oriented
@@ -47,7 +33,7 @@ class FluidCFG(metaclass=ABCMeta):
         self.GasBeta = None
         self.GasInitAmbientT = None
 
-        # 
+        #
         self.Colliders = cfg.Colliders
         self.Emitters = cfg.Emitters
 

@@ -7,3 +7,4 @@
 # sry to be this complicated
 
 from .fluidCFG import FluidCFG
+from .eulerCFG import EulerCFG
