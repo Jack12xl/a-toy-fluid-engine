@@ -4,9 +4,8 @@ import sys
 import math
 import os
 import config.euler_config
-from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType
+from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
-from config.class_cfg import SimulateType
 from utils import set_attribute_from_cfg, filterUpCase
 
 FILTER_TYPE = 'm_'
