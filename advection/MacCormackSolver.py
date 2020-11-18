@@ -4,6 +4,7 @@ from .AbstractAdvectionSolver import AdvectionSolver
 from .SemiLagrangianSolver import SemiLagrangeSolver
 from utils import Vector, Matrix
 
+
 @ti.data_oriented
 class MacCormackSolver(AdvectionSolver):
 
@@ -38,15 +39,13 @@ class MacCormackSolver(AdvectionSolver):
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
             # clipping to prevent overshooting
-            if (ti.static(self.cfg.macCormack_clipping)):
+            if ti.static(self.cfg.macCormack_clipping):
                 # ref: advection.py from taichi class 4
-                #min_val, max_val = self.grid.sample_minmax(q_cur, p_mid)
                 min_val, max_val = q_cur.sample_minmax(p_mid)
                 cond = min_val < q_nxt[I] < max_val
                 for k in ti.static(range(cond.n)):
                     if not cond[k]:
                         q_nxt[I][k] = q_mid[k]
-
 
     @ti.kernel
     def advect(self,
@@ -56,7 +55,4 @@ class MacCormackSolver(AdvectionSolver):
                # boundarySdf: Matrix,
                dt: ti.template()):
         self.advect_func(vec_field, q_cur, q_nxt,
-                         # boundarySdf,
                          dt)
-
-

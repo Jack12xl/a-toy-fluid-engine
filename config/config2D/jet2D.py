@@ -33,11 +33,11 @@ run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = JacobiProjectionSolver
-p_jacobi_iters = 60
+projection_solver = RedBlackGaussSedialProjectionSolver
+p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 
@@ -129,7 +129,7 @@ print(profile_name)
 # save to video(gif)
 bool_save = False
 
-save_frame_length = 120
+save_frame_length = 240
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,

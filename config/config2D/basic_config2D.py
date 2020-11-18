@@ -1,8 +1,8 @@
 m_dim = 2
 # resolution for the simulation grid
-m_res = [600, 600]
+m_res = [512, 512]
 # resolution for the screen space
-m_screen_res = [600, 600]
+m_screen_res = [512, 512]
 
 # a pixel length, we assume the pixel is always square
 m_dx = 1.0
