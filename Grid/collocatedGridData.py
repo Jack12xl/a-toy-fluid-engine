@@ -3,19 +3,18 @@ from utils import bufferPair, Vector, Matrix
 from .DataGrid import DataGrid
 import taichi_glsl as ts
 from config import SimulateType
-
+from .FluidGridData import FluidGridData
 
 @ti.data_oriented
-class collocatedGridData():
+class collocatedGridData(FluidGridData):
     """
     class to store the grid data
-    pressure, velocity both stores on grid cell corner
+    pressure, velocity both stores on grid cell corner(cell centered grid)
     """
 
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
     def __init__(self, cfg, ):
-        self.cfg = cfg
-        self.dim = self.cfg.dim
+        super(collocatedGridData, self).__init__(cfg)
 
         self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
         self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
@@ -44,14 +43,11 @@ class collocatedGridData():
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         self.t_pair = bufferPair(self.t, self.t_bffr)
 
-        if self.dim == 2:
-            self.calVorticity = self.calVorticity2D
-        elif self.dim == 3:
-            self.calVorticity = self.calVorticity3D
+        self.advect_pair = []
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
-        for I in ti.grouped(vf.field):
+        for I in ti.grouped(vf):
             ret = 0.0
             vc = vf.sample(I)
             for d in ti.static(range(self.cfg.dim)):
@@ -71,7 +67,7 @@ class collocatedGridData():
 
     @ti.kernel
     def calVorticity2D(self, vf: Matrix):
-        for I in ti.grouped(vf.field):
+        for I in ti.grouped(vf):
             vl = vf.sample(I + ts.D.zy).y
             vr = vf.sample(I + ts.D.xy).y
             vb = vf.sample(I + ts.D.yz).x
@@ -80,7 +76,7 @@ class collocatedGridData():
 
     @ti.kernel
     def calVorticity3D(self, vf: Matrix):
-        for I in ti.grouped(vf.field):
+        for I in ti.grouped(vf):
             curl = ts.vec3(0.0)
             # left & right
             v_l = vf.sample(I + ts.D.zyy)
@@ -100,7 +96,7 @@ class collocatedGridData():
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
-        for I in ti.grouped(pf.field):
+        for I in ti.grouped(pf):
             ret = ts.vecND(self.dim, 0.0)
             for d in ti.static(range(self.dim)):
                 D = ti.Vector.unit(self.dim, d)

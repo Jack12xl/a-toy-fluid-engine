@@ -3,18 +3,19 @@ import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
 from .Sampler import LinearSampler2D, LinearSampler3D
 
+
 @ti.data_oriented
 class DataGrid(metaclass=ABCMeta):
-    '''
+    """
     the abstract class to store data,
     a wrapper for ti.field
 
-    '''
+    """
+
     def __init__(self,
-                 data_field:ti.template(), dim=3):
+                 data_field: ti.template(), dim=3):
         self._field = data_field
         # self.dim = len(self.shape)
-
         if dim == 2:
             self._sampler = LinearSampler2D(self.field)
         elif dim == 3:
@@ -24,11 +25,16 @@ class DataGrid(metaclass=ABCMeta):
 
     @ti.pyfunc
     def __getitem__(self, I):
+        print(1)
         return self.field[I]
 
     @ti.pyfunc
     def __setitem__(self, I, value):
         self.field[I] = value
+
+    # @ti.pyfunc
+    def loop_range(self):
+        return self._field.loop_range()
 
     @property
     @ti.pyfunc
@@ -42,11 +48,11 @@ class DataGrid(metaclass=ABCMeta):
 
     @ti.pyfunc
     def interpolate(self, P):
-        '''
-        use bilinear to sample on position P(could be float)
+        """
+        sample on position P(could be float)
         :param P:
         :return:
-        '''
+        """
 
         return self._sampler.lerp(P)
 

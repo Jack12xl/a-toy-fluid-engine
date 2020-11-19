@@ -1,5 +1,5 @@
 import numpy as np
-import config.base_cfg as base_cfg
+# import config.base_cfg as base_cfg
 import taichi as ti
 from .basic_types import Vector
 import re
@@ -45,7 +45,7 @@ def lerp(vl, vr, frac):
 
 
 def npNormalize(a, order=2, axis=0):
-    l2 = np.atleast_1d(np.linalg.norm(a, order, axis)) + base_cfg.error
+    l2 = np.atleast_1d(np.linalg.norm(a, order, axis)) + 0.0001
     # l2[l2 == 0] = 1
     return a / l2
 
