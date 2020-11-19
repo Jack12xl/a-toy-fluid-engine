@@ -25,7 +25,6 @@ class DataGrid(metaclass=ABCMeta):
 
     @ti.pyfunc
     def __getitem__(self, I):
-        print(1)
         return self.field[I]
 
     @ti.pyfunc

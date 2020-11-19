@@ -1,6 +1,5 @@
 import taichi as ti
 import taichi_glsl as ts
-import utils
 from Grid import DataGrid
 
 ti.init(ti.gpu)
