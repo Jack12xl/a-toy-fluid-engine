@@ -22,6 +22,9 @@ class FluidGridData(metaclass=ABCMeta):
         elif self.dim == 3:
             self.calVorticity = self.calVorticity3D
 
+        # the distance between two neighbour when calculating divergence, vorticity
+        self.inv_d = None
+
     @abstractmethod
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         """

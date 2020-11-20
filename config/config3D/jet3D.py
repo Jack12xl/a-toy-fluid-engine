@@ -58,14 +58,14 @@ Emitters.append(SquareEmitter(
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
-    jet_v=ts.vec3(0.0, 256.0, 0.0),
+    jet_v=ts.vec3(0.0, 128.0, 0.0),
     jet_t=GasMaxT,
     fluid_color=fluid_color
 )
 )
 
 dt = 0.03
-half_dt = dt / 2.0
+dx = 0.5
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \

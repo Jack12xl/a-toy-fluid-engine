@@ -15,27 +15,29 @@ class collocatedGridData(FluidGridData):
     # ref:https://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html
     def __init__(self, cfg, ):
         super(collocatedGridData, self).__init__(cfg)
+        # the distance between two neighbour when calculating divergence, vorticity
+        self.inv_d = 1.0 / (2 * self.cfg.dx)
 
-        self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
-        self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.new_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         # another buffer for advection-reflection
-        self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.tmp_v = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         # velocity divergence
-        self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.v_divs = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         # velocity vorticity
         if self.dim == 2:
-            self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+            self.v_curl = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         elif self.dim == 3:
-            self.v_curl = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim)
+            self.v_curl = DataGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
 
-        self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
-        self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.new_p = DataGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         # here density is just for visualization, which does not involve in calculation
-        self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
-        self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.new_density_bffr = DataGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         # temperature
-        self.t = DataGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim)
-        self.t_bffr = DataGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim)
+        self.t = DataGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.t_bffr = DataGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
         self.t_ambient = ti.field(dtype=ti.f32, shape=[])
 
         self.v_pair = bufferPair(self.v, self.new_v)
@@ -63,7 +65,7 @@ class collocatedGridData(FluidGridData):
                     # v0 = 0.0
                 ret += v0 - v1
 
-            vd[I] = ret * 0.5
+            vd[I] = ret * self.inv_d
 
     @ti.kernel
     def calVorticity2D(self, vf: Matrix):
@@ -72,7 +74,7 @@ class collocatedGridData(FluidGridData):
             vr = vf.sample(I + ts.D.xy).y
             vb = vf.sample(I + ts.D.yz).x
             vt = vf.sample(I + ts.D.yx).x
-            self.v_curl[I] = (vr - vl - vt + vb) * 0.5
+            self.v_curl[I] = (vr - vl - vt + vb) * self.inv_d
 
     @ti.kernel
     def calVorticity3D(self, vf: Matrix):
@@ -105,7 +107,7 @@ class collocatedGridData(FluidGridData):
                 p1 = pf.sample(I - D)
 
                 ret[d] = p0 - p1
-            vf[I] -= 0.5 * ret
+            vf[I] -= self.inv_d * ret
             # pl = pf.sample(I + ts.D.zy)
             # pr = pf.sample(I + ts.D.xy)
             # pb = pf.sample(I + ts.D.yz)

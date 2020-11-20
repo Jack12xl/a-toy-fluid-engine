@@ -30,7 +30,7 @@ class SemiLagrangeSolver(AdvectionSolver):
         """
 
         :param vel_field:
-        :param pos: input backtrace coordinate in grid
+        :param pos: input backtrace physical world position
         :param dt:
         :return: backtraced pos
         """
@@ -85,7 +85,7 @@ class SemiLagrangeSolver(AdvectionSolver):
             if self.pixel_marker[I] != PixelType.Liquid:
                 continue
             # get predicted position
-            p = float(I)
+            p = vec_field.getW(I)
             coord = self.backtrace(vec_field, p, dt)
             # sample its speed
             q_nxt[I] = q_cur.interpolate(coord)

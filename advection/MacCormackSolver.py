@@ -25,9 +25,9 @@ class MacCormackSolver(AdvectionSolver):
                     # boundarySdf: Matrix,
                     dt: ti.template()):
 
-        for I in ti.grouped(vec_field.field):
+        for I in ti.grouped(vec_field):
             # pos = I + 0.5
-            pos = float(I)
+            pos = float(I) * vec_field.dx
             p_mid = self.subsolver.backtrace(vec_field, pos,
                                              # boundarySdf,
                                              dt)

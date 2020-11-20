@@ -13,7 +13,14 @@ class DataGrid(metaclass=ABCMeta):
     """
 
     def __init__(self,
-                 data_field: ti.template(), dim=3):
+                 data_field: ti.template(), dim=3, dx=ts.vec3(1.0), o=ts.vec3(0.0)):
+        """
+
+        :param data_field:
+        :param dim:
+        :param h: grid length
+        :param o: offset
+        """
         self._field = data_field
         # self.dim = len(self.shape)
         if dim == 2:
@@ -22,6 +29,10 @@ class DataGrid(metaclass=ABCMeta):
             self._sampler = LinearSampler3D(self.field)
         else:
             raise NotImplemented
+
+        self.dx = dx
+        self.inv_dx = 1.0 / dx
+        self.o = o
 
     @ti.pyfunc
     def __getitem__(self, I):
@@ -49,20 +60,48 @@ class DataGrid(metaclass=ABCMeta):
     def interpolate(self, P):
         """
         sample on position P(could be float)
-        :param P:
+        :param P: coordinate in physical world
+        :return: value on grid
+        """
+        # grid coordinate
+        return self._sampler.lerp(self.getG(P))
+
+    @ti.pyfunc
+    def getW(self, G):
+        """
+        get world position from Grid Coordinate
+        :param I:
         :return:
         """
+        return float(G) * self.dx
 
-        return self._sampler.lerp(P)
+    @ti.pyfunc
+    def getG(self, W):
+        """
+
+        :param W: physical position
+        :return:
+        """
+        return W * self.inv_dx
 
     @ti.pyfunc
     def sample(self, I):
+        """
+
+        :param I:
+        :return:
+        """
         return ts.sample(self.field, I)
 
     @ti.pyfunc
     def sample_minmax(self, P):
+        """
 
-        return self._sampler.sample_minmax(P)
+        :param P: physical coordinate
+        :return: grid value
+        """
+        g = P / self.dx
+        return self._sampler.sample_minmax(g)
 
     @ti.pyfunc
     def fill(self, value):
