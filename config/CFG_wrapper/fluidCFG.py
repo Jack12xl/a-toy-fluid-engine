@@ -21,22 +21,28 @@ class FluidCFG(metaclass=ABCMeta):
         self.res = cfg.res
         self.screen_res = cfg.screen_res
 
+        self.half_dt = None
         self.dt = cfg.dt
         # pixel length in physical world
+        self.inv_dx = None
+        self.half_dx = None
+        self.half_inv_dx = None
         self.dx = cfg.dx
 
         self.Colliders = cfg.Colliders
         self.Emitters = cfg.Emitters
 
         self.profile_name = cfg.profile_name
+        # save to png(gif, mp4)
+        self.save_frame_length = None
+        self.video_manager = None
         self.bool_save = cfg.bool_save
-
 
     @SetterProperty
     def dt(self, dt):
         self.__dict__['dt'] = dt
-        self.__dict__['half_dt'] = 0.5 * dt
-        # self.half_dt = 0.5 * self.dt
+        # self.__dict__['half_dt'] = 0.5 * dt
+        self.half_dt = 0.5 * self.dt
 
     @SetterProperty
     def dx(self, dx):
