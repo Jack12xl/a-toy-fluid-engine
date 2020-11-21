@@ -25,6 +25,18 @@ class FluidGridData(metaclass=ABCMeta):
         # the distance between two neighbour when calculating divergence, vorticity
         self.inv_d = None
 
+        self.v = None
+        self.new_v = None
+        self.tmp_v = None
+
+        self.v_divs = None
+
+        self.v_curl = None
+
+        self.density_bffr = None
+        self.new_density_bffr = None
+
+
     @abstractmethod
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         """

@@ -61,7 +61,7 @@ class ForceEmitter2(GridEmitter):
         :return:
         """
         emit_force = ts.vec(ti.cos(self.t.orientation), ti.sin(self.t.orientation)) * self.t.localScale
-        for I in ti.grouped(vf.field):
+        for I in ti.grouped(vf):
             den = df[I]
 
             d2 = (I + 0.5 - self.t.translation).norm_sqr()
@@ -118,7 +118,7 @@ class ForceEmitter3(GridEmitter):
             ti.cos(phi)
         ) * self.t.localScale
 
-        for I in ti.grouped(vf.field):
+        for I in ti.grouped(vf):
             den = df[I]
 
             d2 = (I + 0.5 - self.t.translation).norm_sqr()

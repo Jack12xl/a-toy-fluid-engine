@@ -1,2 +1,2 @@
 from .collocatedGridData import collocatedGridData
-from .DataGrid import *
+from .CellGrid import *

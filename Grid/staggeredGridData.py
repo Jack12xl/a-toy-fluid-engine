@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from utils import bufferPair, Vector, Matrix
-from .DataGrid import DataGrid
+from .CellGrid import CellGrid
 from config import SimulateType
 from .FluidGridData import FluidGridData
 

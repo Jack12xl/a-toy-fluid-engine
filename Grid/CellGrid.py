@@ -1,15 +1,15 @@
 import taichi as ti
 import taichi_glsl as ts
-from abc import ABCMeta, abstractmethod
 from .Sampler import LinearSampler2D, LinearSampler3D
-
+from .Grid import Grid
 
 @ti.data_oriented
-class DataGrid(metaclass=ABCMeta):
+class CellGrid(Grid):
     """
-    the abstract class to store data,
-    a wrapper for ti.field
-
+    wrapper for data on cell center (e.g. pressure, curl)
+    - F -
+    F C F
+    - F -
     """
 
     def __init__(self,
@@ -18,11 +18,13 @@ class DataGrid(metaclass=ABCMeta):
 
         :param data_field:
         :param dim:
-        :param h: grid length
+        :param dx: grid length
         :param o: offset
         """
+        super(CellGrid, self).__init__(dim, dx, o)
+
         self._field = data_field
-        # self.dim = len(self.shape)
+
         if dim == 2:
             self._sampler = LinearSampler2D(self.field)
         elif dim == 3:
@@ -73,7 +75,7 @@ class DataGrid(metaclass=ABCMeta):
         :param I:
         :return:
         """
-        return float(G) * self.dx
+        return (float(G) + self.o) * self.dx
 
     @ti.pyfunc
     def getG(self, W):
@@ -82,7 +84,7 @@ class DataGrid(metaclass=ABCMeta):
         :param W: physical position
         :return:
         """
-        return W * self.inv_dx
+        return W * self.inv_dx - self.o
 
     @ti.pyfunc
     def sample(self, I):
@@ -100,7 +102,7 @@ class DataGrid(metaclass=ABCMeta):
         :param P: physical coordinate
         :return: grid value
         """
-        g = P / self.dx
+        g = self.getG(P)
         return self._sampler.sample_minmax(g)
 
     @ti.pyfunc

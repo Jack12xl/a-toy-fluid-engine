@@ -1,6 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from Grid import DataGrid
+from Grid import CellGrid
 
 ti.init(ti.gpu)
 
@@ -21,6 +21,6 @@ if __name__ == '__main__':
     a_field = ti.Vector.field(2, dtype=ti.f32, shape=[3, 3])
     a = ti.Vector([2, 3])
 
-    grid_a = DataGrid(a_field)
+    grid_a = CellGrid(a_field)
     fill_data(a_field)
     test_kern(grid_a)
