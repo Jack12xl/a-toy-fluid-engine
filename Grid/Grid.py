@@ -22,7 +22,10 @@ class Grid(metaclass=ABCMeta):
         :param o: offset on grid
         """
         self.dim = dim
+        # should not be zero
+        # or too small
         self.dx = dx
+        self.inv_dx = 1.0 / self.dx
         self.o = o
         pass
 
@@ -40,4 +43,8 @@ class Grid(metaclass=ABCMeta):
 
     @abstractmethod
     def fill(self, value):
+        pass
+
+    @abstractmethod
+    def interpolate(self, P):
         pass

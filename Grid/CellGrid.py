@@ -32,10 +32,6 @@ class CellGrid(Grid):
         else:
             raise NotImplemented
 
-        self.dx = dx
-        self.inv_dx = 1.0 / dx
-        self.o = o
-
     @ti.pyfunc
     def __getitem__(self, I):
         return self.field[I]

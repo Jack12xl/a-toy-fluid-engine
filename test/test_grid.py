@@ -1,8 +1,8 @@
 import taichi as ti
 import taichi_glsl as ts
-from Grid import CellGrid
+from Grid import CellGrid, FaceGrid
 
-ti.init(ti.gpu)
+ti.init(ti.gpu, debug=True)
 
 
 @ti.kernel
@@ -18,9 +18,11 @@ def test_kern(grid_input: ti.template()):
 
 
 if __name__ == '__main__':
-    a_field = ti.Vector.field(2, dtype=ti.f32, shape=[3, 3])
-    a = ti.Vector([2, 3])
-
-    grid_a = CellGrid(a_field)
-    fill_data(a_field)
-    test_kern(grid_a)
+    # a_field = ti.Vector.field(2, dtype=ti.f32, shape=[3, 3])
+    # a = ti.Vector([2, 3])
+    #
+    # grid_a = CellGrid(a_field)
+    # fill_data(a_field)
+    # test_kern(grid_a)
+    F = FaceGrid(ti.f32, [16, 16, 16], 3, 2.0, 1.0)
+    F.fill(ts.vec3(2.0))
