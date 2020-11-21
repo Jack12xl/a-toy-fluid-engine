@@ -20,32 +20,32 @@ class collocatedGridData(FluidGridData):
         self.inv_d = 1.0 / (2 * self.cfg.dx)
 
         self.v = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                          dx=ts.vecND(self.dim, self.cfg.dx))
+                          dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         self.new_v = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                              dx=ts.vecND(self.dim, self.cfg.dx))
+                              dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         # another buffer for advection-reflection
         self.tmp_v = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                              dx=ts.vecND(self.dim, self.cfg.dx))
+                              dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         # velocity divergence
-        self.v_divs = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.v_divs = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         # velocity vorticity
         if self.dim == 2:
-            self.v_curl = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+            self.v_curl = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         elif self.dim == 3:
             self.v_curl = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                                   dx=ts.vecND(self.dim, self.cfg.dx))
+                                   dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
 
-        self.p = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
-        self.new_p = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.p = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
+        self.new_p = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         # here density is just for visualization, which does not involve in calculation
         self.density_bffr = CellGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                                     dx=ts.vecND(self.dim, self.cfg.dx))
+                                     dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         self.new_density_bffr = CellGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                                         dx=ts.vecND(self.dim, self.cfg.dx))
+                                         dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         # temperature
-        self.t = CellGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx))
+        self.t = CellGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         self.t_bffr = CellGrid(ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                               dx=ts.vecND(self.dim, self.cfg.dx))
+                               dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         self.t_ambient = ti.field(dtype=ti.f32, shape=[])
 
         self.v_pair = bufferPair(self.v, self.new_v)

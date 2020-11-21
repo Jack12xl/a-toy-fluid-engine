@@ -17,3 +17,4 @@ class MacGridData(FluidGridData):
         super(MacGridData, self).__init__(cfg)
 
         self.inv_d = 1.0 / self.cfg.dx
+

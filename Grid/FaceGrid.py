@@ -13,16 +13,8 @@ class FaceGrid(Grid):
     - F -
     """
 
-    def __init__(self, dtype, shape, dim, dx, o):
+    def __init__(self, dtype, shape, dim, dx, o=ts.vec3(0.0)):
         super(FaceGrid, self).__init__(dim, dx, o)
-
-        self.field = None
-        if dim == 2:
-            self._sampler = LinearSampler2D(self.field)
-        elif dim == 3:
-            self._sampler = LinearSampler3D(self.field)
-        else:
-            raise NotImplemented
 
         # self._shape = shape
         self.shape = shape
@@ -40,20 +32,15 @@ class FaceGrid(Grid):
     def __setitem__(self, I, value):
         pass
 
-    # # TODO totally unnecessary
-    # @property
-    # @ti.pyfunc
-    # def shape(self):
-    #     return self._shape
-
     @ti.pyfunc
     def fill(self, value):
         for i, f in enumerate(self.fields):
             f.fill(ts.vec(value[i]))
 
-    @ti.pyfunc
-    def interpolate(self, P):
-        pass
+    # @ti.pyfunc
+    # def interpolate(self, P):
+    #     for d in range(self.dim):
+    #         d_coord = P -
 
     @ti.pyfunc
     def __iter__(self):

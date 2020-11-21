@@ -71,21 +71,20 @@ class SemiLagrangeSolver(AdvectionSolver):
                     vec_field: ti.template(),
                     q_cur: ti.template(),
                     q_nxt: ti.template(),
-                    # boundarySdf: Matrix,
                     dt: ti.template()):
         """
 
-        :param vec_field:
+        :param vec_field: the raw field
         :param q_cur:
         :param q_nxt:
         :param dt:
         :return:
         """
-        for I in ti.grouped(vec_field.field):
+        for I in ti.grouped(q_cur):
             if self.pixel_marker[I] != PixelType.Liquid:
                 continue
             # get predicted position
-            p = vec_field.getW(I)
+            p = q_cur.getW(I)
             coord = self.backtrace(vec_field, p, dt)
             # sample its speed
             q_nxt[I] = q_cur.interpolate(coord)

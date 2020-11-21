@@ -3,6 +3,7 @@ import taichi_glsl as ts
 from .Sampler import LinearSampler2D, LinearSampler3D
 from .Grid import Grid
 
+
 @ti.data_oriented
 class CellGrid(Grid):
     """
@@ -25,12 +26,6 @@ class CellGrid(Grid):
 
         self._field = data_field
 
-        if dim == 2:
-            self._sampler = LinearSampler2D()
-        elif dim == 3:
-            self._sampler = LinearSampler3D()
-        else:
-            raise NotImplemented
 
     @ti.pyfunc
     def __getitem__(self, I):
@@ -73,7 +68,7 @@ class CellGrid(Grid):
     def getW(self, G):
         """
         get world position from Grid Coordinate
-        :param I:
+        :param G:
         :return:
         """
         return (float(G) + self.o) * self.dx

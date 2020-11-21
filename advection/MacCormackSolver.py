@@ -22,12 +22,11 @@ class MacCormackSolver(AdvectionSolver):
                     vec_field: ti.template(),
                     q_cur: ti.template(),
                     q_nxt: ti.template(),
-                    # boundarySdf: Matrix,
                     dt: ti.template()):
 
-        for I in ti.grouped(vec_field):
+        for I in ti.static(q_cur):
             # pos = I + 0.5
-            pos = float(I) * vec_field.dx
+            pos = q_cur.getW(I)
             p_mid = self.subsolver.backtrace(vec_field, pos,
                                              # boundarySdf,
                                              dt)

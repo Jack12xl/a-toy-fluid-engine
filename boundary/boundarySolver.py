@@ -20,12 +20,22 @@ class GridBoudaryConditionSolver(metaclass=ABCMeta):
         self.cfg = cfg
         self.grid = grid
 
-        self.collider_sdf_field = CellGrid(ti.field(dtype=ti.f32, shape=self.cfg.res), cfg.dim)
-        self.collider_velocity_field = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=self.cfg.res), cfg.dim)
-        self.collider_marker_field = CellGrid(ti.field(dtype=ti.int32, shape=self.cfg.res), cfg.dim)
+        self.collider_sdf_field = CellGrid(ti.field(dtype=ti.f32, shape=self.cfg.res), cfg.dim,
+                                           dx=ts.vecND(self.cfg.dim, self.cfg.dx),
+                                           o=ts.vecND(self.cfg.dim, 0.0))
+        self.collider_velocity_field = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=self.cfg.res), cfg.dim,
+                                                dx=ts.vecND(self.cfg.dim, self.cfg.dx),
+                                                o=ts.vecND(self.cfg.dim, 0.0))
+        self.collider_marker_field = CellGrid(ti.field(dtype=ti.int32, shape=self.cfg.res), cfg.dim,
+                                              dx=ts.vecND(self.cfg.dim, self.cfg.dx),
+                                              o=ts.vecND(self.cfg.dim, 0.0))
 
-        self.marker_field = CellGrid(ti.field(dtype=ti.i32, shape=self.cfg.res), cfg.dim)
-        self.marker_bffr_field = CellGrid(ti.field(dtype=ti.i32, shape=self.cfg.res), cfg.dim)
+        self.marker_field = CellGrid(ti.field(dtype=ti.i32, shape=self.cfg.res), cfg.dim,
+                                     dx=ts.vecND(self.cfg.dim, self.cfg.dx),
+                                     o=ts.vecND(self.cfg.dim, 0.0))
+        self.marker_bffr_field = CellGrid(ti.field(dtype=ti.i32, shape=self.cfg.res), cfg.dim,
+                                          dx=ts.vecND(self.cfg.dim, self.cfg.dx),
+                                          o=ts.vecND(self.cfg.dim, 0.0))
         self.colliders = self.cfg.Colliders
 
     @ti.kernel

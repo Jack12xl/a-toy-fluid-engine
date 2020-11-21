@@ -27,6 +27,14 @@ class Grid(metaclass=ABCMeta):
         self.dx = dx
         self.inv_dx = 1.0 / self.dx
         self.o = o
+
+        self._sampler = None
+        if dim == 2:
+            self._sampler = LinearSampler2D()
+        elif dim == 3:
+            self._sampler = LinearSampler3D()
+        else:
+            raise NotImplemented
         pass
 
     @abstractmethod
