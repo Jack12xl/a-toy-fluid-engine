@@ -41,6 +41,7 @@ class FaceGrid(Grid):
 
     # TODO totally unnecessary
     @property
+    @ti.pyfunc
     def shape(self):
         return self._shape
 
@@ -52,5 +53,14 @@ class FaceGrid(Grid):
     @ti.pyfunc
     def interpolate(self, P):
         pass
+
+    @ti.pyfunc
+    def __iter__(self):
+        for I in ti.grouped(ti.ndrange(*self.shape)):
+            yield I
+
+    # def loop_range(self):
+    #     for I in ti.ndrange(*self.shape):
+    #         yield I
 
 

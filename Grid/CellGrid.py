@@ -44,6 +44,11 @@ class CellGrid(Grid):
     def loop_range(self):
         return self._field.loop_range()
 
+    @ti.pyfunc
+    def __iter__(self):
+        for I in ti.grouped(ti.ndrange(*self.shape)):
+            yield I
+
     @property
     @ti.pyfunc
     def shape(self):
