@@ -64,8 +64,9 @@ class renderer25D(renderer):
     @ti.kernel
     def vis_t(self, tf: Matrix, MaxT: ti.f32):
         # visualize temperature
-        for I in ti.grouped(tf):
-            self.clr_bffr[I] = tf[I][0] / MaxT
+        for I in ti.grouped(ti.ndrange(self.res.x, self.res.y)):
+            t = tf[I, self.z_plane][0]
+            self.clr_bffr[I] = ts.vec3(t / MaxT)
 
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:
@@ -78,6 +79,8 @@ class renderer25D(renderer):
             self.vis_vt(self.grid.v_curl.field)
         elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
             self.vis_v_mag(self.grid.v.field)
+        elif self.cfg.VisualType == VisualizeEnum.Temperature:
+            self.vis_t(self.grid.t.field, self.cfg.GasMaxT)
 
     def renderStep(self, bdrySolver):
         self.render_frame()

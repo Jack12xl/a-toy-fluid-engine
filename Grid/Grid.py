@@ -37,9 +37,9 @@ class Grid(metaclass=ABCMeta):
     def __setitem__(self, I, value):
         pass
 
-    @property
-    def shape(self):
-        pass
+    # @property
+    # def shape(self):
+    #     pass
 
     @abstractmethod
     def fill(self, value):

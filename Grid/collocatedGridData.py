@@ -57,7 +57,7 @@ class collocatedGridData(FluidGridData):
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             ret = 0.0
             vc = vf.sample(I)
             for d in ti.static(range(self.cfg.dim)):
@@ -77,7 +77,7 @@ class collocatedGridData(FluidGridData):
 
     @ti.kernel
     def calVorticity2D(self, vf: Matrix):
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             vl = vf.sample(I + ts.D.zy).y
             vr = vf.sample(I + ts.D.xy).y
             vb = vf.sample(I + ts.D.yz).x
@@ -86,7 +86,7 @@ class collocatedGridData(FluidGridData):
 
     @ti.kernel
     def calVorticity3D(self, vf: Matrix):
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             curl = ts.vec3(0.0)
             # left & right
             v_l = vf.sample(I + ts.D.zyy)
@@ -106,7 +106,7 @@ class collocatedGridData(FluidGridData):
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
-        for I in ti.grouped(pf):
+        for I in ti.static(pf):
             ret = ts.vecND(self.dim, 0.0)
             for d in ti.static(range(self.dim)):
                 D = ti.Vector.unit(self.dim, d)

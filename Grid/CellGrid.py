@@ -26,9 +26,9 @@ class CellGrid(Grid):
         self._field = data_field
 
         if dim == 2:
-            self._sampler = LinearSampler2D(self.field)
+            self._sampler = LinearSampler2D()
         elif dim == 3:
-            self._sampler = LinearSampler3D(self.field)
+            self._sampler = LinearSampler3D()
         else:
             raise NotImplemented
 
@@ -67,7 +67,7 @@ class CellGrid(Grid):
         :return: value on grid
         """
         # grid coordinate
-        return self._sampler.lerp(self.getG(P))
+        return self._sampler.lerp(self.field, self.getG(P))
 
     @ti.pyfunc
     def getW(self, G):
@@ -104,7 +104,7 @@ class CellGrid(Grid):
         :return: grid value
         """
         g = self.getG(P)
-        return self._sampler.sample_minmax(g)
+        return self._sampler.sample_minmax(self.field, g)
 
     @ti.pyfunc
     def fill(self, value):

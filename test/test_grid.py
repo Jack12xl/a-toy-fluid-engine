@@ -16,13 +16,15 @@ def test_kern(grid_input: ti.template()):
     for I in ti.grouped(grid_input):
         print(grid_input[I])
 
+
 @ti.kernel
-def test_iter(foo : ti.template()):
+def test_iter(foo: ti.template()):
     # for I in ti.static(foo):
     #     print(I)
 
     for I in ti.grouped(foo):
         print(I)
+
 
 if __name__ == '__main__':
     # a_field = ti.Vector.field(2, dtype=ti.f32, shape=[3, 3])

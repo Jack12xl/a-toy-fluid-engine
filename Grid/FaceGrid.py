@@ -24,7 +24,8 @@ class FaceGrid(Grid):
         else:
             raise NotImplemented
 
-        self._shape = shape
+        # self._shape = shape
+        self.shape = shape
         self.fields = []
         for i in range(dim):
             res = ti.Vector(shape)
@@ -39,11 +40,11 @@ class FaceGrid(Grid):
     def __setitem__(self, I, value):
         pass
 
-    # TODO totally unnecessary
-    @property
-    @ti.pyfunc
-    def shape(self):
-        return self._shape
+    # # TODO totally unnecessary
+    # @property
+    # @ti.pyfunc
+    # def shape(self):
+    #     return self._shape
 
     @ti.pyfunc
     def fill(self, value):
@@ -58,9 +59,3 @@ class FaceGrid(Grid):
     def __iter__(self):
         for I in ti.grouped(ti.ndrange(*self.shape)):
             yield I
-
-    # def loop_range(self):
-    #     for I in ti.ndrange(*self.shape):
-    #         yield I
-
-
