@@ -2,6 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 from .Sampler import LinearSampler2D, LinearSampler3D
 from .Grid import Grid
+from .CellGrid import CellGrid
 
 
 @ti.data_oriented
@@ -13,16 +14,23 @@ class FaceGrid(Grid):
     - F -
     """
 
-    def __init__(self, dtype, shape, dim, dx, o=ts.vec3(0.0)):
+    def __init__(self, dtype, shape, dim, dx, o=ts.vec3(0.5)):
         super(FaceGrid, self).__init__(dim, dx, o)
 
         # self._shape = shape
         self.shape = shape
         self.fields = []
-        for i in range(dim):
+        for d in range(dim):
             res = ti.Vector(shape)
-            res[i] += 1
-            self.fields.append(ti.Vector.field(1, dtype=dtype, shape=res))
+            res[d] += 1
+            self.fields.append(
+                CellGrid(
+                    ti.Vector.field(1, dtype=dtype, shape=res),
+                    dim,
+                    dx=dx,
+                    o=o
+                )
+            )
 
     @ti.pyfunc
     def __getitem__(self, I):
@@ -37,10 +45,12 @@ class FaceGrid(Grid):
         for i, f in enumerate(self.fields):
             f.fill(ts.vec(value[i]))
 
-    # @ti.pyfunc
-    # def interpolate(self, P):
-    #     for d in range(self.dim):
-    #         d_coord = P -
+    @ti.pyfunc
+    def interpolate(self, P):
+        ret = ts.vecND(self.dim, 0.0)
+        for d in ti.static(range(self.dim)):
+            # grid coordinate on each dimension grid
+            ret[d] = self.fields[d].interpolate(P)
 
     @ti.pyfunc
     def __iter__(self):
