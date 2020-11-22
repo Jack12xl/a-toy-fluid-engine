@@ -18,11 +18,13 @@ class FaceGrid(Grid):
         super(FaceGrid, self).__init__(dim, dx, o)
 
         # self._shape = shape
+
         self.shape = shape
         self.fields = []
         for d in range(dim):
             res = ti.Vector(shape)
             res[d] += 1
+            # use cell grid as the wrapper for u, v, w component
             self.fields.append(
                 CellGrid(
                     ti.Vector.field(1, dtype=dtype, shape=res),
@@ -41,6 +43,11 @@ class FaceGrid(Grid):
         pass
 
     @ti.pyfunc
+    def __iter__(self):
+        for I in ti.grouped(ti.ndrange(*self.shape)):
+            yield I
+
+    @ti.pyfunc
     def fill(self, value):
         for i, f in enumerate(self.fields):
             f.fill(ts.vec(value[i]))
@@ -50,9 +57,15 @@ class FaceGrid(Grid):
         ret = ts.vecND(self.dim, 0.0)
         for d in ti.static(range(self.dim)):
             # grid coordinate on each dimension grid
-            ret[d] = self.fields[d].interpolate(P)
+            ret[d] = self.fields[d].interpolate(P)[0]
+        return ret
 
     @ti.pyfunc
-    def __iter__(self):
-        for I in ti.grouped(ti.ndrange(*self.shape)):
-            yield I
+    def sample(self, I):
+        raise NotImplementedError
+
+    @ti.pyfunc
+    def sample_minmax(self, W):
+        raise NotImplementedError
+
+

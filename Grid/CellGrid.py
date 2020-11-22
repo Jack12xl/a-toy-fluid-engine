@@ -65,24 +65,6 @@ class CellGrid(Grid):
         return self._sampler.lerp(self.field, self.getG(P))
 
     @ti.pyfunc
-    def getW(self, G):
-        """
-        get world position from Grid Coordinate
-        :param G:
-        :return:
-        """
-        return (float(G) + self.o) * self.dx
-
-    @ti.pyfunc
-    def getG(self, W):
-        """
-
-        :param W: physical position
-        :return:
-        """
-        return W * self.inv_dx - self.o
-
-    @ti.pyfunc
     def sample(self, I):
         """
 

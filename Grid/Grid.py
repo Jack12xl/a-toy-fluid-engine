@@ -21,6 +21,9 @@ class Grid(metaclass=ABCMeta):
         :param dx:  the physical length of a cell
         :param o: offset on grid
         """
+        assert (dim == dx.n)
+        assert (dim == o.n)
+
         self.dim = dim
         # should not be zero
         # or too small
@@ -53,6 +56,29 @@ class Grid(metaclass=ABCMeta):
     def fill(self, value):
         pass
 
+    @ti.pyfunc
+    def getW(self, G):
+        """
+        get world position from Grid Coordinate
+        :param G:
+        :return:
+        """
+        return (float(G) + self.o) * self.dx
+
+    @ti.pyfunc
+    def getG(self, W):
+        """
+
+        :param W: physical position
+        :return:
+        """
+        return W * self.inv_dx - self.o
+
     @abstractmethod
     def interpolate(self, P):
+        """
+        self explained, mainly called in advection
+        :param P:
+        :return:
+        """
         pass
