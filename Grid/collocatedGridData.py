@@ -32,7 +32,7 @@ class collocatedGridData(FluidGridData):
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         self.t_pair = bufferPair(self.t, self.t_bffr)
 
-        self.advect_pair = []
+        self.advect_v_pairs.append(self.v_pair)
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):

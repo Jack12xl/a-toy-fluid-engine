@@ -1,6 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from Grid import CellGrid, FaceGrid
+from utils import bufferPair
 
 ti.init(ti.gpu, debug=True)
 
@@ -34,11 +35,12 @@ if __name__ == '__main__':
     # fill_data(a_field)
     # test_kern(grid_a)
     F = FaceGrid(ti.f32, [4, 4, 4], 3, ts.vec3(2.0), ts.vec3(0.0))
+    G = FaceGrid(ti.f32, [4, 4, 4], 3, ts.vec3(2.0), ts.vec3(0.0))
     F.fill(ts.vec3(2.0))
-    # for I in F:
-    #     print(I)
+    G.fill(ts.vec3(4.0))
 
-    # for I in ti.grouped(F):
-    #     print(I)
+    p = bufferPair(F, G)
+    F.fields[0].fill(ts.vec(1.0))
 
-    test_iter(F)
+    p.swap()
+    test_iter(p.nxt)

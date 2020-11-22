@@ -36,7 +36,13 @@ class FaceGrid(Grid):
 
     @ti.pyfunc
     def __getitem__(self, I):
-        pass
+        """
+        the index should be based on the whole resolution, not each face dimension
+        so here we easily interpolate from the mac grid
+        :param I:
+        :return:
+        """
+        return self.interpolate(self.getW(I))
 
     @ti.pyfunc
     def __setitem__(self, I, value):

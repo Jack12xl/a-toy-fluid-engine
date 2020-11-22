@@ -57,6 +57,14 @@ class FluidGridData(metaclass=ABCMeta):
                                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
         self.t_ambient = ti.field(dtype=ti.f32, shape=[])
 
+        self.v_pair = None
+        self.p_pair = None
+        self.density_pair = None
+        self.t_pair = None
+        # Used for advection velocity self
+        # store each velocity dimension component if staggered grid
+        # store velocity field for uniform grid
+        self.advect_v_pairs = []
 
     @abstractmethod
     def calDivergence(self, vf: ti.template(), vd: ti.template()):

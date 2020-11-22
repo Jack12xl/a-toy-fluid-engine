@@ -26,7 +26,6 @@ class CellGrid(Grid):
 
         self._field = data_field
 
-
     @ti.pyfunc
     def __getitem__(self, I):
         return self.field[I]

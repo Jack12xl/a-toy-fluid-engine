@@ -35,8 +35,11 @@ class EulerScheme(metaclass=ABCMeta):
             self.renderer = renderer25D(cfg, self.grid, self.cfg.res[2] // 2)
 
     def advect(self, dt):
-        self.advection_solver.advect(self.grid.v_pair.cur, self.grid.v_pair.cur, self.grid.v_pair.nxt,
-                                     dt)
+        # advect speed should be handled separately
+        for v_pair in self.grid.advect_v_pairs:
+            self.advection_solver.advect(self.grid.v_pair.cur, v_pair.cur, v_pair.nxt,
+                                         dt)
+
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt,
                                      dt)
 
@@ -117,7 +120,7 @@ class EulerScheme(metaclass=ABCMeta):
                       imp_data: ti.ext_arr(),
                       dt: ti.template()):
 
-        for I in ti.grouped(vf.field):
+        for I in ti.grouped(vf):
             mdir = ts.vec(imp_data[0], imp_data[1])
             o = ts.vec(imp_data[2], imp_data[3])
             # move to cell center

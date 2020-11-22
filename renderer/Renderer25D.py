@@ -70,7 +70,7 @@ class renderer25D(renderer):
 
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:
-            self.vis_v(self.grid.v_pair.cur.field)
+            self.vis_v(self.grid.v_pair.cur)
         elif self.cfg.VisualType == VisualizeEnum.Density:
             self.vis_density(self.grid.density_pair.cur)
         elif self.cfg.VisualType == VisualizeEnum.Divergence:
