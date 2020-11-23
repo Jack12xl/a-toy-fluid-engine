@@ -67,11 +67,11 @@ def EuclideanDistance(v1: Vector, v2: Vector):
 #         dst[I] = trgt[I]
 
 
-@ti.kernel
-def reflect(to_be_reflected: ti.template(),
-            mid_point: ti.template()):
-    for (I) in ti.grouped(to_be_reflected.field):
-        to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
+# @ti.kernel
+# def reflect(to_be_reflected: ti.template(),
+#             mid_point: ti.template()):
+#     for I in ti.static(to_be_reflected):
+#         to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
 
 
 def filterUpCase(c: str) -> str:

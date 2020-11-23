@@ -23,13 +23,13 @@ class renderer2D(renderer):
 
     @ti.kernel
     def vis_density(self, vf: ti.template()):
-        for I in ti.grouped(vf.field):
+        for I in ti.static(vf):
             self.clr_bffr[I] = ti.abs(vf[I])
 
     @ti.kernel
     def vis_v(self, vf: ti.template()):
         # velocity
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             v = ts.vec(vf[I].x, vf[I].y, 0.0)
             # self.clr_bffr[I] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
             self.clr_bffr[I] = 0.01 * v + ts.vec3(0.5)
@@ -37,28 +37,28 @@ class renderer2D(renderer):
     @ti.kernel
     def vis_v_mag(self, vf: ti.template()):
         # velocity magnitude
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             v_norm = vf[I].norm() * 0.004
             self.clr_bffr[I] = self.mapper.color_map(v_norm)
 
     @ti.kernel
     def vis_vd(self, vf: ti.template()):
         # divergence
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             v = ts.vec(vf[I], 0.0, 0.0)
             self.clr_bffr[I] = 0.3 * v + ts.vec3(0.5)
 
     @ti.kernel
     def vis_vt(self, vf: ti.template()):
         # visualize vorticity
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             v = ts.vec(vf[I], 0.0, 0.0)
             self.clr_bffr[I] = 0.03 * v + ts.vec3(0.5)
 
     @ti.kernel
     def vis_t(self, tf: Matrix, MaxT: ti.f32):
         # visualize temperature
-        for I in ti.grouped(tf):
+        for I in ti.static(tf):
             self.clr_bffr[I] = ts.vec3(tf[I][0] / MaxT)
 
     def render_frame(self):

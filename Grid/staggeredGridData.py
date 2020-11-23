@@ -49,7 +49,7 @@ class MacGridData(FluidGridData):
                 bufferPair(self.v.fields[d], self.new_v.fields[d])
             )
 
-    @ti.func
+    @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         """
 
@@ -57,12 +57,12 @@ class MacGridData(FluidGridData):
         :param vd:
         :return:
         """
-        for I in ti.grouped(vf):
+        for I in ti.static(vf):
             ret = 0.0
             for d in ti.static(range(self.dim)):
                 D = ti.Vector.unit(self.dim, d)
-                v0 = vf.fields[d].sample(I + D)[d]
-                v1 = vf.fields[d].sample(I)[d]
+                v0 = vf.fields[d].sample(I + D)[0]
+                v1 = vf.fields[d].sample(I)[0]
                 # TODO boundary
                 ret += v0 - v1
             vd[I] = ret * self.inv_d
@@ -70,10 +70,12 @@ class MacGridData(FluidGridData):
     @ti.kernel
     def calVorticity2D(self, vf: Matrix):
         for I in ti.static(vf):
-            vl = vf.fields[0].sample(I).y
-            vr = vf.fields[0].sample(I + ts.D.xy).y
-            vb = vf.fields[1].sample(I).x
-            vt = vf.fields[1].sample(I + ts.D.yx).x
+            # y
+            vl = vf.fields[1].sample(I)[0]
+            vr = vf.fields[1].sample(I + ts.D.xy)[0]
+            # x
+            vb = vf.fields[0].sample(I)[0]
+            vt = vf.fields[0].sample(I + ts.D.yx)[0]
             self.v_curl[I] = (vr - vl - vt + vb) * self.inv_d
 
     @ti.kernel
@@ -124,10 +126,17 @@ class MacGridData(FluidGridData):
                      dst: ti.template(),
                      trgt: ti.template()):
         for d in ti.static(range(self.dim)):
-            dst_d = ti.static(dst.fields[d])
-            trgt_d = ti.static(trgt.fields[d])
-            for I in dst_d:
-                dst_d[I] = trgt_d[I]
+            # dst_d = ti.static(dst.fields[d])
+            # trgt_d = ti.static(trgt.fields[d])
+            for I in ti.static(dst.fields[d]):
+                dst.fields[d][I] = trgt.fields[d][I]
 
+    @ti.kernel
+    def reflect_v_field(self,
+                        to_be_reflected: Matrix,
+                        mid_point: Matrix):
+        for d in ti.static(range(self.dim)):
+            for I in ti.static(to_be_reflected.fields[d]):
+                to_be_reflected.fields[d][I] = 2.0 * mid_point.fields[d][I] - to_be_reflected.fields[d][I]
 
 

@@ -100,6 +100,18 @@ class FluidGridData(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def reflect_v_field(self,
+                        to_be_reflected: Matrix,
+                        mid_point: Matrix):
+        """
+
+        :param to_be_reflected:
+        :param mid_point:
+        :return:
+        """
+        pass
+
     def materialize(self):
         if self.cfg.SimType == SimulateType.Gas:
             self.t.fill(self.cfg.GasInitAmbientT)
