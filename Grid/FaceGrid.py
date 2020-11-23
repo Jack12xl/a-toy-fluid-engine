@@ -24,13 +24,15 @@ class FaceGrid(Grid):
         for d in range(dim):
             res = ti.Vector(shape)
             res[d] += 1
+            tmp_o = ts.vecND(self.dim, 0.0)
+            tmp_o[d] = 0.5
             # use cell grid as the wrapper for u, v, w component
             self.fields.append(
                 CellGrid(
                     ti.Vector.field(1, dtype=dtype, shape=res),
                     dim,
                     dx=dx,
-                    o=o
+                    o=tmp_o
                 )
             )
 
@@ -46,7 +48,7 @@ class FaceGrid(Grid):
 
     @ti.pyfunc
     def __setitem__(self, I, value):
-        pass
+        raise NotImplementedError
 
     @ti.pyfunc
     def __iter__(self):

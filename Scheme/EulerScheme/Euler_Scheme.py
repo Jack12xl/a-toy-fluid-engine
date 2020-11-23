@@ -162,7 +162,7 @@ class EulerScheme(metaclass=ABCMeta):
         self.dye_fade()
         # refill the fluid
         for emitter in self.emitters:
-            emitter.stepEmitHardCode(self.grid.v, self.grid.density_bffr, self.grid.t)
+            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_bffr, self.grid.t)
 
         # self.print_v()
         self.renderer.renderStep(self.boundarySolver)

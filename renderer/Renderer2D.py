@@ -67,13 +67,13 @@ class renderer2D(renderer):
         elif self.cfg.VisualType == VisualizeEnum.Density:
             self.vis_density(self.grid.density_pair.cur)
         elif self.cfg.VisualType == VisualizeEnum.Divergence:
-            self.vis_vd(self.grid.v_divs.field)
+            self.vis_vd(self.grid.v_divs)
         elif self.cfg.VisualType == VisualizeEnum.Vorticity:
-            self.vis_vt(self.grid.v_curl.field)
+            self.vis_vt(self.grid.v_curl)
         elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
-            self.vis_v_mag(self.grid.v.field)
+            self.vis_v_mag(self.grid.v_pair.cur)
         elif self.cfg.VisualType == VisualizeEnum.Temperature:
-            self.vis_t(self.grid.t.field, self.cfg.GasMaxT)
+            self.vis_t(self.grid.t, self.cfg.GasMaxT)
 
     def renderStep(self, bdrySolver):
         self.render_frame()
