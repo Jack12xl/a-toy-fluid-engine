@@ -88,6 +88,18 @@ class FluidGridData(metaclass=ABCMeta):
     def subtract_gradient_pressure(self):
         pass
 
+    @abstractmethod
+    def copy_v_field(self,
+                     dst: ti.template(),
+                     trgt: ti.template()):
+        """
+        self explained, used in advection-reflection
+        :param dst:
+        :param trgt:
+        :return:
+        """
+        pass
+
     def materialize(self):
         if self.cfg.SimType == SimulateType.Gas:
             self.t.fill(self.cfg.GasInitAmbientT)

@@ -22,20 +22,20 @@ class MacGridData(FluidGridData):
         self.v = FaceGrid(ti.f32,
                           shape=cfg.res,
                           dim=cfg.dim,
-                          dx=ts.vecND(self.dim, self.dx),
+                          dx=ts.vecND(self.dim, self.cfg.dx),
                           o=ts.vecND(self.dim, 0.5)
                           )
         self.new_v = FaceGrid(ti.f32,
                               shape=cfg.res,
                               dim=cfg.dim,
-                              dx=ts.vecND(self.dim, self.dx),
+                              dx=ts.vecND(self.dim, self.cfg.dx),
                               o=ts.vecND(self.dim, 0.5)
                               )
         # buffer for advection-reflection
         self.tmp_v = FaceGrid(ti.f32,
                               shape=cfg.res,
                               dim=cfg.dim,
-                              dx=ts.vecND(self.dim, self.dx),
+                              dx=ts.vecND(self.dim, self.cfg.dx),
                               o=ts.vecND(self.dim, 0.5)
                               )
 
@@ -101,6 +101,8 @@ class MacGridData(FluidGridData):
         for d in ti.static(range(self.dim)):
             D = ti.Vector.unit(self.dim, d)
             for I in ti.static(pf):
+                # TODO do not handle the right most boundary
+                # but both left, right boundary gradient is zero anyway
                 p0 = pf.sample(I)
                 p1 = pf.sample(I - D)
                 vf.fields[d][I][0] -= (p0 - p1) * self.inv_d
@@ -116,3 +118,16 @@ class MacGridData(FluidGridData):
 
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
+
+    @ti.kernel
+    def copy_v_field(self,
+                     dst: ti.template(),
+                     trgt: ti.template()):
+        for d in ti.static(range(self.dim)):
+            dst_d = ti.static(dst.fields[d])
+            trgt_d = ti.static(trgt.fields[d])
+            for I in dst_d:
+                dst_d[I] = trgt_d[I]
+
+
+

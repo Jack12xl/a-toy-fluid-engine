@@ -20,7 +20,7 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
-grid = MacGridData
+grid = collocatedGridData
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density

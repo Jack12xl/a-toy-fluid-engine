@@ -13,7 +13,8 @@ class AdvectionReflectionEulerScheme(EulerScheme):
         # ref: https://github.com/ShaneFX/GAMES201/blob/master/HW01/Smoke3d/smoke_3D.py
         self.advect(self.cfg.half_dt)
         self.externalForce(ext_input, self.cfg.half_dt)
-        utils.copy_ti_field(self.grid.tmp_v, self.grid.v_pair.cur)
+        # utils.copy_ti_field(self.grid.tmp_v, self.grid.v_pair.cur)
+        self.grid.copy_v_field(self.grid.tmp_v, self.grid.v_pair.cur)
         # cur_v = tmp_v = u^{~1/2}, in Fig.2 in advection-reflection solver paper
 
         self.project()

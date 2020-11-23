@@ -60,11 +60,11 @@ def EuclideanDistance(v1: Vector, v2: Vector):
     return (v1 - v2).norm()
 
 
-@ti.kernel
-def copy_ti_field(dst: ti.template(),
-                  trgt: ti.template()):
-    for I in ti.grouped(dst.field):
-        dst[I] = trgt[I]
+# @ti.kernel
+# def copy_ti_field(dst: ti.template(),
+#                   trgt: ti.template()):
+#     for I in ti.grouped(dst.field):
+#         dst[I] = trgt[I]
 
 
 @ti.kernel

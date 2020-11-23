@@ -104,3 +104,10 @@ class collocatedGridData(FluidGridData):
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
 
+    @ti.kernel
+    def copy_v_field(self,
+                     dst: ti.template(),
+                     trgt: ti.template()):
+        for I in ti.static(dst):
+            dst[I] = trgt[I]
+

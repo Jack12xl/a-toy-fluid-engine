@@ -63,7 +63,7 @@ class Grid(metaclass=ABCMeta):
         :param G:
         :return:
         """
-        return (float(G) + self.o) * self.dx
+        return (G + self.o) * self.dx
 
     @ti.pyfunc
     def getG(self, W):
