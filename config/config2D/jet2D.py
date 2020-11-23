@@ -9,6 +9,7 @@ import math
 from Emitter import ForceEmitter2, SquareEmitter
 import taichi_glsl as ts
 from config.class_cfg import SimulateType
+from Grid import collocatedGridData, MacGridData
 
 debug = False
 
@@ -18,6 +19,8 @@ FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+
+grid = MacGridData
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density

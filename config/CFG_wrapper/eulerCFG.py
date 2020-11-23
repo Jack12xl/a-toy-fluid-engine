@@ -13,6 +13,8 @@ class EulerCFG(FluidCFG):
     def __init__(self, cfg):
         super(EulerCFG, self).__init__(cfg)
 
+        self.grid = cfg.grid
+
         self.run_scheme = cfg.run_scheme
         self.VisualType = cfg.VisualType
         self.SceneType = cfg.SceneType

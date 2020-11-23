@@ -98,19 +98,21 @@ class MacGridData(FluidGridData):
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
-        for I in ti.static(pf):
-            # get delta_P
-            ret = ts.vecND(self.dim, 0.0)
-            for d in ti.static(range(self.dim)):
-                D = ti.Vector.unit(self.dim, d)
+        for d in ti.static(range(self.dim)):
+            D = ti.Vector.unit(self.dim, d)
+            for I in ti.static(pf):
+                p0 = pf.sample(I)
+                p1 = pf.sample(I - D)
+                vf.fields[d][I][0] -= (p0 - p1) * self.inv_d
 
-                p0 = pf.sample(I + D)
-                p1 = pf.sample(I)
-                # p
-
-                ret[d] = p0 - p1
-            # subtract delta_P / dx
-            vf[I] -= self.inv_d * ret
+        # for I in ti.static(pf):
+        #     for d in ti.static(range(self.dim)):
+        #         D = ti.Vector.unit(self.dim, d)
+        #
+        #         p0 = pf.sample(I)
+        #         p1 = pf.sample(I - D)
+        #         # subtract delta_P / dx
+        #         vf.fields[d][I][0] -= (p0 - p1) * self.inv_d
 
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)

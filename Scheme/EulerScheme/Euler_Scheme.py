@@ -4,7 +4,7 @@ import taichi_glsl as ts
 import numpy as np
 from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 from boundary import StdGridBoundaryConditionSolver
-from config import PixelType
+from config import PixelType, EulerCFG
 from abc import ABCMeta, abstractmethod
 from Emitter import ForceEmitter2, SquareEmitter
 from renderer import renderer2D, renderer25D
@@ -13,11 +13,11 @@ from utils import getFieldMeanCpu
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
-    def __init__(self, cfg, ):
+    def __init__(self, cfg:EulerCFG, ):
         self.cfg = cfg
         self.dim = cfg.dim
 
-        self.grid = collocatedGridData(cfg)
+        self.grid = cfg.grid(cfg)
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
 
