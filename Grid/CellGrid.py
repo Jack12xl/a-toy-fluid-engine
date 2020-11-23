@@ -32,6 +32,8 @@ class CellGrid(Grid):
 
     @ti.pyfunc
     def __setitem__(self, I, value):
+        # print(1)
+        # pass
         self.field[I] = value
 
     # @ti.pyfunc

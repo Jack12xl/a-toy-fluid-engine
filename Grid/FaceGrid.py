@@ -48,7 +48,9 @@ class FaceGrid(Grid):
 
     @ti.pyfunc
     def __setitem__(self, I, value):
-        raise NotImplementedError
+        print("setitem")
+        pass
+
 
     @ti.pyfunc
     def __iter__(self):
