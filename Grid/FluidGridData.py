@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
-from config import EulerCFG
+from config import EulerCFG, SimulateType
 from utils import bufferPair, Vector, Matrix
 from .CellGrid import CellGrid
 
@@ -88,20 +88,14 @@ class FluidGridData(metaclass=ABCMeta):
     def subtract_gradient_pressure(self):
         pass
 
-    @abstractmethod
     def materialize(self):
-        """
-        init some variable, especially for
-        ti.field, since after materialize Taichi
-        can not add more ti.field
-        :return:
-        """
-        pass
+        if self.cfg.SimType == SimulateType.Gas:
+            self.t.fill(self.cfg.GasInitAmbientT)
 
-    @abstractmethod
     def reset(self):
-        """
-        reset to initial time
-        :return:
-        """
-        pass
+        self.v_pair.cur.fill(ts.vecND(self.dim, 0.0))
+        self.p_pair.cur.fill(0.0)
+        self.density_pair.cur.fill(ti.Vector([0, 0, 0]))
+        if self.cfg.SimType == SimulateType.Gas:
+            self.t.fill(self.cfg.GasInitAmbientT)
+

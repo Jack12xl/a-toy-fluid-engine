@@ -64,7 +64,7 @@ class MacGridData(FluidGridData):
                 v0 = vf.fields[d].sample(I + D)[d]
                 v1 = vf.fields[d].sample(I)[d]
                 # TODO boundary
-
+                ret += v0 - v1
             vd[I] = ret * self.inv_d
 
     @ti.kernel
@@ -106,7 +106,11 @@ class MacGridData(FluidGridData):
 
                 p0 = pf.sample(I + D)
                 p1 = pf.sample(I)
+                # p
 
                 ret[d] = p0 - p1
             # subtract delta_P / dx
             vf[I] -= self.inv_d * ret
+
+    def subtract_gradient_pressure(self):
+        self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)

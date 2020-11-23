@@ -104,13 +104,3 @@ class collocatedGridData(FluidGridData):
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
 
-    def materialize(self):
-        if self.cfg.SimType == SimulateType.Gas:
-            self.t.fill(self.cfg.GasInitAmbientT)
-
-    def reset(self):
-        self.v_pair.cur.fill(ts.vecND(self.dim, 0.0))
-        self.p_pair.cur.fill(0.0)
-        self.density_pair.cur.fill(ti.Vector([0, 0, 0]))
-        if self.cfg.SimType == SimulateType.Gas:
-            self.t.fill(self.cfg.GasInitAmbientT)
