@@ -126,8 +126,6 @@ class MacGridData(FluidGridData):
                      dst: ti.template(),
                      trgt: ti.template()):
         for d in ti.static(range(self.dim)):
-            # dst_d = ti.static(dst.fields[d])
-            # trgt_d = ti.static(trgt.fields[d])
             for I in ti.static(dst.fields[d]):
                 dst.fields[d][I] = trgt.fields[d][I]
 

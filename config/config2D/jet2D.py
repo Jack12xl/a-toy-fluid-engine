@@ -21,7 +21,7 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
 #
-v_grid_type = GRIDTYPE.CELL_GRID
+v_grid_type = GRIDTYPE.FACE_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -33,14 +33,14 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
-advection_solver = MacCormackSolver
+advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3

@@ -21,7 +21,7 @@ def FillV(_v: ti.template()):
 def SupposedWay2FillV(_v: ti.template()):
     for d in ti.static(range(_v.dim)):
         for I in ti.static(_v.fields[d]):
-            _v.fields[d][I] = ts.vec(233)
+            _v.fields[d][I] = ts.vec(I[d])
 
 
 @ti.kernel
@@ -41,3 +41,10 @@ if __name__ == "__main__":
     # FillV(v)
     SupposedWay2FillV(v)
     PrintV(v)
+    # print(v.fields[0].shape)
+    # print(v.fields[0].dx)
+    # print(v.fields[0].o)
+    #
+    # print(v.fields[1].shape)
+    # print(v.fields[1].dx)
+    # print(v.fields[1].o)
