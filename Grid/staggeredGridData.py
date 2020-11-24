@@ -1,7 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from utils import bufferPair, Vector, Matrix
-from .CellGrid import CellGrid
+from utils import bufferPair, Vector, Matrix, MultiBufferPair
 from .FaceGrid import FaceGrid
 from config import SimulateType
 from .FluidGridData import FluidGridData
@@ -39,7 +38,7 @@ class MacGridData(FluidGridData):
                               o=ts.vecND(self.dim, 0.5)
                               )
 
-        self.v_pair = bufferPair(self.v, self.new_v)
+        self.v_pair = MultiBufferPair(self.v, self.new_v)
         self.p_pair = bufferPair(self.p, self.new_p)
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         self.t_pair = bufferPair(self.t, self.t_bffr)
@@ -48,6 +47,11 @@ class MacGridData(FluidGridData):
             self.advect_v_pairs.append(
                 bufferPair(self.v.fields[d], self.new_v.fields[d])
             )
+
+    def swap_v(self):
+        for v_pair in self.advect_v_pairs:
+            v_pair.swap()
+        self.v_pair.swap()
 
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):

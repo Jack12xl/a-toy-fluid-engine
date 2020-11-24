@@ -67,6 +67,11 @@ class FluidGridData(metaclass=ABCMeta):
         self.advect_v_pairs = []
 
     @abstractmethod
+    def swap_v(self):
+        # Due to design of the pipeline, each grid data V has to be specialized
+        pass
+
+    @abstractmethod
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         """
         self-explained

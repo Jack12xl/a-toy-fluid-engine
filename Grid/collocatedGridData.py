@@ -34,6 +34,9 @@ class collocatedGridData(FluidGridData):
 
         self.advect_v_pairs.append(self.v_pair)
 
+    def swap_v(self):
+        self.v_pair.swap()
+
     @ti.kernel
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         for I in ti.static(vf):

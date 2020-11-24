@@ -2,6 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 from Grid import FaceGrid
 import numpy as np
+from utils import bufferPair
 
 ti.init(ti.gpu, debug=False)
 
@@ -25,6 +26,13 @@ def SupposedWay2FillV(_v: ti.template()):
 
 
 @ti.kernel
+def SupposedWay2FillV_new(_v: ti.template()):
+    for d in ti.static(range(_v.dim)):
+        for I in ti.static(_v.fields[d]):
+            _v.fields[d][I] = 2 * ts.vec(I[d])
+
+
+@ti.kernel
 def PrintV(_v: ti.template()):
     for I in ti.static(_v):
         print(_v[I])
@@ -38,13 +46,29 @@ if __name__ == "__main__":
                  o=ts.vecND(2, 0.5)
                  )
 
-    # FillV(v)
+    v_new = FaceGrid(ti.f32,
+                     shape=[2, 2],
+                     dim=2,
+                     dx=ts.vecND(2, 1.0),
+                     o=ts.vecND(2, 0.5)
+                     )
+
     SupposedWay2FillV(v)
-    PrintV(v)
-    # print(v.fields[0].shape)
-    # print(v.fields[0].dx)
-    # print(v.fields[0].o)
-    #
-    # print(v.fields[1].shape)
-    # print(v.fields[1].dx)
-    # print(v.fields[1].o)
+    SupposedWay2FillV_new(v)
+
+    v_pair = bufferPair(v, v_new)
+
+    advect_v_pairs = []
+    for d in range(2):
+        advect_v_pairs.append(
+            bufferPair(v.fields[d], v_new.fields[d])
+        )
+
+    for d in range(2):
+        advect_v_pairs[d].swap()
+
+    PrintV(v_pair.cur)
+
+    print("next")
+
+    print(advect_v_pairs)

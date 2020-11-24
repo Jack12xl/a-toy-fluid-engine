@@ -6,7 +6,6 @@ from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType, EulerCFG
 from abc import ABCMeta, abstractmethod
-from Emitter import ForceEmitter2, SquareEmitter
 from renderer import renderer2D, renderer25D
 from utils import getFieldMeanCpu
 
@@ -48,7 +47,8 @@ class EulerScheme(metaclass=ABCMeta):
                                          dt)
             self.grid.t_pair.swap()
 
-        self.grid.v_pair.swap()
+        self.grid.swap_v()
+
         self.grid.density_pair.swap()
 
     def externalForce(self, ext_input, dt):

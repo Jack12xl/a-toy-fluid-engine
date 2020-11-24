@@ -6,6 +6,7 @@ import config.euler_config as default_cfg
 import taichi as ti
 import config
 from config.class_cfg import SimulateType
+from Grid import GRIDTYPE
 
 debug = False
 ti.init(arch=ti.gpu, debug=debug,kernel_profiler=True)
@@ -14,6 +15,8 @@ FILTER_TYPE = 'm_'
 set_attribute_from_cfg(default_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+
+v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Density
