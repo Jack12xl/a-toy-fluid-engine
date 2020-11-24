@@ -32,8 +32,8 @@ class CellGrid(Grid):
 
     @ti.pyfunc
     def __setitem__(self, I, value):
-        # print(1)
-        # pass
+        # actually this would never be called in kernel
+        # since Taichi would always call this.__getitem__().assign()
         self.field[I] = value
 
     # @ti.pyfunc

@@ -46,6 +46,8 @@ class Grid(metaclass=ABCMeta):
 
     @abstractmethod
     def __setitem__(self, I, value):
+        # actually this would never be called in kernel
+        # since Taichi would always call this.__getitem__().assign()
         pass
 
     # @property

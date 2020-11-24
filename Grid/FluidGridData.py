@@ -63,7 +63,7 @@ class FluidGridData(metaclass=ABCMeta):
         self.t_pair = None
         # Used for advection velocity self
         # store each velocity dimension component if staggered grid
-        # store velocity field for uniform grid
+        # store the whole velocity field for uniform grid
         self.advect_v_pairs = []
 
     @abstractmethod
