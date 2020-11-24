@@ -14,7 +14,7 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
-v_grid_type = GRIDTYPE.CELL_GRID
+v_grid_type = GRIDTYPE.FACE_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -35,8 +35,6 @@ from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-poisson_pressure_beta = ti.static(1.0 / 6.0)
-poisson_viscosity_beta = ti.static(1.0 / 6.0)
 
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 64

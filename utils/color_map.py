@@ -105,6 +105,7 @@ _magma_data = np.array([
 )
 _magma_data = _magma_data.reshape([256, 3]).astype(np.float32)
 
+
 @ti.data_oriented
 class cmapper():
     def __init__(self):

@@ -87,20 +87,29 @@ class MacGridData(FluidGridData):
         for I in ti.static(vf):
             curl = ts.vec3(0.0)
             # left & right
-            v_l = vf.fields[0].sample(I)
-            v_r = vf.fields[0].sample(I + ts.D.xyy)
+            v_left_y = vf.fields[1].sample(I)
+            v_right_y = vf.fields[1].sample(I + ts.D.xyy)
+
+            v_left_z = vf.fields[2].sample(I)
+            v_right_z = vf.fields[2].sample(I + ts.D.xyy)
             # top & down
-            v_t = vf.fields[1].sample(I)
-            v_d = vf.fields[1].sample(I + ts.D.yzy)
+            v_top_x = vf.fields[0].sample(I)
+            v_down_x = vf.fields[0].sample(I + ts.D.yxy)
+
+            v_top_z = vf.fields[2].sample(I)
+            v_down_z = vf.fields[2].sample(I + ts.D.yxy)
             # forward & backward
-            v_f = vf.fields[2].sample(I)
-            v_b = vf.fields[2].sample(I + ts.D.yyz)
+            v_forward_x = vf.fields[0].sample(I)
+            v_back_x = vf.fields[0].sample(I + ts.D.yyx)
 
-            curl[0] = (v_f.y - v_b.y) - (v_t.z - v_d.z)
-            curl[1] = (v_r.z - v_l.z) - (v_f.x - v_b.x)
-            curl[2] = (v_t.x - v_d.x) - (v_r.y - v_l.y)
+            v_forward_y = vf.fields[1].sample(I)
+            v_back_y = vf.fields[1].sample(I + ts.D.yyx)
 
-            self.v_curl[I] = curl
+            curl[0] = (v_forward_y - v_back_y) - (v_top_z - v_down_z)
+            curl[1] = (v_right_z - v_left_z) - (v_forward_x - v_back_x)
+            curl[2] = (v_top_x - v_down_x) - (v_right_y - v_left_y)
+
+            self.v_curl[I] = curl * self.inv_d
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):

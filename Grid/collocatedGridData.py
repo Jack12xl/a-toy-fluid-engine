@@ -84,7 +84,7 @@ class collocatedGridData(FluidGridData):
             curl[1] = (v_r.z - v_l.z) - (v_f.x - v_b.x)
             curl[2] = (v_t.x - v_d.x) - (v_r.y - v_l.y)
 
-            self.v_curl[I] = curl
+            self.v_curl[I] = curl * self.inv_d
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
