@@ -43,6 +43,7 @@ class renderer25D(renderer):
         for I in ti.grouped(ti.ndrange(self.res.x, self.res.y)):
             v_norm = vf[I, self.z_plane].norm() * 0.02
             self.clr_bffr[I] = self.mapper.color_map(v_norm)
+            # self.clr_bffr[I] = ts.vec3(v_norm)
 
     @ti.kernel
     def vis_vd(self, vf: ti.template()):
