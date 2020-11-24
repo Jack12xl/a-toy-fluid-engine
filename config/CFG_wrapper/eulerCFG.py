@@ -5,6 +5,8 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 import taichi as ti
 from advection import MacCormackSolver
 
+
+
 class EulerCFG(FluidCFG):
     """
     Hold property especially for Euler-based simulation
@@ -13,7 +15,14 @@ class EulerCFG(FluidCFG):
     def __init__(self, cfg):
         super(EulerCFG, self).__init__(cfg)
 
-        self.grid = cfg.grid
+        self.v_grid_type = cfg.v_grid_type
+
+        self.grid = None
+        from Grid import GRIDTYPE, collocatedGridData, MacGridData
+        if self.v_grid_type == GRIDTYPE.CELL_GRID:
+            self.grid = collocatedGridData
+        elif self.v_grid_type == GRIDTYPE.FACE_GRID:
+            self.grid = MacGridData
 
         self.run_scheme = cfg.run_scheme
         self.VisualType = cfg.VisualType

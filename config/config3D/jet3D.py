@@ -7,14 +7,14 @@ import config.euler_config
 from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
 from utils import set_attribute_from_cfg, filterUpCase
-from Grid import collocatedGridData, MacGridData
+from Grid import collocatedGridData, MacGridData, GRIDTYPE
 
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
-grid = collocatedGridData
+v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -63,7 +63,8 @@ Emitters.append(SquareEmitter(
     v=Velocity3(),
     jet_v=ts.vec3(0.0, 128.0, 0.0),
     jet_t=GasMaxT,
-    fluid_color=fluid_color
+    fluid_color=fluid_color,
+    v_grid_type=v_grid_type
 )
 )
 

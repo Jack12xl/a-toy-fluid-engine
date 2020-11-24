@@ -9,7 +9,7 @@ import math
 from Emitter import ForceEmitter2, SquareEmitter
 import taichi_glsl as ts
 from config.class_cfg import SimulateType
-from Grid import collocatedGridData, MacGridData
+from Grid import collocatedGridData, MacGridData, GRIDTYPE
 
 debug = False
 
@@ -20,7 +20,8 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
-grid = collocatedGridData
+#
+v_grid_type = GRIDTYPE.FACE_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -31,8 +32,8 @@ GasBeta = 1024.0
 GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
-## run Scheme
-run_scheme = SchemeType.Advection_Reflection
+# run Scheme
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
@@ -87,6 +88,7 @@ Emitters.append(SquareEmitter(
     jet_v=ts.vec2(0.0, 256.0),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
+    v_grid_type=v_grid_type
     )
 )
 # Emitters.append(ForceEmitter(
