@@ -48,9 +48,7 @@ class FaceGrid(Grid):
 
     @ti.pyfunc
     def __setitem__(self, I, value):
-        print("setitem")
-        pass
-
+        raise NotImplementedError
 
     @ti.pyfunc
     def __iter__(self):
@@ -77,5 +75,3 @@ class FaceGrid(Grid):
     @ti.pyfunc
     def sample_minmax(self, W):
         raise NotImplementedError
-
-

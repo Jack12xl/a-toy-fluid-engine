@@ -78,7 +78,7 @@ class renderer25D(renderer):
         elif self.cfg.VisualType == VisualizeEnum.Vorticity:
             self.vis_vt(self.grid.v_curl)
         elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
-            self.vis_v_mag(self.grid.v)
+            self.vis_v_mag(self.grid.v_pair.cur)
         elif self.cfg.VisualType == VisualizeEnum.Temperature:
             self.vis_t(self.grid.t, self.cfg.GasMaxT)
 

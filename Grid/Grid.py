@@ -45,7 +45,6 @@ class Grid(metaclass=ABCMeta):
             self._sampler = LinearSampler3D()
         else:
             raise NotImplemented
-        pass
 
     @abstractmethod
     def __getitem__(self, I):

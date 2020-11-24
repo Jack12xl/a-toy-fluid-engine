@@ -59,7 +59,7 @@ class EulerScheme(metaclass=ABCMeta):
         elif self.cfg.SceneType == SceneEnum.Jet:
             for emitter in self.emitters:
                 emitter.stepEmitForce(
-                    self.grid.v,
+                    self.grid.v_pair.cur,
                     self.grid.density_bffr,
                     dt
                 )
@@ -70,10 +70,10 @@ class EulerScheme(metaclass=ABCMeta):
 
     @ti.kernel
     def ApplyBuoyancyForce(self, dt: ti.f32):
-        for I in ti.grouped(self.grid.v.field):
+        for I in ti.static(self.grid.v_pair.cur):
             f_buoy = - self.cfg.GasAlpha * self.grid.density_bffr \
                      + self.cfg.GasBeta * (self.grid.t[I] - self.grid.t_ambient)
-            self.grid.v[I].y += f_buoy * dt
+            self.grid.v_pair.cur[I].y += f_buoy * dt
 
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
