@@ -112,6 +112,10 @@ class FluidGridData(metaclass=ABCMeta):
         """
         pass
 
+    # @abstractmethod
+    # def set_v_field(self, ):
+    #     pass
+
     def materialize(self):
         if self.cfg.SimType == SimulateType.Gas:
             self.t.fill(self.cfg.GasInitAmbientT)

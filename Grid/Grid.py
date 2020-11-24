@@ -2,6 +2,11 @@ import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
 from .Sampler import LinearSampler2D, LinearSampler3D
+from enum import Enum, IntEnum
+
+class GRIDTYPE(IntEnum):
+    CELL_GRID = 0
+    FACE_GRID = 1
 
 
 @ti.data_oriented
@@ -30,6 +35,8 @@ class Grid(metaclass=ABCMeta):
         self.dx = dx
         self.inv_dx = 1.0 / self.dx
         self.o = o
+
+        self.GRID_TYPE = None
 
         self._sampler = None
         if dim == 2:

@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from .Sampler import LinearSampler2D, LinearSampler3D
-from .Grid import Grid
+from .Grid import Grid, GRIDTYPE
 
 
 @ti.data_oriented
@@ -14,7 +14,11 @@ class CellGrid(Grid):
     """
 
     def __init__(self,
-                 data_field: ti.template(), dim=3, dx=ts.vec3(1.0), o=ts.vec3(0.0)):
+                 data_field: ti.template(),
+                 dim=3,
+                 dx=ts.vec3(1.0),
+                 o=ts.vec3(0.0)
+                 ):
         """
 
         :param data_field:
@@ -23,7 +27,8 @@ class CellGrid(Grid):
         :param o: offset
         """
         super(CellGrid, self).__init__(dim, dx, o)
-
+        # for velocity set
+        self.GRID_TYPE = GRIDTYPE.CELL_GRID
         self._field = data_field
 
     @ti.pyfunc

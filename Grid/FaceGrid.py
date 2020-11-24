@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from .Sampler import LinearSampler2D, LinearSampler3D
-from .Grid import Grid
+from .Grid import Grid, GRIDTYPE
 from .CellGrid import CellGrid
 
 
@@ -17,7 +17,7 @@ class FaceGrid(Grid):
     def __init__(self, dtype, shape, dim, dx, o=ts.vec3(0.5)):
         super(FaceGrid, self).__init__(dim, dx, o)
 
-        # self._shape = shape
+        self.GRID_TYPE = GRIDTYPE.FACE_GRID
 
         self.shape = shape
         self.fields = []

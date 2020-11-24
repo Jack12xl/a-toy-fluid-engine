@@ -138,5 +138,3 @@ class MacGridData(FluidGridData):
         for d in ti.static(range(self.dim)):
             for I in ti.static(to_be_reflected.fields[d]):
                 to_be_reflected.fields[d][I] = 2.0 * mid_point.fields[d][I] - to_be_reflected.fields[d][I]
-
-

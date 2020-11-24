@@ -4,7 +4,7 @@ from .GridEmitter import GridEmitter
 from geometry import Transform2, Velocity2
 from geometry import Transform3, Velocity3
 from utils import Vector, Matrix
-
+from Grid import GRIDTYPE
 
 @ti.data_oriented
 class SquareEmitter(GridEmitter):
@@ -72,10 +72,16 @@ class SquareEmitter(GridEmitter):
         r = [(int(l_b[i]), int(r_u[i]) + 1) for i in range(len(l_b))]
 
         for I in ti.grouped(ti.ndrange(*r)):
-            vf[I] = self.jet_v
+            # vf[I] = self.jet_v
             tf[I] = ts.vec(self.jet_t)
             # here CFL u * dt / dx
             # vf * 0.03 / 1
             # should be 1 ~ 10
             df[I] = self.fluid_color
+
+        if vf.GRID_TYPE == GRIDTYPE.CELL_GRID:
+            for I in ti.grouped(ti.ndrange(*r)):
+                vf[I] = self.jet_v
+
+
 
