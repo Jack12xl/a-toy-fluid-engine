@@ -6,7 +6,6 @@ import taichi as ti
 from advection import MacCormackSolver
 
 
-
 class EulerCFG(FluidCFG):
     """
     Hold property especially for Euler-based simulation

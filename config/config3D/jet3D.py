@@ -12,9 +12,15 @@ from Grid import collocatedGridData, MacGridData, GRIDTYPE
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
-set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+# set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
+dim = 3
+res = [512, 512, 32]
+screen_res = [512, 512]
 
-v_grid_type = GRIDTYPE.FACE_GRID
+dx = 0.5
+dt = 0.03
+
+v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density

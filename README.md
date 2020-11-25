@@ -1,7 +1,7 @@
 # A toy fluid engine
 A repo that tries to reimplement Euler based fluid simulation, currently target on smoke simulation.
 
-The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embeds both GPU and CPU  parralleled computing.
+The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embeds both GPU and CPU parralleled computing.
 
 ### Dependency Installation 
 
@@ -24,6 +24,9 @@ Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by 
 - Euler-based Scheme
   - Advection-Projection
   - Advection-Reflection
+- [Grid](./Grid)
+  - Uniform
+  - Mac( staggered )
 - Advection
   - Semi-Lagrangian
   - MacCormack / BFECC

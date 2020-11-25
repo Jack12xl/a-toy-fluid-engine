@@ -87,23 +87,23 @@ class MacGridData(FluidGridData):
         for I in ti.static(vf):
             curl = ts.vec3(0.0)
             # left & right
-            v_left_y = vf.fields[1].sample(I)
-            v_right_y = vf.fields[1].sample(I + ts.D.xyy)
+            v_left_y = vf.fields[1].sample(I)[0]
+            v_right_y = vf.fields[1].sample(I + ts.D.xyy)[0]
 
-            v_left_z = vf.fields[2].sample(I)
-            v_right_z = vf.fields[2].sample(I + ts.D.xyy)
+            v_left_z = vf.fields[2].sample(I)[0]
+            v_right_z = vf.fields[2].sample(I + ts.D.xyy)[0]
             # top & down
-            v_top_x = vf.fields[0].sample(I)
-            v_down_x = vf.fields[0].sample(I + ts.D.yxy)
+            v_top_x = vf.fields[0].sample(I)[0]
+            v_down_x = vf.fields[0].sample(I + ts.D.yxy)[0]
 
-            v_top_z = vf.fields[2].sample(I)
-            v_down_z = vf.fields[2].sample(I + ts.D.yxy)
+            v_top_z = vf.fields[2].sample(I)[0]
+            v_down_z = vf.fields[2].sample(I + ts.D.yxy)[0]
             # forward & backward
-            v_forward_x = vf.fields[0].sample(I)
-            v_back_x = vf.fields[0].sample(I + ts.D.yyx)
+            v_forward_x = vf.fields[0].sample(I)[0]
+            v_back_x = vf.fields[0].sample(I + ts.D.yyx)[0]
 
-            v_forward_y = vf.fields[1].sample(I)
-            v_back_y = vf.fields[1].sample(I + ts.D.yyx)
+            v_forward_y = vf.fields[1].sample(I)[0]
+            v_back_y = vf.fields[1].sample(I + ts.D.yyx)[0]
 
             curl[0] = (v_forward_y - v_back_y) - (v_top_z - v_down_z)
             curl[1] = (v_right_z - v_left_z) - (v_forward_x - v_back_x)
@@ -113,23 +113,23 @@ class MacGridData(FluidGridData):
 
     @ti.kernel
     def subtract_gradient(self, vf: ti.template(), pf: ti.template()):
-        for d in ti.static(range(self.dim)):
-            D = ti.Vector.unit(self.dim, d)
-            for I in ti.static(pf):
-                # TODO do not handle the right most boundary
-                # but both left, right boundary gradient is zero anyway
-                p0 = pf.sample(I)
-                p1 = pf.sample(I - D)
-                vf.fields[d][I][0] -= (p0 - p1) * self.inv_d
-
-        # for I in ti.static(pf):
-        #     for d in ti.static(range(self.dim)):
-        #         D = ti.Vector.unit(self.dim, d)
-        #
+        # for d in ti.static(range(self.dim)):
+        #     D = ti.Vector.unit(self.dim, d)
+        #     for I in ti.static(pf):
+        #         # TODO do not handle the right most boundary
+        #         # but both left, right boundary gradient is zero anyway
         #         p0 = pf.sample(I)
         #         p1 = pf.sample(I - D)
-        #         # subtract delta_P / dx
         #         vf.fields[d][I][0] -= (p0 - p1) * self.inv_d
+
+        for I in ti.static(pf):
+            for d in ti.static(range(self.dim)):
+                D = ti.Vector.unit(self.dim, d)
+
+                p0 = pf.sample(I)
+                p1 = pf.sample(I - D)
+                # subtract delta_P / dx
+                vf.fields[d][I][0] -= (p0 - p1) * self.inv_d
 
     def subtract_gradient_pressure(self):
         self.subtract_gradient(self.v_pair.cur, self.p_pair.cur)
