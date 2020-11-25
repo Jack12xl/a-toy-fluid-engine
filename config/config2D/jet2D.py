@@ -33,7 +33,7 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
@@ -117,7 +117,8 @@ Emitters.append(SquareEmitter(
 
 
 profile_name = '2D' + '-'\
-               + str(res[0]) + 'x' + str(res[1]) + '-' \
+               + 'x'.join(map(str, res)) + '-' \
+               + str(v_grid_type) + '-' \
                + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \
@@ -134,7 +135,7 @@ print(profile_name)
 # save to video(gif)
 bool_save = False
 
-save_frame_length = 240
+save_frame_length = 360
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,

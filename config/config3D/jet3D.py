@@ -71,6 +71,7 @@ dx = 0.5
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
+               + str(v_grid_type) + '-' \
                + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \

@@ -4,9 +4,17 @@ from abc import ABCMeta, abstractmethod
 from .Sampler import LinearSampler2D, LinearSampler3D
 from enum import Enum, IntEnum
 
+
 class GRIDTYPE(IntEnum):
     CELL_GRID = 0
     FACE_GRID = 1
+
+    def __init__(self, *args):
+        super().__init__()
+        self.map = ['UniformGrid', 'MacGrid']
+
+    def __str__(self):
+        return self.map[self.value]
 
 
 @ti.data_oriented

@@ -24,8 +24,8 @@ class FaceGrid(Grid):
         for d in range(dim):
             res = ti.Vector(shape)
             res[d] += 1
-            tmp_o = ts.vecND(self.dim, 0.0)
-            tmp_o[d] = 0.5
+            tmp_o = ts.vecND(self.dim, 0.5)
+            tmp_o[d] = 0.0
             # use cell grid as the wrapper for u, v, w component
             self.fields.append(
                 CellGrid(
