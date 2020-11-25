@@ -6,6 +6,7 @@ import argparse
 from config import EulerCFG
 import utils
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description="Run which config")
 

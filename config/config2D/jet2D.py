@@ -21,7 +21,7 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
 #
-v_grid_type = GRIDTYPE.FACE_GRID
+v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density

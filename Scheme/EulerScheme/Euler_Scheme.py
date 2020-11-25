@@ -65,8 +65,9 @@ class EulerScheme(metaclass=ABCMeta):
                 )
         if self.cfg.SimType == SimulateType:
             # calculate buoyancy
-            self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t)
-            self.ApplyBuoyancyForce(dt)
+            # self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t)
+            # self.ApplyBuoyancyForce(dt)
+            pass
 
     @ti.kernel
     def ApplyBuoyancyForce(self, dt: ti.f32):

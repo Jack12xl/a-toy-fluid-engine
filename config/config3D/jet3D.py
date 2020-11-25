@@ -14,13 +14,13 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 # set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 dim = 3
-res = [512, 512, 32]
+res = [512, 512, 256]
 screen_res = [512, 512]
 
 dx = 0.5
 dt = 0.03
 
-v_grid_type = GRIDTYPE.CELL_GRID
+v_grid_type = GRIDTYPE.FACE_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -51,7 +51,7 @@ semi_order = SemiLagrangeOrder.RK_3
 curl_strength = 0.0
 
 DEBUG = False
-ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True)
+ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=10.0)
 # init should put before init ti.field
 
 from geometry import Transform3, Velocity3
@@ -91,9 +91,9 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
-save_frame_length = 240
+save_frame_length = 360
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,
