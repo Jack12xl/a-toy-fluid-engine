@@ -95,12 +95,13 @@ class SquareEmitter(GridEmitter):
         l_b = ts.clamp(l_b, 0, shape - 1)
         r_u = ts.clamp(r_u, 0, shape - 1)
 
-        r = [(int(l_b[i]), int(r_u[i]) + 1) for i in range(len(l_b))]
-
+        r_v = [[int(l_b[i]), int(r_u[i]) + 1] for i in range(len(l_b))]
+        # r_v[1][1] += 1
         for d in ti.static(range(len(shape))):
-            for I in ti.grouped(ti.ndrange(*r)):
+            for I in ti.grouped(ti.ndrange(*r_v)):
                 vf.fields[d][I][0] = self.jet_v[d]
 
+        r = [[int(l_b[i]), int(r_u[i]) + 1] for i in range(len(l_b))]
         for I in ti.grouped(ti.ndrange(*r)):
             tf[I] = ts.vec(self.jet_t)
             # here CFL u * dt / dx

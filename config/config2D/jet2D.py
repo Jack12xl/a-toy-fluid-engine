@@ -13,15 +13,13 @@ from Grid import GRIDTYPE
 
 debug = False
 
-# simulate_type = SimulateType.Gas
-
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
 #
-v_grid_type = GRIDTYPE.FACE_GRID
+v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -33,7 +31,7 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
