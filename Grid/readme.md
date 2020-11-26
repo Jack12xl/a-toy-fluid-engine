@@ -13,11 +13,17 @@ Currently, it features
 
 Here shows a concrete example to show their performance during simulation. 
 
+2D-512x512-Density-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03
+
 | Uniform Grid                                                 | Mac Grid                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![](../results/Grid/2D-512x512-UniformGrid-Density-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/2D-512x512-MacGrid-Density-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03.gif) |
 
+3D-512x512x256-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03
 
+| Uniform Grid                                                 | Mac Grid                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/3D-512x512x256-MacGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) |
 
 
 
