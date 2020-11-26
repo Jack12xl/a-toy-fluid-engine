@@ -15,7 +15,7 @@ class MacGridData(FluidGridData):
 
     def __init__(self, cfg):
         super(MacGridData, self).__init__(cfg)
-        # the distance between two neighbour when calculating divergence, vorticity
+        # the distance between two neighbour when calculating gradient
         self.inv_d = 1.0 / self.cfg.dx
 
         self.v = FaceGrid(ti.f32,

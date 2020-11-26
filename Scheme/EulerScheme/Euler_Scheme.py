@@ -76,9 +76,11 @@ class EulerScheme(metaclass=ABCMeta):
     @ti.kernel
     def ApplyBuoyancyForceMac(self, dt: ti.f32):
         v_y = ti.static(self.grid.v_pair.cur.fields[1])
+        t_f = ti.static(self.grid.t_pair.cur)
+        d_f = ti.static(self.grid.density_pair.cur)
         for I in ti.static(v_y):
-            f_buoy = - self.cfg.GasAlpha * self.grid.density_pair.cur[I][1] \
-                     + self.cfg.GasBeta * (self.grid.t[I][0] - self.grid.t_ambient)
+            f_buoy = - self.cfg.GasAlpha * d_f[I][1] \
+                     + self.cfg.GasBeta * (t_f[I][0] - self.grid.t_ambient)
             v_y[I][0] += f_buoy * dt
 
     @ti.kernel
@@ -181,13 +183,7 @@ class EulerScheme(metaclass=ABCMeta):
         for emitter in self.emitters:
             emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
 
-        # self.print_v()
         self.renderer.renderStep(self.boundarySolver)
-
-    @ti.kernel
-    def print_v(self):
-        for I in ti.grouped(self.grid.v.field):
-            print(self.grid.v[I])
 
     @abstractmethod
     def schemeStep(self, ext_input: np.array):
