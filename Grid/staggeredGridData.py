@@ -38,7 +38,7 @@ class MacGridData(FluidGridData):
                               o=ts.vecND(self.dim, 0.5)
                               )
 
-        self.v_pair = MultiBufferPair(self.v, self.new_v)
+        self.v_pair = bufferPair(self.v, self.new_v)
         self.p_pair = bufferPair(self.p, self.new_p)
         self.density_pair = bufferPair(self.density_bffr, self.new_density_bffr)
         self.t_pair = bufferPair(self.t, self.t_bffr)

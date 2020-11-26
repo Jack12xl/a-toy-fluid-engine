@@ -1,4 +1,4 @@
-from Grid import collocatedGridData
+from Grid import GRIDTYPE
 import taichi as ti
 import taichi_glsl as ts
 import numpy as np
@@ -33,6 +33,11 @@ class EulerScheme(metaclass=ABCMeta):
         elif self.dim == 3:
             self.renderer = renderer25D(cfg, self.grid, self.cfg.res[2] // 2)
 
+        if cfg.v_grid_type == GRIDTYPE.FACE_GRID:
+            self.ApplyBuoyancyForce = self.ApplyBuoyancyForceMac
+        elif cfg.v_grid_type == GRIDTYPE.CELL_GRID:
+            self.ApplyBuoyancyForce = self.ApplyBuoyancyForceUniform
+
     def advect(self, dt):
         # advect speed should be handled separately
         for v_pair in self.grid.advect_v_pairs:
@@ -63,18 +68,29 @@ class EulerScheme(metaclass=ABCMeta):
                     self.grid.density_bffr,
                     dt
                 )
-        if self.cfg.SimType == SimulateType:
+        if self.cfg.SimType == SimulateType.Gas:
             # calculate buoyancy
-            # self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t)
-            # self.ApplyBuoyancyForce(dt)
-            pass
+            self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t.field)
+            self.ApplyBuoyancyForce(dt)
 
     @ti.kernel
-    def ApplyBuoyancyForce(self, dt: ti.f32):
-        for I in ti.static(self.grid.v_pair.cur):
-            f_buoy = - self.cfg.GasAlpha * self.grid.density_bffr \
-                     + self.cfg.GasBeta * (self.grid.t[I] - self.grid.t_ambient)
-            self.grid.v_pair.cur[I].y += f_buoy * dt
+    def ApplyBuoyancyForceMac(self, dt: ti.f32):
+        v_y = ti.static(self.grid.v_pair.cur.fields[1])
+        for I in ti.static(v_y):
+            f_buoy = - self.cfg.GasAlpha * self.grid.density_pair.cur[I][1] \
+                     + self.cfg.GasBeta * (self.grid.t[I][0] - self.grid.t_ambient)
+            v_y[I][0] += f_buoy * dt
+
+    @ti.kernel
+    def ApplyBuoyancyForceUniform(self, dt: ti.f32):
+        d_f = ti.static(self.grid.density_pair.cur)
+        t_f = ti.static(self.grid.t_pair.cur)
+        v_f = ti.static(self.grid.v_pair.cur)
+        for I in ti.static(v_f):
+            f_buoy = - self.cfg.GasAlpha * d_f[I][1] \
+                     + self.cfg.GasBeta * (t_f[I][0] - self.grid.t_ambient)
+            # print(f_buoy)
+            v_f[I].y += f_buoy * dt
 
     def project(self):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)

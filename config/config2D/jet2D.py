@@ -21,14 +21,14 @@ set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
 #
-v_grid_type = GRIDTYPE.CELL_GRID
+v_grid_type = GRIDTYPE.FACE_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
 
 SimType = SimulateType.Gas
-GasAlpha = 16.0
-GasBeta = 128.0
+GasAlpha = 8.0
+GasBeta = 2.0
 GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
@@ -133,7 +133,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 
 save_frame_length = 360
 save_root = './tmp_result'
