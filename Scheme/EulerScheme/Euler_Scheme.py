@@ -70,17 +70,22 @@ class EulerScheme(metaclass=ABCMeta):
                 )
         if self.cfg.SimType == SimulateType.Gas:
             # calculate buoyancy
-            self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t.field)
-            self.ApplyBuoyancyForce(dt)
+            self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t_pair.cur.field)
+            # self.ApplyBuoyancyForce(dt)
 
     @ti.kernel
     def ApplyBuoyancyForceMac(self, dt: ti.f32):
         v_y = ti.static(self.grid.v_pair.cur.fields[1])
         t_f = ti.static(self.grid.t_pair.cur)
         d_f = ti.static(self.grid.density_pair.cur)
+        D = ti.Vector.unit(self.dim, 1)
         for I in ti.static(v_y):
             f_buoy = - self.cfg.GasAlpha * d_f[I][1] \
-                     + self.cfg.GasBeta * (t_f[I][0] - self.grid.t_ambient)
+                     + self.cfg.GasBeta * (
+                             (
+                                     t_f.sample(I) + t_f.sample(I - D)
+                              )[0] * 0.5 - self.grid.t_ambient
+                     )
             v_y[I][0] += f_buoy * dt
 
     @ti.kernel

@@ -41,7 +41,7 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 64
+p_jacobi_iters = 128
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 
@@ -64,6 +64,7 @@ Colliders = []
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
 dt = 0.03
+dx = 1.0 / res[0]
 
 Emitters = []
 # Emitters.append(ForceEmitter2(
@@ -85,7 +86,7 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jet_v=ts.vec2(0.0, 256.0),
+    jet_v=ts.vec2(0.0, 0.5),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
@@ -133,7 +134,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
 save_frame_length = 360
 save_root = './tmp_result'
