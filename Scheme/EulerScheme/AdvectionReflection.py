@@ -19,8 +19,6 @@ class AdvectionReflectionEulerScheme(EulerScheme):
         self.project()
         self.grid.subtract_gradient(self.grid.tmp_v, self.grid.p_pair.cur)
         # after projection, tmp_v = u^{1/2}, cur_v = u^{~1/2}
-        # utils.reflect(self.
-        #               grid.v_pair.cur, self.grid.tmp_v)
         self.grid.reflect_v_field(self.grid.v_pair.cur, self.grid.tmp_v)
 
         self.advect(self.cfg.half_dt)
