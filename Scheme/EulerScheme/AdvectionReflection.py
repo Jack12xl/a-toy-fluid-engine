@@ -3,6 +3,7 @@ import taichi as ti
 import taichi_glsl as ts
 import numpy as np
 
+
 @ti.data_oriented
 class AdvectionReflectionEulerScheme(EulerScheme):
     def __init__(self, cfg):

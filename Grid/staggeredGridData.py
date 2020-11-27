@@ -10,7 +10,7 @@ from .FluidGridData import FluidGridData
 class MacGridData(FluidGridData):
     """
     staggered grid
-    vector on the grid face
+    velocity on the grid face
     """
 
     def __init__(self, cfg):

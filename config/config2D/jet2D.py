@@ -31,7 +31,7 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
@@ -39,7 +39,7 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 128
+p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 

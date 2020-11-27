@@ -32,13 +32,13 @@ class renderer2D(renderer):
         for I in ti.static(vf):
             v = ts.vec(vf[I].x, vf[I].y, 0.0)
             # self.clr_bffr[I] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
-            self.clr_bffr[I] = 0.01 * v + ts.vec3(0.5)
+            self.clr_bffr[I] = v + ts.vec3(0.5)
 
     @ti.kernel
     def vis_v_mag(self, vf: ti.template()):
         # velocity magnitude
         for I in ti.static(vf):
-            v_norm = vf[I].norm() * 0.004
+            v_norm = vf[I].norm() * 0.4
             self.clr_bffr[I] = self.mapper.color_map(v_norm)
 
     @ti.kernel
