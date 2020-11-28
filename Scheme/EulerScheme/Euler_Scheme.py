@@ -172,8 +172,8 @@ class EulerScheme(metaclass=ABCMeta):
         self.boundarySolver.kern_update_marker()
 
         # if we don't want do advection projection on emitter area
-        for emitter in self.emitters:
-            self.boundarySolver.updateEmitterMark(emitter)
+        # for emitter in self.emitters:
+        #     self.boundarySolver.updateEmitterMark(emitter)
 
         for colld in self.boundarySolver.colliders:
             colld.surfaceshape.update_transform(self.cfg.dt)

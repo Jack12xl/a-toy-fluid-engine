@@ -22,7 +22,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.Jet
-VisualType = VisualizeEnum.Velocity
+VisualType = VisualizeEnum.Density
 
 SimType = SimulateType.Gas
 GasAlpha = 8.0
@@ -39,7 +39,7 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 64
+p_jacobi_iters = 128
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3
 
@@ -79,7 +79,7 @@ Emitters = []
 
 Emitters.append(SquareEmitter(
     t=Transform2(
-        translation=ti.Vector([res[0] // 2, 0]),
+        translation=ti.Vector([res[0] // 2, res[0] // 10]),
         localscale=10.0,
         orientation=math.pi / 2.0
     ),

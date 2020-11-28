@@ -81,8 +81,8 @@ class SemiLagrangeSolver(AdvectionSolver):
         :return:
         """
         for I in ti.grouped(q_cur):
-            if self.pixel_marker[I] != PixelType.Liquid:
-                continue
+            # if self.pixel_marker[I] != PixelType.Liquid:
+            #     continue
             # get predicted position
             p = q_cur.getW(I)
             coord = self.backtrace(vec_field, p, dt)
