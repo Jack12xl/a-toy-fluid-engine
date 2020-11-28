@@ -17,24 +17,23 @@ class IVOCK_EulerScheme(EulerScheme):
         pass
 
     def schemeStep(self, ext_input: np.array):
+
         # get omega_n
-        self.grid.calVorticity(self.grid.v_pair.cur)
+        self.grid.calCurl(self.grid.v_pair.cur, self.grid.curl_pair.cur)
         # TODO vorticity enhancement on vorticity
 
         if self.dim == 3:
             self.stretch(self.cfg.dt)
         # advect vorticity
-
-        # advect velocity
-        for v_pair in self.grid.advect_v_pairs:
-            self.advection_solver.advect(self.grid.v_pair.cur, v_pair.cur, v_pair.nxt,
-                                         self.cfg.dt)
-
         self.advection_solver.advect(self.grid.v_pair.cur,
                                      self.grid.curl_pair.cur,
                                      self.grid.curl_pair.nxt,
                                      self.cfg.dt)
+        # advect velocity
+        # after advection, u^tilde = v_pair.nxt
+        for v_pair in self.grid.advect_v_pairs:
+            self.advection_solver.advect(self.grid.v_pair.cur, v_pair.cur, v_pair.nxt,
+                                         self.cfg.dt)
 
-
-
+        self.grid.calCurl(self.grid.v_pair.nxt, self.grid.curl_pair.nxt)
         pass

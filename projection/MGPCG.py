@@ -7,19 +7,19 @@ import math
 
 @ti.data_oriented
 class MGPCG:
-    '''
+    """
 Grid-based MGPCG solver for the possion equation.
 See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/examples/stable_fluid.py>`_ for a usage example.
 .. note::
     This solver only runs on CPU and CUDA backends since it requires the
     ``pointer`` SNode.
-    '''
+    """
     def __init__(self, dim=2, N=512, n_mg_levels=6, real=float):
-        '''
+        """
         :parameter dim: Dimensionality of the fields.
         :parameter N: Grid resolution.
         :parameter n_mg_levels: Number of multigrid levels.
-        '''
+        """
 
         # grid parameters
         self.use_multigrid = True
@@ -69,11 +69,11 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
 
     @ti.kernel
     def init(self, r: ti.template(), k: ti.template()):
-        '''
+        """
         Set up the solver for $\nabla^2 x = k r$, a scaled Poisson problem.
         :parameter k: (scalar) A scaling factor of the right-hand side.
         :parameter r: (ti.field) Unscaled right-hand side.
-        '''
+        """
         for I in ti.grouped(ti.ndrange(*[self.N] * self.dim)):
             self.init_r(I, r[I] * k)
 
@@ -84,10 +84,10 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
 
     @ti.kernel
     def get_result(self, x: ti.template()):
-        '''
+        """
         Get the solution field.
         :parameter x: (ti.field) The field to store the solution
-        '''
+        """
         for I in ti.grouped(ti.ndrange(*[self.N] * self.dim)):
             x[I] = self.get_x(I)
 
@@ -172,13 +172,13 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
               abs_tol=1e-12,
               rel_tol=1e-12,
               verbose=False):
-        '''
+        """
         Solve a Poisson problem.
         :parameter max_iters: Specify the maximal iterations. -1 for no limit.
         :parameter eps: Specify a non-zero value to prevent ZeroDivisionError.
         :parameter abs_tol: Specify the absolute tolerance of loss.
         :parameter rel_tol: Specify the tolerance of loss relative to initial loss.
-        '''
+        """
 
         self.reduce(self.r[0], self.r[0])
         initial_rTr = self.sum[None]

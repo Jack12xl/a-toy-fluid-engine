@@ -9,6 +9,9 @@ Int = ti.i32
 Vector = ti.template()
 Matrix = ti.template()
 
+# wrapper, for example, defined in Grid/cellgrid,
+Wrapper = ti.template()
+
 Index = Vector
 
 # ScalarGrid = Grid

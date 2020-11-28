@@ -32,6 +32,7 @@ class renderer2D(renderer):
         for I in ti.static(vf):
             v = ts.vec(vf[I].x, vf[I].y, 0.0)
             # self.clr_bffr[I] = ti.Vector([abs(v[0]), abs(v[1]), 0.0])
+            # TODO adaptively adapt the coefficient
             self.clr_bffr[I] = v + ts.vec3(0.5)
 
     @ti.kernel
