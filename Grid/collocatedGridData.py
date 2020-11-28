@@ -41,18 +41,18 @@ class collocatedGridData(FluidGridData):
     def calDivergence(self, vf: ti.template(), vd: ti.template()):
         for I in ti.static(vf):
             ret = 0.0
-            vc = vf.sample(I)
+            # vc = vf.sample(I)
             for d in ti.static(range(self.cfg.dim)):
                 D = ti.Vector.unit(self.cfg.dim, d)
                 v0 = vf.sample(I + D)[d]
                 v1 = vf.sample(I - D)[d]
                 # TODO boundary condition
                 if I[d] == 0:
-                    v1 = -vc[d]
-                    # v1 = 0.0
+                    # v1 = -vc[d]
+                    v1 = 0.0
                 if I[d] == vf.shape[d] - 1:
-                    v0 = -vc[d]
-                    # v0 = 0.0
+                    # v0 = -vc[d]
+                    v0 = 0.0
                 ret += v0 - v1
 
             vd[I] = ret * self.inv_d

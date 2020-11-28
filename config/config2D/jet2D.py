@@ -31,7 +31,7 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
 
@@ -132,7 +132,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 
 save_frame_length = 360
 save_root = './tmp_result'
