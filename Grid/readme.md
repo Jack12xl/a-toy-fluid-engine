@@ -11,7 +11,7 @@ Currently, it features
 
 
 
-**Notice**: Here **v2** basically we change the boundary condition to match the mac grid results.  
+**Notice**: Here **v2** means that we change the boundary condition to match the mac grid results.  The detailed info could be seen issue [@8](https://github.com/Jack12xl/a-toy-fluid-engine/issues/8).
 
 
 
