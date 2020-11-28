@@ -11,7 +11,9 @@ Currently, it features
 
 
 
-**Notice**: We believe either the uniform or mac Grid has potential bugs
+**Notice**: Here **v2** basically we change the boundary condition to match the mac grid results.  
+
+
 
 ##### Here shows a concrete example to show their performance during simulation. 
 
@@ -19,15 +21,25 @@ Currently, it features
 
 - dx = 1.0 / 512
 
+| Uniform Grid                                                 | Uniform Grid **v2**                                          | Mac Grid                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](../results/Grid/2D-512x512-UniformGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/2D-512x512-UniformGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03-version2.gif) | ![](../results/Grid/2D-512x512-MacGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03.gif) |
+
+From my observation, the 2D jet results would look more similar if they are shot from non-boundary position. 
+
 | Uniform Grid                                                 | Mac Grid                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](../results/Grid/2D-512x512-UniformGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/2D-512x512-MacGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03.gif) |
+| ![](../results/Grid/2D-512x512-UniformGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03-non-boundary.gif) | ![](../results/Grid/2D-512x512-MacGrid-Density-AR-MCS-RBGSPS-128it-RK3-curl0.0-dt-0.03-non-boundary.gif) |
 
-3D-512x512x256-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03
 
-| Uniform Grid                                                 | Mac Grid                                                     |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/3D-512x512x256-MacGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) |
+
+
+
+- 3D-512x512x256-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03
+
+| Uniform Grid                                                 | Uniform Grid v2                                              | Mac Grid                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03-version2.gif) | ![](../results/Grid/3D-512x512x256-MacGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) |
 
 
 
