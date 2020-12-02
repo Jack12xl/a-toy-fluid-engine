@@ -4,6 +4,7 @@ import numpy as np
 
 
 # ref IVOCK 2014, Dr Zhang Xinxin .etal
+# need help on stretch and stream function(velocity from vorticity)
 
 @ti.data_oriented
 class IVOCK_EulerScheme(EulerScheme):
