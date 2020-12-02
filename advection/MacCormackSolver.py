@@ -10,12 +10,7 @@ from utils import Vector, Matrix
 class MacCormackSolver(AdvectionSolver):
 
     def __init__(self, cfg, grid, bdrySdf, pixel_marker):
-        super().__init__(cfg)
-        self.RK = cfg.semi_order
-        self.grid = grid
-        self.pixel_marker = pixel_marker
-
-        self.subsolver = SemiLagrangeSolver(cfg, grid, bdrySdf, pixel_marker)
+        super().__init__(cfg, grid, bdrySdf, pixel_marker)
 
     @ti.func
     def advect_func(self,
@@ -27,14 +22,10 @@ class MacCormackSolver(AdvectionSolver):
         for I in ti.static(q_cur):
             # pos = I + 0.5
             pos = q_cur.getW(I)
-            p_mid = self.subsolver.backtrace(vec_field, pos,
-                                             # boundarySdf,
-                                             dt)
+            p_mid = self.backtrace(vec_field, pos, dt)
             q_mid = q_cur.interpolate(p_mid)
 
-            p_fin = self.subsolver.backtrace(vec_field, p_mid,
-                                             # boundarySdf,
-                                             -dt)
+            p_fin = self.backtrace(vec_field, p_mid, -dt)
             q_fin = q_cur.interpolate(p_fin)
 
             q_nxt[I] = q_mid + 0.5 * (q_fin - q_cur[I])
@@ -48,7 +39,6 @@ class MacCormackSolver(AdvectionSolver):
                     if not cond[k]:
                         q_nxt[I][k] = q_mid[k]
                 # q_nxt[I] = q_mid
-
 
     @ti.kernel
     def advect(self,

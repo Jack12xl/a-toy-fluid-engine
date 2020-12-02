@@ -1,2 +1,3 @@
-from .SemiLagrangianSolver import SemiLagrangeSolver, SemiLagrangeOrder
+from .SemiLagrangianSolver import SemiLagrangeSolver
 from .MacCormackSolver import MacCormackSolver
+from .AbstractAdvectionSolver import RK_Order

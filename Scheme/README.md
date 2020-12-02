@@ -13,3 +13,13 @@ Both running in RK=3, MacCormack + Gauss-Sedial.
 #### Performance Comparison
 
 Advection projection surely runs faster but hard to preserve detail.
+
+
+
+##### IVOCK (2014)
+
+Pause the implementation. Find the stream function way too difficult.
+
+##### BiMocq (2019)
+
+In progress.

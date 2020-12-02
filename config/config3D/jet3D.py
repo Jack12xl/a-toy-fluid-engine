@@ -36,7 +36,7 @@ GasMaxT = 85.0
 run_scheme = SchemeType.Advection_Projection
 Colliders = []
 
-from advection import MacCormackSolver, SemiLagrangeOrder, SemiLagrangeSolver
+from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
 advection_solver = SemiLagrangeSolver
 
@@ -45,7 +45,7 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 projection_solver = JacobiProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 1.0
-semi_order = SemiLagrangeOrder.RK_3
+semi_order = RK_Order.RK_3
 
 # vorticity enhancement
 curl_strength = 0.0

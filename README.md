@@ -21,9 +21,9 @@ python exp_play.py --cfg jet3d   # 3D jet
 
 Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by slice.
 
-- Euler-based Scheme
+- [Euler-based Scheme](./Scheme/)
   - Advection-Projection
-  - Advection-Reflection
+  - Advection-Reflection(MC + R)
 - [Grid](./Grid)
   - Uniform
   - Mac( staggered )
