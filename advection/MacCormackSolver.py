@@ -1,9 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from enum import Enum
 from .AbstractAdvectionSolver import AdvectionSolver
-from .SemiLagrangianSolver import SemiLagrangeSolver
-from utils import Vector, Matrix
 
 
 @ti.data_oriented

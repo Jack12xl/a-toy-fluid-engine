@@ -30,7 +30,7 @@ class MacGridData(FluidGridData):
                               dx=ts.vecND(self.dim, self.cfg.dx),
                               o=ts.vecND(self.dim, 0.5)
                               )
-        # buffer for advection-reflection
+        # 3rd buffer for v
         self.tmp_v = FaceGrid(ti.f32,
                               shape=cfg.res,
                               dim=cfg.dim,

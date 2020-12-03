@@ -21,7 +21,7 @@ class IVOCKGridData(MacGridData):
     """
 
     def __init__(self, cfg):
-        super(MacGridData, self).__init__(cfg)
+        super(IVOCKGridData, self).__init__(cfg)
 
         self.new_v_curl = None
         if self.dim == 2:
