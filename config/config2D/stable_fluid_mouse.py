@@ -25,9 +25,9 @@ run_scheme = SchemeType.Advection_Projection
 # run_scheme = SchemeType.Advection_Reflection
 SimType = SimulateType.Liquid
 
-from advection import SemiLagrangeOrder, MacCormackSolver, SemiLagrangeSolver
+from advection import RK_Order, MacCormackSolver, SemiLagrangeSolver
 advection_solver = MacCormackSolver
-semi_order = SemiLagrangeOrder.RK_3
+semi_order = RK_Order.RK_3
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = JacobiProjectionSolver
