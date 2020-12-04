@@ -13,9 +13,7 @@ class Bimocq_Scheme(EulerScheme):
         pass
 
     def advect(self, dt):
-        for v_pair in self.grid.advect_v_pairs:
-            self.advection_solver.advect(self.grid.v_pair.cur, v_pair.cur, v_pair.nxt,
-                                         dt)
+        self.advect_velocity(dt)
 
         self.advection_solver.advect(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.density_pair.nxt, dt)
 
