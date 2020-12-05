@@ -39,7 +39,7 @@ From my observation, the 2D jet results would look more similar if they are shot
 
 | Uniform Grid                                                 | Uniform Grid v2                                              | Mac Grid                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03-version2.gif) | ![](../results/Grid/3D-512x512x256-MacGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) |
+| ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03.gif) | ![](../results/Grid/3D-512x512x256-UniformGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03-version2.gif) | ![](../results/Grid/3D-512x512x256-MacGrid-Density-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03-right.gif) |
 
 
 

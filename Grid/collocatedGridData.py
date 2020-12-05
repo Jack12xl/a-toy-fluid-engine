@@ -20,12 +20,12 @@ class collocatedGridData(FluidGridData):
         self.inv_d = 1.0 / (2 * self.cfg.dx)
 
         self.v = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                          dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
+                          dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5))
         self.new_v = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                              dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
+                              dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5))
         # another buffer for advection-reflection
         self.tmp_v = CellGrid(ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                              dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0))
+                              dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5))
 
         self.v_pair = bufferPair(self.v, self.new_v)
         self.p_pair = bufferPair(self.p, self.new_p)

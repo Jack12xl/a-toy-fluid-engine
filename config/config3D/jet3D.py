@@ -91,7 +91,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 
 save_frame_length = 360
 save_root = './tmp_result'
