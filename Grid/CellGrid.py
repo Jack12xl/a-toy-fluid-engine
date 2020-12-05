@@ -88,6 +88,16 @@ class CellGrid(Grid):
         g = self.getG(P)
         return self._sampler.sample_minmax(self.field, g)
 
+    # @ti.pyfunc
+    # def clampPos(self, P):
+    #     """
+    #     clamp world pos and output clamped space
+    #     mainly used in Bimocq
+    #     :param P: world pos
+    #     :return:
+    #     """
+    #     return ts.clamp(P, 0.0, ti.Vector(self.shape) * self.dx)
+
     @ti.pyfunc
     def fill(self, value):
         self.field.fill(value)

@@ -14,7 +14,28 @@ class Bimocq_Scheme(EulerScheme):
         super().__init__(cfg)
 
         self.blend_coefficient = 0.5
-        pass
+
+        self.doubleAdvect_kernel = None
+        self.w_self = None
+        self.w_nghbr = None
+        self.dA_d = 0.25  # neighbour of double Advect
+        if self.dim == 2:
+            self.w_self = 0.5
+            self.w_nghbr = (1.0 - self.w_self) / 4.0
+            self.doubleAdvect_kernel = self.doubleAdvectKern2D
+        elif self.dim == 3:
+            self.w_self = 0.0
+            self.w_nghbr = (1.0 - self.w_self) / 8.0
+
+    @ti.pyfunc
+    def clampPos(self, pos):
+        """
+
+        :param pos: world pos
+        :return:
+        """
+        return ts.clamp(pos, 0.0, ti.Vector(self.cfg.res))
+
 
     def advect(self, dt):
         self.updateForward(self.grid.forward_map)
@@ -28,19 +49,51 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
         self.grid.p_pair.nxt.fill(ts.vecND(self.dim, 0.0))
         self.grid.density_pair.nxt.fill(ts.vecND(self.dim, 0.0))
+        self.IntegrateMultiLevel(dt)
+
+    def IntegrateMultiLevel(self, dt):
+        pass
 
     def advectBimocq_velocity(self, vf: Wrapper):
         pass
 
     @ti.kernel
-    def advect_twice_kern(self, f: Wrapper):
+    def doubleAdvectKern2D(self, f: Wrapper, f_n: Wrapper):
         """
         advect twice
-        :param f:
+        :param f: the wrapper of input field(T, rho, velocity)
+        :param f_n: buffer
         :return:
         """
+        dir = [1.0, -1.0]
 
-        pass
+        BM = ti.static(self.grid.backward_map)
+        p_BM = ti.static(self.grid.backward_map_bffr)
+        for I in ti.static(f):
+            if I[0] == 0 or I[1] == 0 or I[0] == f.shape[0] - 1 or I[1] == f.shape[1] - 1:
+                # on the boundary
+                f_n[I] = f[I]
+            else:
+                for i in ti.static(dir):
+                    for j in ti.static(dir):
+                        pos = f.getW(I + ts.vec2(i, j) * self.dA_d)
+                        # TODO maybe need clamp here
+                        pos1 = BM.interpolate(pos)
+                        pos1 = self.clampPos(pos1)
+
+                        pos2 = p_BM.interpolate(pos1)
+                        pos2 = self.clampPos(pos2)
+
+                        f_n[I] += (1.0 - self.blend_coefficient) * self.w_self
+
+    @ti.kernel
+    def doubleAdvectKern3D(self, f: Wrapper):
+        """
+        advect twice
+        :param f: the wrapper of input field(T, rho, velocity)
+        :return:
+        """
+        dir = [1.0, -1.0]
 
     @ti.func
     def advectDMC(self, M, dt):
@@ -111,7 +164,7 @@ class Bimocq_Scheme(EulerScheme):
         for I in ti.static(M):
             pos = M[I]
             # TODO maybe need clamp here
-            M[I] = self.advection_solver.backtrace(vf, pos, -dt)
+            M[I] = self.clampPos(self.advection_solver.backtrace(vf, pos, -dt))
 
     def schemeStep(self, ext_input: np.array):
         self.advect(self.cfg.dt)

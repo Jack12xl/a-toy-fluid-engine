@@ -75,3 +75,12 @@ class FaceGrid(Grid):
     @ti.pyfunc
     def sample_minmax(self, W):
         raise NotImplementedError
+
+    # @ti.pyfunc
+    # def clampPos(self, P):
+    #     """
+    #     should always called in Cell Grid
+    #     :param P: world pos
+    #     :return:
+    #     """
+    #     raise NotImplementedError

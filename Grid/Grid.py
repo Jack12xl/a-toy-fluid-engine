@@ -98,3 +98,14 @@ class Grid(metaclass=ABCMeta):
         :return:
         """
         pass
+
+    # @abstractmethod
+    # def clampPos(self, P):
+    #     """
+    #     clamp world pos and output clamped space
+    #     mainly used in Bimocq
+    #     :param P: world pos
+    #     :return:
+    #     """
+    #     pass
+
