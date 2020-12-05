@@ -27,7 +27,14 @@ class BimMocqGridData(MacGridData):
             )
                 for _ in range(4)]
 
-        self.dv, self.dv_tmp =
+        self.dv, self.dv_tmp = \
+            [FaceGrid(ti.f32,
+                      shape=cfg.res,
+                      dim=cfg.dim,
+                      dx=ts.vecND(self.dim, self.cfg.dx),
+                      o=ts.vecND(self.dim, 0.5)
+                      )
+                for _ in range(2)]
 
 
 

@@ -84,7 +84,7 @@ class Bimocq_Scheme(EulerScheme):
                         pos2 = p_BM.interpolate(pos1)
                         pos2 = self.clampPos(pos2)
 
-                        f_n[I] += (1.0 - self.blend_coefficient) * self.w_self
+                        f_n[I] += (1.0 - self.blend_coefficient) * self.w_self * (self.v_origin.sample)
 
     @ti.kernel
     def doubleAdvectKern3D(self, f: Wrapper):

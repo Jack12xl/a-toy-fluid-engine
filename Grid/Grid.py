@@ -99,6 +99,15 @@ class Grid(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def copy(self, src):
+        """
+        copy src data to myself
+        :param src:
+        :return:
+        """
+        pass
+
     # @abstractmethod
     # def clampPos(self, P):
     #     """
