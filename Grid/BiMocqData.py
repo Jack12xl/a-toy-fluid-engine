@@ -11,15 +11,14 @@ class BimMocqGridData(MacGridData):
     def __init__(self, cfg):
         super(BimMocqGridData, self).__init__(cfg)
 
-        # 3.3 forward map
-
         self.forward_map, self.backward_map, self.backward_map_bffr, \
-        self.forward_scalar_map, self.backward_scalar_map, self.backward_scalar_map_bffr = \
+        self.forward_scalar_map, self.backward_scalar_map, self.backward_scalar_map_bffr, \
+        self.tmp_map = \
             [CellGrid(
                 ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
                 dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0)
             )
-                for _ in range(6)]
+                for _ in range(7)]
 
     def materialize(self):
         super(BimMocqGridData, self).materialize()

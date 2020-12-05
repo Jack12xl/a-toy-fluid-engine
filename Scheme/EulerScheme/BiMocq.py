@@ -6,6 +6,7 @@ from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 from utils import Vector, Matrix
 
 # ref Bimocq 2019, By qi ziyin
+err = 0.0001
 
 class Bimocq_Scheme(EulerScheme):
     def __init__(self, cfg):
@@ -29,12 +30,46 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.swap_v()
         self.grid.density_pair.swap()
 
-    def advectDMC(self, dt):
+    @ti.func
+    def advectDMC(self, M, dt):
+        M_tmp = ti.static(self.grid.tmp_map)
+        for I in ti.static(M):
+            pos = M.getW(I)
+            back_pos = self.solveODE_DMC(pos, dt)
+            M_tmp[I] = M.interpolate(back_pos)
+
+    @ti.func
+    def solveODE_DMC(self, pos, dt):
+        a = self.calculateA(pos)
+        # trace DMC
+        # TODO DMC requires CFL < 1.0
+
         pass
 
-    def updateBackward(self, dt):
+    @ti.func
+    def calculateA(self, pos):
+        """
+        Based on (10), (11) in paper
+        :param pos: world pos
+        :return:
+        """
+        vf = ti.static(self.grid.v_pair.cur)
+        vel = vf[vf.getG(pos)]
+
+        new_pos = pos + vf.dx * ts.sign(vel)
+        new_vel = vf[vf.getG(new_pos)]
+
+        return (new_vel - vel) / (new_pos - pos + err)
+
+
+    @ti.kernel
+    def updateBackward(self, M: Matrix, dt: ti.f32):
+        # DMC
+        self.advectDMC(M, dt)
+        # self.advection_solver.advect(vf, M, tmp_M, dt)
         pass
 
+    @ti.kernel
     def updateForward(self, M: Matrix, dt: ti.f32):
         """
 
@@ -45,7 +80,7 @@ class Bimocq_Scheme(EulerScheme):
         vf = ti.static(self.grid.v_pair.cur)
         for I in ti.static(M):
             pos = M[I]
-            M[I] = self.advection_solver.backtrace(vf, pos, dt)
+            M[I] = self.advection_solver.backtrace(vf, pos, -dt)
 
     def schemeStep(self, ext_input: np.array):
         self.advect(self.cfg.dt)
