@@ -108,6 +108,16 @@ class Grid(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def subself(self, src):
+        """
+        self = src - self
+        helper for Bimocq
+        :param src:
+        :return:
+        """
+        pass
+
     # @abstractmethod
     # def clampPos(self, P):
     #     """

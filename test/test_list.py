@@ -15,8 +15,9 @@ def test_list():
 @ti.kernel
 def test_list2():
     a = [[1, 2], [2, 4], [3, 6]]
-    for i in ti.static(a):
-        print(i)
+    b = [5, 6, 7]
+    for i, j in ti.static(zip(a, b)):
+        print(ti.Vector(i), j)
 
 
 if __name__ == "__main__":

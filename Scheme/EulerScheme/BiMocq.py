@@ -17,15 +17,21 @@ class Bimocq_Scheme(EulerScheme):
 
         self.doubleAdvect_kernel = None
         self.w_self = None
-        self.w_nghbr = None
+        # weight S
+        self.ws = None
+        # direction S
+        self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
             # self.w_self = 0.5
             # self.w_nghbr = (1.0 - self.w_self) / 4.0
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
+            self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
+            self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
         elif self.dim == 3:
-            self.w_self = 0.0
-            self.w_nghbr = (1.0 - self.w_self) / 8.0
+            # self.w_self = 0.0
+            # self.ws = (1.0 - self.w_self) / 8.0
+            self.doubleAdvect_kernel = self.doubleAdvectKern2D
 
     @ti.pyfunc
     def clampPos(self, pos):
@@ -35,7 +41,6 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         return ts.clamp(pos, 0.0, ti.Vector(self.cfg.res))
-
 
     def advect(self, dt):
         self.updateForward(self.grid.forward_map)
@@ -49,13 +54,41 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
         self.grid.p_pair.nxt.fill(ts.vecND(self.dim, 0.0))
         self.grid.density_pair.nxt.fill(ts.vecND(self.dim, 0.0))
+        #
         self.IntegrateMultiLevel(dt)
 
     def IntegrateMultiLevel(self, dt):
-        pass
+        # TODO need correct
+        self.advectBimocq_velocity(self.grid.advect_v_pairs)
+        self.doubleAdvect_kernel(self.grid.t_pair.cur,
+                                 self.grid.t_pair.nxt,
+                                 self.grid.T_origin,
+                                 self.grid.T_init,
+                                 self.grid.d_T,
+                                 self.grid.d_T_prev,
+                                 self.grid.backward_scalar_map,
+                                 self.grid.backward_scalar_map_bffr
+                                 )
+        self.doubleAdvect_kernel(self.grid.density_pair.cur,
+                                 self.grid.density_pair.nxt,
+                                 self.grid.rho_origin,
+                                 self.grid.rho_init,
+                                 self.grid.d_rho,
+                                 self.grid.d_rho_prev,
+                                 self.grid.backward_scalar_map,
+                                 self.grid.backward_scalar_map_bffr
+                                 )
 
-    def advectBimocq_velocity(self, vf: Wrapper):
-        pass
+    def advectBimocq_velocity(self, v_pairs: list):
+        for v_pair in v_pairs:
+            self.doubleAdvect_kernel(v_pair.cur,
+                                     v_pair.nxt,
+                                     self.grid.v_origin,
+                                     self.grid.v_init,
+                                     self.grid.d_v,
+                                     self.grid.d_v_prev,
+                                     self.grid.backward_map,
+                                     self.grid.backward_map_bffr)
 
     @ti.kernel
     def doubleAdvectKern2D(self,
@@ -64,10 +97,14 @@ class Bimocq_Scheme(EulerScheme):
                            f_orig: Wrapper,
                            f_init: Wrapper,
                            d_f: Wrapper,
-                           d_f_prev: Wrapper
+                           d_f_prev: Wrapper,
+                           BM: Wrapper,
+                           p_BM: Wrapper
                            ):
         """
         advect twice
+        :param p_BM: previous backward mapper
+        :param BM:
         :param d_f_prev:
         :param d_f:
         :param f_init:
@@ -76,34 +113,33 @@ class Bimocq_Scheme(EulerScheme):
         :param f_n: the next buffer, where the advected results store
         :return:
         """
-        dir = [1.0, -1.0]
+        drct = [1.0, -1.0]
 
-        BM = ti.static(self.grid.backward_map)
-        p_BM = ti.static(self.grid.backward_map_bffr)
+        # BM = ti.static(self.grid.backward_map)
+        # p_BM = ti.static(self.grid.backward_map_bffr)
         for I in ti.static(f):
             if I[0] == 0 or I[1] == 0 or I[0] == f.shape[0] - 1 or I[1] == f.shape[1] - 1:
                 # on the boundary
                 f_n[I] = f[I]
             else:
-                for i in ti.static(dir):
-                    for j in ti.static(dir):
-                        pos = f.getW(I + ts.vec2(i, j) * self.dA_d)
+                for drct, w in ti.static(zip(self.dirs, self.ws)):
+                    pos = f.getW(I + ti.Vector(drct))
 
-                        pos1 = BM.interpolate(pos)
-                        pos1 = self.clampPos(pos1)
+                    pos1 = BM.interpolate(pos)
+                    pos1 = self.clampPos(pos1)
 
-                        pos2 = p_BM.interpolate(pos1)
-                        pos2 = self.clampPos(pos2)
+                    pos2 = p_BM.interpolate(pos1)
+                    pos2 = self.clampPos(pos2)
 
-                        f_n[I] += (1.0 - self.blend_coefficient) * self.w_self * (
+                    f_n[I] += (1.0 - self.blend_coefficient) * w * (
                             f_orig.interpolate(pos2) +
                             d_f.interpolate(pos1) +
                             d_f_prev.interpolate(pos2)
-                        )
-                        f_n[I] += self.blend_coefficient * self.w_self * (
-                                f_init.interpolate(pos1) +
-                                d_f.interpolate(pos1)
-                        )
+                    )
+                    f_n[I] += self.blend_coefficient * w * (
+                            f_init.interpolate(pos1) +
+                            d_f.interpolate(pos1)
+                    )
 
     @ti.kernel
     def doubleAdvectKern3D(self, f: Wrapper):
@@ -185,9 +221,27 @@ class Bimocq_Scheme(EulerScheme):
             # TODO maybe need clamp here
             M[I] = self.clampPos(self.advection_solver.backtrace(vf, pos, -dt))
 
+    def decorator_track_delta(self, delta:list, track_what:list):
+        """
+        track the track_what and store its change in delta
+        :param delta:
+        :param track_what:
+        :return:
+        """
+        def Inner(traced_func):
+            def wrapper(*args, **kwargs):
+                delta.copy(track_what)
+                traced_func(*args, **kwargs)
+
+            return wrapper
+        return Inner
+
     def schemeStep(self, ext_input: np.array):
         self.advect(self.cfg.dt)
-        self.externalForce(ext_input, self.cfg.dt)
+        self.decorator_track_delta(
+            delta=self.grid.d_v_tmp,
+            track_what=self.grid.v_pair.cur
+        )(self.externalForce)(ext_input, self.cfg.dt)
 
         self.project()
         self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)

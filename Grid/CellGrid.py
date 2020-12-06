@@ -1,6 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from .Grid import Grid, GRIDTYPE
+from utils import Wrapper
 
 
 @ti.data_oriented
@@ -88,8 +89,8 @@ class CellGrid(Grid):
         g = self.getG(P)
         return self._sampler.sample_minmax(self.field, g)
 
-    @ti.func
-    def copy(self, src):
+    @ti.kernel
+    def copy(self, src: Wrapper):
         """
 
         :param src:
@@ -98,6 +99,18 @@ class CellGrid(Grid):
         assert(self.shape == src.shape)
         for I in ti.static(src):
             self.field[I] = src[I]
+
+    @ti.kernel
+    def subself(self, src: Wrapper):
+        """
+
+        :param src:
+        :return:
+        """
+        assert (self.shape == src.shape)
+        for I in ti.static(src):
+            self.field[I] = src[I] - self.field[I]
+
 
     @ti.pyfunc
     def clampPos(self, P):

@@ -3,7 +3,7 @@ import taichi_glsl as ts
 from .Sampler import LinearSampler2D, LinearSampler3D
 from .Grid import Grid, GRIDTYPE
 from .CellGrid import CellGrid
-
+from utils import Wrapper
 
 @ti.data_oriented
 class FaceGrid(Grid):
@@ -76,8 +76,8 @@ class FaceGrid(Grid):
     def sample_minmax(self, W):
         raise NotImplementedError
 
-    @ti.func
-    def copy(self, src):
+    @ti.kernel
+    def copy(self, src: Wrapper):
         """
         should
         :param src:
@@ -87,6 +87,18 @@ class FaceGrid(Grid):
         for d in ti.static(self.dim):
             for I in ti.static(self.fields[d]):
                 self.fields[d][I] = src.fields[d][I]
+
+    @ti.kernel
+    def subself(self, src: Wrapper):
+        """
+
+        :param src:
+        :return:
+        """
+        assert (self.shape == src.shape)
+        for d in ti.static(self.dim):
+            for I in ti.static(self.fields[d]):
+                self.fields[d][I] = src.fields[d][I] - self.fields[d][I]
 
     @ti.pyfunc
     def clampPos(self, P):
