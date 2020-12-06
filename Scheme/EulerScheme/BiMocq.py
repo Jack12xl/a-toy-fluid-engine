@@ -20,8 +20,8 @@ class Bimocq_Scheme(EulerScheme):
         self.w_nghbr = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            self.w_self = 0.5
-            self.w_nghbr = (1.0 - self.w_self) / 4.0
+            # self.w_self = 0.5
+            # self.w_nghbr = (1.0 - self.w_self) / 4.0
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
         elif self.dim == 3:
             self.w_self = 0.0
@@ -58,11 +58,22 @@ class Bimocq_Scheme(EulerScheme):
         pass
 
     @ti.kernel
-    def doubleAdvectKern2D(self, f: Wrapper, f_n: Wrapper):
+    def doubleAdvectKern2D(self,
+                           f: Wrapper,
+                           f_n: Wrapper,
+                           f_orig: Wrapper,
+                           f_init: Wrapper,
+                           d_f: Wrapper,
+                           d_f_prev: Wrapper
+                           ):
         """
         advect twice
+        :param d_f_prev:
+        :param d_f:
+        :param f_init:
+        :param f_orig:
         :param f: the wrapper of input field(T, rho, velocity)
-        :param f_n: buffer
+        :param f_n: the next buffer, where the advected results store
         :return:
         """
         dir = [1.0, -1.0]
@@ -77,14 +88,22 @@ class Bimocq_Scheme(EulerScheme):
                 for i in ti.static(dir):
                     for j in ti.static(dir):
                         pos = f.getW(I + ts.vec2(i, j) * self.dA_d)
-                        # TODO maybe need clamp here
+
                         pos1 = BM.interpolate(pos)
                         pos1 = self.clampPos(pos1)
 
                         pos2 = p_BM.interpolate(pos1)
                         pos2 = self.clampPos(pos2)
 
-                        f_n[I] += (1.0 - self.blend_coefficient) * self.w_self * (self.v_origin.sample)
+                        f_n[I] += (1.0 - self.blend_coefficient) * self.w_self * (
+                            f_orig.interpolate(pos2) +
+                            d_f.interpolate(pos1) +
+                            d_f_prev.interpolate(pos2)
+                        )
+                        f_n[I] += self.blend_coefficient * self.w_self * (
+                                f_init.interpolate(pos1) +
+                                d_f.interpolate(pos1)
+                        )
 
     @ti.kernel
     def doubleAdvectKern3D(self, f: Wrapper):

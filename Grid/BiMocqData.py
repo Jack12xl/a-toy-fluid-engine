@@ -20,23 +20,30 @@ class BimMocqGridData(MacGridData):
             )
                 for _ in range(7)]
 
-        self.d_T, self.d_T_tmp, self.drho, self.drho_tmp = \
+        # Temperature
+        self.d_T, self.d_T_tmp, self.d_T_prev, self.T_init, self.T_origin = \
             [CellGrid(
                 ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
                 dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0)
             )
-                for _ in range(4)]
+                for _ in range(5)]
 
-        self.dv, self.dv_tmp = \
+        # Density
+        self.d_rho, self.d_rho_tmp, self.d_rho_prev, self.rho_init, self.rho_origin = \
+            [CellGrid(
+                ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
+                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0)
+            )
+                for _ in range(5)]
+
+        self.d_v, self.d_v_tmp, self.d_v_proj, self.v_init, self.v_origin = \
             [FaceGrid(ti.f32,
                       shape=cfg.res,
                       dim=cfg.dim,
                       dx=ts.vecND(self.dim, self.cfg.dx),
                       o=ts.vecND(self.dim, 0.5)
                       )
-                for _ in range(2)]
-
-
+             for _ in range(5)]
 
     def materialize(self):
         super(BimMocqGridData, self).materialize()

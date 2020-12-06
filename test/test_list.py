@@ -12,6 +12,12 @@ def test_list():
             for k in ti.static(a):
                 print(ts.vec(i, j, k))
 
+@ti.kernel
+def test_list2():
+    a = [[1, 2], [2, 4], [3, 6]]
+    for i in ti.static(a):
+        print(i)
+
 
 if __name__ == "__main__":
-    test_list()
+    test_list2()
