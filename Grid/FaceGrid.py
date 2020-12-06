@@ -76,11 +76,24 @@ class FaceGrid(Grid):
     def sample_minmax(self, W):
         raise NotImplementedError
 
-    # @ti.pyfunc
-    # def clampPos(self, P):
-    #     """
-    #     should always called in Cell Grid
-    #     :param P: world pos
-    #     :return:
-    #     """
-    #     raise NotImplementedError
+    @ti.func
+    def copy(self, src):
+        """
+        should
+        :param src:
+        :return:
+        """
+        assert (self.shape == src.shape)
+        for d in ti.static(self.dim):
+            for I in ti.static(self.fields[d]):
+                self.fields[d][I] = src.fields[d][I]
+
+    @ti.pyfunc
+    def clampPos(self, P):
+        """
+        should always called in Cell Grid
+        :param P: world pos
+        :return:
+        """
+        raise DeprecationWarning
+        raise NotImplementedError
