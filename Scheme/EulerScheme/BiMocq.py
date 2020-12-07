@@ -2,8 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 import numpy as np
 from .Euler_Scheme import EulerScheme
-from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
-from utils import Vector, Matrix, Wrapper
+from utils import Vector, Matrix, Wrapper, Float
 
 # ref Bimocq 2019, By qi ziyin
 err = 0.0001
@@ -78,6 +77,9 @@ class Bimocq_Scheme(EulerScheme):
                                  self.grid.backward_scalar_map,
                                  self.grid.backward_scalar_map_bffr
                                  )
+        self.grid.v_pair.swap()
+        self.grid.t_pair.swap()
+        self.grid.swap_v()
 
     def advectBimocq_velocity(self, v_pairs: list):
         for v_pair in v_pairs:
@@ -176,7 +178,7 @@ class Bimocq_Scheme(EulerScheme):
 
         back_trace_pos = self.advection_solver.backtrace(vf, pos, dt)
         for d in ti.static(self.dim):
-            if ti.abs(a[d]) > err:
+            if ti.abs(a[d]) > ti.static(err):
                 dmc_trace_pos[d] = pos[d] - (1.0 - ti.exp(-a[d] * dt)) * vel[d] / a[d]
             else:
                 dmc_trace_pos[d] = back_trace_pos[d]
@@ -221,27 +223,84 @@ class Bimocq_Scheme(EulerScheme):
             # TODO maybe need clamp here
             M[I] = self.clampPos(self.advection_solver.backtrace(vf, pos, -dt))
 
-    def decorator_track_delta(self, delta:list, track_what:list):
+    def decorator_track_delta(self, delta, track_what):
         """
         track the track_what and store its change in delta
         :param delta:
         :param track_what:
         :return:
         """
+        raise DeprecationWarning
+
         def Inner(traced_func):
             def wrapper(*args, **kwargs):
                 delta.copy(track_what)
                 traced_func(*args, **kwargs)
 
             return wrapper
+
         return Inner
+
+    @ti.kernel
+    def estimateDistortion(self, BM: Wrapper, FM: Wrapper) -> Float:
+        """
+        Based on paper {#3.4} eqa (20)
+        Get the largest Distortion
+        :param BM:
+        :param FM:
+        :return:
+        """
+        ret = 0.0
+        for I in ti.static(BM):
+            # TODO origin code handles boundary
+            p_init = BM.getW(I)
+            p_frwd = FM.sample[I]
+            p_bkwd = BM.interpolate(p_frwd)
+
+            d = ts.distance(p_init, p_bkwd)
+
+            p_bkwd = BM.sample[I]
+            p_frwd = FM.interpolate(p_bkwd)
+
+            d = ti.max(d, ts.distance(p_init, p_frwd))
+            # TODO Taichi has thread local memory,
+            # so this won't be too slow
+            ret = ti.max(d, ret)
+
+            if d > ret:
+                ret = d
+
+        return ret
+
+    @ti.kernel
+    def getMaxVel(self, v: Wrapper) -> Float:
+        """
+        Assyne v is FaceGrud
+        :param v:
+        :return:
+        """
+        ret = 0.0
+        for d in ti.static(range(self.dim)):
+            for I in ti.static(v.fields[d]):
+                pass
 
     def schemeStep(self, ext_input: np.array):
         self.advect(self.cfg.dt)
-        self.decorator_track_delta(
-            delta=self.grid.d_v_tmp,
-            track_what=self.grid.v_pair.cur
-        )(self.externalForce)(ext_input, self.cfg.dt)
+        # self.decorator_track_delta(
+        #     delta=self.grid.d_v_tmp,
+        #     track_what=self.grid.v_pair.cur
+        # )(self.externalForce)(ext_input, self.cfg.dt)
+        # trace the d_v
+        self.grid.d_v_tmp.copy(self.grid.v_pair.cur)
+        self.externalForce(ext_input, self.cfg.dt)
+        self.grid.d_v_tmp.subself(self.grid.v_pair.cur)
 
+        self.grid.d_v_proj.copy(self.grid.v_pair.cur)
         self.project()
+        d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
+        d_scalar = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
+
+
+        self.grid.d_v_proj.subself(self.grid.v_pair.cur)
+
         self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
