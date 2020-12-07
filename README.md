@@ -1,4 +1,7 @@
 # A toy fluid engine
+
+![](./results/teaser.gif)
+
 A repo that tries to reimplement Euler based fluid simulation, currently target on smoke simulation.
 
 The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embeds both GPU and CPU parralleled computing.
@@ -22,7 +25,7 @@ python exp_play.py --cfg jet3d   # 3D jet
 Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by slice.
 
 - [Euler-based Scheme](./Scheme/)
-  - Advection-Projection
+  - Advection-Projection(Stable fluid)
   - Advection-Reflection(MC + R)
 - [Grid](./Grid)
   - Uniform
@@ -36,12 +39,6 @@ Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by 
   - Multi-Grid Preconditioned Conjugate Gradient ( copied from [official](https://github.com/taichi-dev/taichi/blob/master/examples/mgpcg_advanced.py)...)
 
 
-
-#### [Stable fluid (Siggraph 1999) ](https://dl.acm.org/doi/pdf/10.1145/311535.311548)
-
-| Density                                                      | Velocity                                                     |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <a href="./exp_my_fluid.py"><img src="./results/stable_fluid_demo.gif" height="384px"> | <a href=",/exp_my_fluid.py"> <img src="./results/stable_fluid_velocity.gif" height="384px"> |
 
 
 #### Coupling with moving solids(Incomplete)
