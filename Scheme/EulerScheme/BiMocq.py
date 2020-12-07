@@ -54,7 +54,8 @@ class Bimocq_Scheme(EulerScheme):
         self.updateBackward(self.grid.backward_scalar_map)
         # advect velocity, temperature, density
         super(Bimocq_Scheme, self).advect(dt)
-
+        # actually store the velocity before advection
+        self.grid.v_presave.copy(self.grid.v_pair.nxt)
         # IntegrateMultiLevel {3.5}
         self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
         self.grid.p_pair.nxt.fill(ts.vecND(self.dim, 0.0))
@@ -369,7 +370,18 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.init_map(self.grid.foward_map)
         self.grid.init_map(self.grid.backward_map)
 
+    @ti.kernel
+    def blendVel(self,
+                 v1: Wrapper,
+                 v2: Wrapper):
+        for d in ti.static(self.dim):
+            for I in ti.static(self.v1.fields[d]):
+                v1[I] = 0.5 * (v1[I] + v2[I])
+
     def schemeStep(self, ext_input: np.array):
+        if self.curFrame != 0:
+            self.grid.v_pair.cur.copy(self.grid.v_tmp)
+
         self.advect(self.cfg.dt)
         # self.decorator_track_delta(
         #     delta=self.grid.d_v_tmp,
@@ -410,4 +422,9 @@ class Bimocq_Scheme(EulerScheme):
             self.reSampleVelBuffer()
             self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
 
+        self.grid.v_tmp.copy(self.grid.v_pair.cur)
+        if self.curFrame != 0:
+            self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
+
         self.curFrame += 1
+        print("Cur frame ", self.curFrame)

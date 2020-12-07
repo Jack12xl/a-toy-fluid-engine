@@ -36,14 +36,15 @@ class BimMocqGridData(MacGridData):
             )
                 for _ in range(5)]
 
-        self.d_v, self.d_v_prev, self.d_v_tmp, self.d_v_proj, self.v_init, self.v_origin = \
+        self.d_v, self.d_v_prev, self.d_v_tmp, self.d_v_proj, self.v_init, self.v_origin, \
+        self.v_presave, self.v_tmp = \
             [FaceGrid(ti.f32,
                       shape=cfg.res,
                       dim=cfg.dim,
                       dx=ts.vecND(self.dim, self.cfg.dx),
                       o=ts.vecND(self.dim, 0.5)
                       )
-             for _ in range(6)]
+             for _ in range(8)]
 
     def materialize(self):
         super(BimMocqGridData, self).materialize()
