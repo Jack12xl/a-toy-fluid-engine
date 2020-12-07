@@ -12,7 +12,7 @@ class GRIDTYPE(IntEnum):
 
     def __init__(self, *args):
         super().__init__()
-        self.map = ['UniformGrid', 'MacGrid']
+        self.map = ['UniformGrid', 'MacGrid', 'MacGrid']
 
     def __str__(self):
         return self.map[self.value]

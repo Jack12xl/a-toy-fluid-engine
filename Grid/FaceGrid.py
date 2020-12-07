@@ -84,7 +84,7 @@ class FaceGrid(Grid):
         :return:
         """
         assert (self.shape == src.shape)
-        for d in ti.static(self.dim):
+        for d in ti.static(range(self.dim)):
             for I in ti.static(self.fields[d]):
                 self.fields[d][I] = src.fields[d][I]
 

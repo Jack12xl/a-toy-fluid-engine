@@ -1,2 +1,3 @@
 from .AdvectionProjection import AdvectionProjectionEulerScheme
 from .AdvectionReflection import AdvectionReflectionEulerScheme
+from .BiMocq import Bimocq_Scheme

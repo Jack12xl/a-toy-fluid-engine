@@ -1,7 +1,7 @@
 from config import VisualizeEnum, SimulateType
 import taichi as ti
 from config.class_cfg import SchemeType
-from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme
+from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme
 import argparse
 from config import EulerCFG
 import utils
@@ -21,6 +21,9 @@ def parse_args():
     elif args.cfg == "jet3d":
         import config.config3D.jet3D
         cfg = config.config3D.jet3D
+    elif args.cfg == "BMcq_jet2d":
+        import config.config2D.Bimocq2D_jet
+        cfg = config.config2D.Bimocq2D_jet
 
     return EulerCFG(cfg)
 
@@ -32,6 +35,8 @@ if __name__ == '__main__':
         s = AdvectionProjectionEulerScheme(m_cfg)
     elif m_cfg.run_scheme == SchemeType.Advection_Reflection:
         s = AdvectionReflectionEulerScheme(m_cfg)
+    elif m_cfg.run_scheme == SchemeType.Bimocq:
+        s = Bimocq_Scheme(m_cfg)
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
     md_gen = utils.MouseDataGen(m_cfg)

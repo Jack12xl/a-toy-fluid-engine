@@ -29,7 +29,7 @@ class GridEmitter(metaclass=ABCMeta):
 
         if self.V_GRID_TYPE == GRIDTYPE.CELL_GRID:
             self.stepEmitHardCode = self.stepEmitHardCodeCell
-        elif self.V_GRID_TYPE == GRIDTYPE.FACE_GRID:
+        elif self.V_GRID_TYPE == GRIDTYPE.FACE_GRID or self.V_GRID_TYPE == GRIDTYPE.Bimocq_GRID:
             self.stepEmitHardCode = self.stepEmitHardCodeFace
         else:
             raise NotImplementedError

@@ -48,18 +48,25 @@ class Bimocq_Scheme(EulerScheme):
         return ts.clamp(pos, 0.0, ti.Vector(self.cfg.res) * self.cfg.dx)
 
     def advect(self, dt):
-        self.updateForward(self.grid.forward_map)
-        self.updateForward(self.grid.forward_scalar_map)
-        self.updateBackward(self.grid.backward_map)
-        self.updateBackward(self.grid.backward_scalar_map)
+        self.updateForward(self.grid.forward_map, dt)
+        self.updateForward(self.grid.forward_scalar_map, dt)
+
+        self.updateBackward(self.grid.backward_map, dt)
+        # self.grid.backward_map.copy(self.grid.tmp_map)
+        self.grid.backward_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_map
+
+        self.updateBackward(self.grid.backward_scalar_map, dt)
+        # self.grid.backward_scalar_map.copy(self.grid.tmp_map)
+        self.grid.backward_scalar_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_scalar_map
+
         # advect velocity, temperature, density
         super(Bimocq_Scheme, self).advect(dt)
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
         # IntegrateMultiLevel {3.5}
         self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
-        self.grid.p_pair.nxt.fill(ts.vecND(self.dim, 0.0))
-        self.grid.density_pair.nxt.fill(ts.vecND(self.dim, 0.0))
+        self.grid.t_pair.nxt.fill(ts.vecND(1, 0.0))
+        self.grid.density_pair.nxt.fill(ts.vecND(3, 0.0))
         #
         self.IntegrateMultiLevel(dt)
 
@@ -180,7 +187,7 @@ class Bimocq_Scheme(EulerScheme):
         dmc_trace_pos = pos - dt * vel
 
         back_trace_pos = self.advection_solver.backtrace(vf, pos, dt)
-        for d in ti.static(self.dim):
+        for d in ti.static(range(self.dim)):
             if ti.abs(a[d]) > ti.static(err):
                 dmc_trace_pos[d] = pos[d] - (1.0 - ti.exp(-a[d] * dt)) * vel[d] / a[d]
             else:
@@ -210,7 +217,7 @@ class Bimocq_Scheme(EulerScheme):
         # DMC
         self.advectDMC(M, dt)
 
-        M, tmp_M = tmp_M, M
+        # M, tmp_M = tmp_M, M
 
     @ti.kernel
     def updateForward(self, M: Matrix, dt: ti.f32):
