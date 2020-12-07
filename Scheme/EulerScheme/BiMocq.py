@@ -14,6 +14,12 @@ class Bimocq_Scheme(EulerScheme):
 
         self.blend_coefficient = 0.5
 
+        self.curFrame = 0
+        self.LastVelRemeshFrame = 0
+        self.LastScalarRemeshFrame = 0
+
+        self.total_resampleCount = 0
+
         self.doubleAdvect_kernel = None
         self.w_self = None
         # weight S
@@ -39,7 +45,7 @@ class Bimocq_Scheme(EulerScheme):
         :param pos: world pos
         :return:
         """
-        return ts.clamp(pos, 0.0, ti.Vector(self.cfg.res))
+        return ts.clamp(pos, 0.0, ti.Vector(self.cfg.res) * self.cfg.dx)
 
     def advect(self, dt):
         self.updateForward(self.grid.forward_map)
@@ -115,10 +121,6 @@ class Bimocq_Scheme(EulerScheme):
         :param f_n: the next buffer, where the advected results store
         :return:
         """
-        drct = [1.0, -1.0]
-
-        # BM = ti.static(self.grid.backward_map)
-        # p_BM = ti.static(self.grid.backward_map_bffr)
         for I in ti.static(f):
             if I[0] == 0 or I[1] == 0 or I[0] == f.shape[0] - 1 or I[1] == f.shape[1] - 1:
                 # on the boundary
@@ -265,24 +267,107 @@ class Bimocq_Scheme(EulerScheme):
             d = ti.max(d, ts.distance(p_init, p_frwd))
             # TODO Taichi has thread local memory,
             # so this won't be too slow
-            ret = ti.max(d, ret)
-
-            if d > ret:
-                ret = d
+            ret = ti.atomic_max(d, ret)
+            # if d > ret:
+            #     ret = d
 
         return ret
 
     @ti.kernel
     def getMaxVel(self, v: Wrapper) -> Float:
         """
-        Assyne v is FaceGrud
+        Assume v is FaceGrid
         :param v:
         :return:
         """
         ret = 0.0
         for d in ti.static(range(self.dim)):
             for I in ti.static(v.fields[d]):
-                pass
+                ret = ti.atomic_max(v.fields[d][I][0], ret)
+
+        return ret
+
+    @ti.kernel
+    def AccumulateField(self,
+                        d_f: Wrapper,
+                        d_f_src: Wrapper,
+                        f1: Wrapper,
+                        f2: Wrapper,
+                        coeff: Float,
+                        FM: Wrapper,
+                        BM: Wrapper):
+        """
+        Based on Paper {# 3.3}
+        Need three buffer
+        !! should fill f1, f2 with zero ahead
+        :param d_f: keep track of the difference
+        :param FM: forward mapper
+        :param d_f_src: the source of the difference(from projection, external force)
+        :param f1: buffer 1
+        :param f2: buffer 2
+        :param coeff:
+        :return:
+        """
+        # TODO error correction
+        for I in ti.static(d_f_src):
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = d_f_src.getW(I + ti.Vector(drct))
+                samplePos = FM.interpolate(pos)
+                samplePos = self.clampPos(samplePos)
+                f1[I] += w * d_f_src.interpolate(samplePos)
+
+        for I in ti.static(d_f_src):
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = d_f_src.getW(I + ti.Vector(drct))
+                samplePos = BM.interpolate(pos)
+                samplePos = self.clampPos(samplePos)
+                f2[I] += w * f1.interpolate(samplePos)
+
+        for I in ti.static(f2):
+            f2[I] -= d_f_src[I]
+            f2[I] *= 0.5
+
+        for I in ti.static(d_f_src):
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = d_f_src.getW(I + ti.Vector(drct))
+                samplePos = BM.interpolate(pos)
+                samplePos = self.clampPos(samplePos)
+                d_f[I] += w * coeff * d_f_src.interpolate(samplePos)
+
+    def AccumulateVelocity(self, diff_src, coeff):
+        """
+
+        :param diff_src:
+        :param coeff:
+        :return:
+        """
+        for i, v_pair in enumerate(self.grid.advect_v_pairs):
+            """
+            Here use v_pair.nxt, tmp_v as buffer
+            """
+            v_pair.nxt.fill(ts.vecND(1, 0.0))
+            self.AccumulateField(
+                self.grid.d_v.fields[i],
+                diff_src.fields[i],
+                v_pair.nxt,
+                self.grid.tmp_v.fields[i],
+                coeff,
+                self.grid.forward_map,
+                self.grid.backward_map
+            )
+
+    def reSampleVelBuffer(self):
+        self.total_resampleCount += 1
+        self.grid.v_origin = self.grid.v_init
+        self.grid.v_init = self.grid.v
+        self.grid.d_v_prev = self.grid.d_v
+
+        self.grid.d_v.fill(ts.vecND(self.dim, 0.0))
+
+        self.grid.backward_map_bffr = self.grid.backward_map
+
+        self.grid.init_map(self.grid.foward_map)
+        self.grid.init_map(self.grid.backward_map)
 
     def schemeStep(self, ext_input: np.array):
         self.advect(self.cfg.dt)
@@ -290,17 +375,39 @@ class Bimocq_Scheme(EulerScheme):
         #     delta=self.grid.d_v_tmp,
         #     track_what=self.grid.v_pair.cur
         # )(self.externalForce)(ext_input, self.cfg.dt)
+
         # trace the d_v
         self.grid.d_v_tmp.copy(self.grid.v_pair.cur)
         self.externalForce(ext_input, self.cfg.dt)
         self.grid.d_v_tmp.subself(self.grid.v_pair.cur)
 
+        # track the delta v from projection
         self.grid.d_v_proj.copy(self.grid.v_pair.cur)
         self.project()
+        self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
+
         d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
         d_scalar = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
 
+        VelocityDistortion = d_vel / (max_vel * self.cfg.dt + err)
+        ScalarDistortion = d_scalar / (max_vel * self.cfg.dt + err)
 
+        print("Velocity remapping : {}".format(d_vel / VelocityDistortion))
+        print("Scalar remapping : {}".format(d_scalar / ScalarDistortion))
+
+        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
+        rho_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
+        # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)
+        #
+        proj_coeff = 1.0 if vel_remapping else 2.0
+        self.AccumulateVelocity(self.grid.d_v_tmp, 1.0)
+        self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
 
-        self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
+        if vel_remapping:
+            self.LastVelRemeshFrame = self.curFrame
+            self.reSampleVelBuffer()
+            self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
+
+        self.curFrame += 1
