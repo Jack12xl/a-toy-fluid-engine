@@ -17,11 +17,13 @@ class EulerCFG(FluidCFG):
         self.v_grid_type = cfg.v_grid_type
 
         self.grid = None
-        from Grid import GRIDTYPE, collocatedGridData, MacGridData
+        from Grid import GRIDTYPE, collocatedGridData, MacGridData, BimMocqGridData
         if self.v_grid_type == GRIDTYPE.CELL_GRID:
             self.grid = collocatedGridData
         elif self.v_grid_type == GRIDTYPE.FACE_GRID:
             self.grid = MacGridData
+        elif self.v_grid_type == GRIDTYPE.Bimocq_GRID:
+            self.grid = BimMocqGridData
 
         self.run_scheme = cfg.run_scheme
         self.VisualType = cfg.VisualType

@@ -8,6 +8,7 @@ from enum import Enum, IntEnum
 class GRIDTYPE(IntEnum):
     CELL_GRID = 0
     FACE_GRID = 1
+    Bimocq_GRID = 2
 
     def __init__(self, *args):
         super().__init__()
