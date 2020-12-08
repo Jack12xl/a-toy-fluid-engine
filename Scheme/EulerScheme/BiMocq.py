@@ -93,7 +93,9 @@ class Bimocq_Scheme(EulerScheme):
                                  )
         self.grid.density_pair.swap()
         self.grid.t_pair.swap()
+        self.grid.v_pair.swap()
         self.grid.swap_v()
+
 
     def advectBimocq_velocity(self, v_pairs: list):
         for d, v_pair in enumerate(v_pairs):
@@ -164,6 +166,7 @@ class Bimocq_Scheme(EulerScheme):
 
     @ti.func
     def advectDMC(self, M, dt):
+        raise DeprecationWarning
         M_tmp = ti.static(self.grid.tmp_map)
         for I in ti.static(M):
             pos = M.getW(I)
@@ -212,15 +215,24 @@ class Bimocq_Scheme(EulerScheme):
         return (new_vel - vel) / (new_pos - pos + err)
 
     @ti.kernel
-    def updateBackward(self, M: Matrix, dt: ti.f32):
-        tmp_M = ti.static(self.grid.tmp_map)
+    def updateBackward(self, M: Matrix, dt: Float):
+        """
+        Dual mesh characteristic
+        :param M: backward mapper
+        :param dt:
+        :return:
+        """
         # DMC
-        self.advectDMC(M, dt)
+        M_tmp = ti.static(self.grid.tmp_map)
+        for I in ti.static(M):
+            pos = M.getW(I)
+            back_pos = self.solveODE_DMC(pos, dt)
+            M_tmp[I] = M.interpolate(back_pos)
 
         # M, tmp_M = tmp_M, M
 
     @ti.kernel
-    def updateForward(self, M: Matrix, dt: ti.f32):
+    def updateForward(self, M: Matrix, dt: Float):
         """
 
         :param M: wrapper for mapper
