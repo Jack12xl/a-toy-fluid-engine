@@ -291,7 +291,8 @@ class Bimocq_Scheme(EulerScheme):
         ret = 0.0
         for d in ti.static(range(self.dim)):
             for I in ti.static(v.fields[d]):
-                ret = ti.atomic_max(v.fields[d][I][0], ret)
+                v_abs = ti.abs(v.fields[d][I][0])
+                ret = ti.atomic_max(v_abs, ret)
 
         return ret
 
@@ -374,15 +375,15 @@ class Bimocq_Scheme(EulerScheme):
 
         self.grid.backward_map_bffr = self.grid.backward_map
 
-        self.grid.init_map(self.grid.foward_map)
+        self.grid.init_map(self.grid.forward_map)
         self.grid.init_map(self.grid.backward_map)
 
     @ti.kernel
     def blendVel(self,
                  v1: Wrapper,
                  v2: Wrapper):
-        for d in ti.static(self.dim):
-            for I in ti.static(self.v1.fields[d]):
+        for d in ti.static(range(self.dim)):
+            for I in ti.static(v1.fields[d]):
                 v1[I] = 0.5 * (v1[I] + v2[I])
 
     def schemeStep(self, ext_input: np.array):
@@ -412,8 +413,8 @@ class Bimocq_Scheme(EulerScheme):
         VelocityDistortion = d_vel / (max_vel * self.cfg.dt + err)
         ScalarDistortion = d_scalar / (max_vel * self.cfg.dt + err)
 
-        print("Velocity remapping : {}".format(VelocityDistortion))
-        print("Scalar remapping : {}".format(ScalarDistortion))
+        print("Velocity Distortion : {}".format(VelocityDistortion))
+        print("Scalar Distortion : {}".format(ScalarDistortion))
 
         vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
         rho_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
