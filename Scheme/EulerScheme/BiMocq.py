@@ -91,7 +91,7 @@ class Bimocq_Scheme(EulerScheme):
                                  self.grid.backward_scalar_map,
                                  self.grid.backward_scalar_map_bffr
                                  )
-        self.grid.v_pair.swap()
+        self.grid.density_pair.swap()
         self.grid.t_pair.swap()
         self.grid.swap_v()
 
@@ -415,6 +415,7 @@ class Bimocq_Scheme(EulerScheme):
 
         print("Velocity Distortion : {}".format(VelocityDistortion))
         print("Scalar Distortion : {}".format(ScalarDistortion))
+        print("Max abs Velocity : {}".format(max_vel))
 
         vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
         rho_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)

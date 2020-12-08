@@ -122,6 +122,11 @@ class FluidGridData(metaclass=ABCMeta):
     #     pass
 
     def materialize(self):
+        """
+        Serve as an initialization function
+        since the ti.field could not be init during creation
+        :return:
+        """
         if self.cfg.SimType == SimulateType.Gas:
             self.t.fill(self.cfg.GasInitAmbientT)
 

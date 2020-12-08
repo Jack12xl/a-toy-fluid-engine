@@ -36,8 +36,7 @@ class BimMocqGridData(MacGridData):
             )
                 for _ in range(5)]
 
-        self.d_v, self.d_v_prev, self.d_v_tmp, self.d_v_proj, self.v_init, self.v_origin, \
-        self.v_presave, self.v_tmp = \
+        self.d_v, self.d_v_prev, self.d_v_tmp, self.d_v_proj, self.v_init, self.v_origin, self.v_presave, self.v_tmp = \
             [FaceGrid(ti.f32,
                       shape=cfg.res,
                       dim=cfg.dim,
@@ -61,3 +60,29 @@ class BimMocqGridData(MacGridData):
     def init_map(self, m: Matrix):
         for I in ti.static(m):
             m[I] = m.getW(I)
+
+    def reset(self):
+        super(BimMocqGridData, self).reset()
+        # init the map
+        self.materialize()
+        self.d_T.fill(ts.vecND(1, 0.0))
+        self.d_T_tmp.fill(ts.vecND(1, 0.0))
+        self.d_T_prev.fill(ts.vecND(1, 0.0))
+        self.T_init.fill(ts.vecND(1, 0.0))
+        self.T_origin.fill(ts.vecND(1, 0.0))
+
+        self.d_rho.fill(ts.vecND(3, 0.0))
+        self.d_rho_tmp.fill(ts.vecND(3, 0.0))
+        self.d_rho_prev.fill(ts.vecND(3, 0.0))
+        self.rho_init.fill(ts.vecND(3, 0.0))
+        self.rho_origin.fill(ts.vecND(3, 0.0))
+
+        self.d_v.fill(ts.vecND(self.dim, 0.0))
+        self.d_v_prev.fill(ts.vecND(self.dim, 0.0))
+        self.d_v_tmp.fill(ts.vecND(self.dim, 0.0))
+        self.d_v_proj.fill(ts.vecND(self.dim, 0.0))
+        self.v_init.fill(ts.vecND(self.dim, 0.0))
+        self.v_origin.fill(ts.vecND(self.dim, 0.0))
+
+        self.v_presave.fill(ts.vecND(self.dim, 0.0))
+        self.v_tmp.fill(ts.vecND(self.dim, 0.0))

@@ -22,7 +22,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 v_grid_type = GRIDTYPE.Bimocq_GRID
 
 SceneType = SceneEnum.Jet
-VisualType = VisualizeEnum.Density
+VisualType = VisualizeEnum.Velocity
 
 SimType = SimulateType.Gas
 GasAlpha = 8.0
@@ -84,7 +84,7 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jet_v=ts.vec2(0.0, 0.5),
+    jet_v=ts.vec2(0.0, 0.1),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
