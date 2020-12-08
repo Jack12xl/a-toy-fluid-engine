@@ -4,7 +4,7 @@ import numpy as np
 from .Euler_Scheme import EulerScheme
 from utils import Vector, Matrix, Wrapper, Float
 
-# ref Bimocq 2019, By qi ziyin
+# ref Bimocq 2019, from Qu ziyin
 err = 0.0001
 
 
@@ -96,13 +96,13 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.swap_v()
 
     def advectBimocq_velocity(self, v_pairs: list):
-        for v_pair in v_pairs:
+        for d, v_pair in enumerate(v_pairs):
             self.doubleAdvect_kernel(v_pair.cur,
                                      v_pair.nxt,
-                                     self.grid.v_origin,
-                                     self.grid.v_init,
-                                     self.grid.d_v,
-                                     self.grid.d_v_prev,
+                                     self.grid.v_origin.fields[d],
+                                     self.grid.v_init.fields[d],
+                                     self.grid.d_v.fields[d],
+                                     self.grid.d_v_prev.fields[d],
                                      self.grid.backward_map,
                                      self.grid.backward_map_bffr)
 
@@ -264,12 +264,12 @@ class Bimocq_Scheme(EulerScheme):
         for I in ti.static(BM):
             # TODO origin code handles boundary
             p_init = BM.getW(I)
-            p_frwd = FM.sample[I]
+            p_frwd = FM.sample(I)
             p_bkwd = BM.interpolate(p_frwd)
 
             d = ts.distance(p_init, p_bkwd)
 
-            p_bkwd = BM.sample[I]
+            p_bkwd = BM.sample(I)
             p_frwd = FM.interpolate(p_bkwd)
 
             d = ti.max(d, ts.distance(p_init, p_frwd))
@@ -412,8 +412,8 @@ class Bimocq_Scheme(EulerScheme):
         VelocityDistortion = d_vel / (max_vel * self.cfg.dt + err)
         ScalarDistortion = d_scalar / (max_vel * self.cfg.dt + err)
 
-        print("Velocity remapping : {}".format(d_vel / VelocityDistortion))
-        print("Scalar remapping : {}".format(d_scalar / ScalarDistortion))
+        print("Velocity remapping : {}".format(VelocityDistortion))
+        print("Scalar remapping : {}".format(ScalarDistortion))
 
         vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
         rho_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
