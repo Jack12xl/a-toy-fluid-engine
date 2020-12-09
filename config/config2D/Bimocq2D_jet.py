@@ -90,29 +90,6 @@ Emitters.append(SquareEmitter(
     v_grid_type=v_grid_type
     )
 )
-# Emitters.append(ForceEmitter(
-#     sys.modules[__name__],
-#     t=Transform2(
-#         translation=ti.Vector([305, 0]),
-#         localscale=10000.0,
-#         orientation=math.pi / 2.0
-#     ),
-#     v=Velocity2(),
-#     force_radius=res[0] / 3.0
-#     )
-# )
-#
-# Emitters.append(ForceEmitter(
-#     sys.modules[__name__],
-#     t=Transform2(
-#         translation=ti.Vector([295, 0]),
-#         localscale=10000.0,
-#         orientation=math.pi / 2.0
-#     ),
-#     v=Velocity2(),
-#     force_radius=res[0] / 3.0
-#     )
-# )
 
 
 profile_name = '2D' + '-'\

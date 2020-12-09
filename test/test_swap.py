@@ -33,8 +33,8 @@ if __name__ == "__main__":
     print(advect_bar.cur.fields)
     print(advect_foo[1].cur)
 
-    bar1.swap()
-    print(bar1.test_bar1)
+    # bar1.swap()
+    # print(bar1.test_bar1)
 
     # a = [2, 3, 3]
     # b = [3, 4, 4]

@@ -3,6 +3,7 @@ import taichi_glsl as ts
 import numpy as np
 from .Euler_Scheme import EulerScheme
 from utils import Vector, Matrix, Wrapper, Float
+import numpy as np
 
 # ref Bimocq 2019, from Qu ziyin
 err = 0.0001
@@ -12,7 +13,7 @@ class Bimocq_Scheme(EulerScheme):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        self.blend_coefficient = 1.0
+        self.blend_coefficient = 0.5
 
         self.LastVelRemeshFrame = 0
         self.LastScalarRemeshFrame = 0
@@ -29,6 +30,7 @@ class Bimocq_Scheme(EulerScheme):
         if self.dim == 2:
             # self.w_self = 0.5
             # self.w_nghbr = (1.0 - self.w_self) / 4.0
+            self.blend_coefficient = 1.0
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
@@ -59,7 +61,14 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.backward_scalar_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_scalar_map
 
         # advect velocity, temperature, density
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("before original advect:  max abs Velocity : {}".format(max_vel))
+
         super(Bimocq_Scheme, self).advect(dt)
+
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("after original advect:  max abs Velocity : {}".format(max_vel))
+
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
         # IntegrateMultiLevel {3.5}
@@ -71,7 +80,9 @@ class Bimocq_Scheme(EulerScheme):
 
     def IntegrateMultiLevel(self, dt):
         # TODO need correct
-        self.advectBimocq_velocity(self.grid.advect_v_pairs)
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("before double advect:  max abs Velocity : {}".format(max_vel))
+        self.advectBimocq_velocity()
         self.doubleAdvect_kernel(self.grid.t_pair.cur,
                                  self.grid.t_pair.nxt,
                                  self.grid.T_origin,
@@ -294,7 +305,7 @@ class Bimocq_Scheme(EulerScheme):
 
         return ret
 
-    @ti.kernel
+    # @ti.kernel
     def getMaxVel(self, v: Wrapper) -> Float:
         """
         Assume v is FaceGrid
@@ -302,11 +313,14 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         ret = 0.0
-        for d in ti.static(range(self.dim)):
-            for I in ti.static(v.fields[d]):
-                v_abs = ti.abs(v.fields[d][I][0])
-                ret = ti.atomic_max(v_abs, ret)
-
+        # for d in ti.static(range(self.dim)):
+        #     for I in ti.static(v.fields[d]):
+        #         v_abs = ti.abs(v.fields[d][I][0])
+        #         ret = ti.atomic_max(v_abs, ret)
+        for d in range(self.dim):
+            np_f = v.fields[d].field.to_numpy()
+            cur_max = np.max(np_f)
+            ret = max(cur_max, ret)
         return ret
 
     @ti.kernel
@@ -400,8 +414,11 @@ class Bimocq_Scheme(EulerScheme):
                 v1[I] = 0.5 * (v1[I] + v2[I])
 
     def schemeStep(self, ext_input: np.array):
-        if self.curFrame != 0:
-            self.grid.v_pair.cur.copy(self.grid.v_tmp)
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("after schemeStep: max abs Velocity : {}".format(max_vel))
+
+        # if self.curFrame != 0:
+        #     self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
         self.advect(self.cfg.dt)
         # self.decorator_track_delta(
@@ -410,10 +427,18 @@ class Bimocq_Scheme(EulerScheme):
         # )(self.externalForce)(ext_input, self.cfg.dt)
 
         # trace the d_v
+        # serve as v_save
         self.grid.d_v_tmp.copy(self.grid.v_pair.cur)
+
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("after advection max abs Velocity : {}".format(max_vel))
+
         self.externalForce(ext_input, self.cfg.dt)
+
         self.grid.d_v_tmp.subself(self.grid.v_pair.cur)
 
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("after external force  max abs Velocity : {}".format(max_vel))
         # track the delta v from projection
         self.grid.d_v_proj.copy(self.grid.v_pair.cur)
         self.project()
@@ -447,8 +472,8 @@ class Bimocq_Scheme(EulerScheme):
             self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
 
         self.grid.v_tmp.copy(self.grid.v_pair.cur)
-        if self.curFrame != 0:
-            self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
+        # if self.curFrame != 0:
+        #     self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
 
         print("Cur frame ", self.curFrame)
         print("")

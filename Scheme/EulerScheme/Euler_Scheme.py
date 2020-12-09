@@ -219,7 +219,7 @@ class EulerScheme(metaclass=ABCMeta):
         for emitter in self.emitters:
             emitter.kern_materialize()
             # init the density and velocity for advection
-            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_bffr, self.grid.t)
+            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
 
     def materialize_collider(self):
         for collid in self.boundarySolver.colliders:
