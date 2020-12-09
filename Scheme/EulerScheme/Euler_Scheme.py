@@ -193,8 +193,7 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.dye_fade()
         # refill the fluid
-        for emitter in self.emitters:
-            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
+        self.refill()
 
         self.renderer.renderStep(self.boundarySolver)
         self.curFrame += 1
@@ -202,6 +201,15 @@ class EulerScheme(metaclass=ABCMeta):
     @abstractmethod
     def schemeStep(self, ext_input: np.array):
         pass
+
+    def refill(self):
+        """
+        Emitter refill the velocity, rho, T
+        :return:
+        """
+        for emitter in self.emitters:
+            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
+
 
     def materialize(self):
         """

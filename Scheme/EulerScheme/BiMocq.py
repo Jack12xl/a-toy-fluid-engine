@@ -104,7 +104,11 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.density_pair.swap()
         self.grid.t_pair.swap()
         # self.grid.v_pair.swap()
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("before swap_v:  max abs Velocity : {}".format(max_vel))
         self.grid.swap_v()
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("after swap_v:  max abs Velocity : {}".format(max_vel))
 
     def advectBimocq_velocity(self):
         for d, v_pair in enumerate(self.grid.advect_v_pairs):
@@ -412,6 +416,20 @@ class Bimocq_Scheme(EulerScheme):
         for d in ti.static(range(self.dim)):
             for I in ti.static(v1.fields[d]):
                 v1[I] = 0.5 * (v1[I] + v2[I])
+
+    def refill(self):
+        for emitter in self.emitters:
+            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
+            # emitter.stepEmitHardCode(self.grid.v_init, self.grid.rho_init, self.grid.T_init)
+            # emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
+
+    def materialize_emitter(self):
+        for emitter in self.emitters:
+            emitter.kern_materialize()
+            # init the density and velocity for advection
+            emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
+            emitter.stepEmitHardCode(self.grid.v_init, self.grid.rho_init, self.grid.T_init)
+            emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
 
     def schemeStep(self, ext_input: np.array):
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
