@@ -16,7 +16,7 @@ class BimMocqGridData(MacGridData):
         self.tmp_map = \
             [CellGrid(
                 ti.Vector.field(cfg.dim, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0)
+                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5)
             )
                 for _ in range(7)]
 
@@ -24,7 +24,7 @@ class BimMocqGridData(MacGridData):
         self.d_T, self.d_T_tmp, self.d_T_prev, self.T_init, self.T_origin = \
             [CellGrid(
                 ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0)
+                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5)
             )
                 for _ in range(5)]
 
@@ -32,7 +32,7 @@ class BimMocqGridData(MacGridData):
         self.d_rho, self.d_rho_tmp, self.d_rho_prev, self.rho_init, self.rho_origin = \
             [CellGrid(
                 ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim,
-                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.0)
+                dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5)
             )
                 for _ in range(5)]
 

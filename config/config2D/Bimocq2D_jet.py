@@ -49,7 +49,7 @@ curl_strength = 0.0
 # collider
 from geometry import Transform2, Velocity2
 
-ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
+ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True, )
 # init should put before init ti.field
 
 from geometry import RigidBodyCollider, Ball

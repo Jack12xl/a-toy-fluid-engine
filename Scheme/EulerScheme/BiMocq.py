@@ -12,9 +12,8 @@ class Bimocq_Scheme(EulerScheme):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        self.blend_coefficient = 0.5
+        self.blend_coefficient = 1.0
 
-        self.curFrame = 0
         self.LastVelRemeshFrame = 0
         self.LastScalarRemeshFrame = 0
 
@@ -93,12 +92,11 @@ class Bimocq_Scheme(EulerScheme):
                                  )
         self.grid.density_pair.swap()
         self.grid.t_pair.swap()
-        self.grid.v_pair.swap()
+        # self.grid.v_pair.swap()
         self.grid.swap_v()
 
-
-    def advectBimocq_velocity(self, v_pairs: list):
-        for d, v_pair in enumerate(v_pairs):
+    def advectBimocq_velocity(self):
+        for d, v_pair in enumerate(self.grid.advect_v_pairs):
             self.doubleAdvect_kernel(v_pair.cur,
                                      v_pair.nxt,
                                      self.grid.v_origin.fields[d],
@@ -208,11 +206,13 @@ class Bimocq_Scheme(EulerScheme):
         vf = ti.static(self.grid.v_pair.cur)
 
         vel = vf.interpolate(pos)
-
+        # (10)
         new_pos = pos + vf.dx * ts.sign(vel)
+        # (11)
         new_vel = vf.interpolate(new_pos)
-
-        return (new_vel - vel) / (new_pos - pos + err)
+        # (11)
+        # return (new_vel - vel) / (new_pos - pos + err)
+        return (new_vel - vel) / (new_pos - pos)
 
     @ti.kernel
     def updateBackward(self, M: Matrix, dt: Float):
@@ -227,6 +227,7 @@ class Bimocq_Scheme(EulerScheme):
         for I in ti.static(M):
             pos = M.getW(I)
             back_pos = self.solveODE_DMC(pos, dt)
+            back_pos = self.clampPos(back_pos)
             M_tmp[I] = M.interpolate(back_pos)
 
         # M, tmp_M = tmp_M, M
@@ -425,6 +426,8 @@ class Bimocq_Scheme(EulerScheme):
         VelocityDistortion = d_vel / (max_vel * self.cfg.dt + err)
         ScalarDistortion = d_scalar / (max_vel * self.cfg.dt + err)
 
+        print("d_vel: {}".format(d_vel))
+        print("d_scalar: {}".format(d_scalar))
         print("Velocity Distortion : {}".format(VelocityDistortion))
         print("Scalar Distortion : {}".format(ScalarDistortion))
         print("Max abs Velocity : {}".format(max_vel))
@@ -447,5 +450,5 @@ class Bimocq_Scheme(EulerScheme):
         if self.curFrame != 0:
             self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
 
-        self.curFrame += 1
         print("Cur frame ", self.curFrame)
+        print("")

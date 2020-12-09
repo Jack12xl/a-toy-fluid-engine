@@ -16,6 +16,8 @@ class EulerScheme(metaclass=ABCMeta):
         self.cfg = cfg
         self.dim = cfg.dim
 
+        self.curFrame = 0
+
         self.grid = cfg.grid(cfg)
 
         self.boundarySolver = StdGridBoundaryConditionSolver(cfg, self.grid)
@@ -195,6 +197,7 @@ class EulerScheme(metaclass=ABCMeta):
             emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
 
         self.renderer.renderStep(self.boundarySolver)
+        self.curFrame += 1
 
     @abstractmethod
     def schemeStep(self, ext_input: np.array):
@@ -210,6 +213,8 @@ class EulerScheme(metaclass=ABCMeta):
         self.materialize_emitter()
         self.grid.materialize()
 
+        self.curFrame = 0
+
     def materialize_emitter(self):
         for emitter in self.emitters:
             emitter.kern_materialize()
@@ -224,6 +229,8 @@ class EulerScheme(metaclass=ABCMeta):
         self.grid.reset()
         self.renderer.clr_bffr.fill(ti.Vector([0, 0, 0]))
         self.boundarySolver.reset()
+
+        self.curFrame = 0
 
     @ti.kernel
     def dye_fade(self):
