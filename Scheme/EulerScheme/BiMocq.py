@@ -321,7 +321,7 @@ class Bimocq_Scheme(EulerScheme):
             back_pos = self.clampPos(back_pos)
             M_tmp[I] = M.interpolate(back_pos)
 
-    def updateBackward(self, M: Matrix, dt: Float):
+    def updateBackward(self, M: Wrapper, dt: Float):
         """
         Dual mesh characteristic
         :param M: backward mapper
@@ -337,10 +337,10 @@ class Bimocq_Scheme(EulerScheme):
 
 
     @ti.kernel
-    def updateForward(self, M: Matrix, dt: Float):
+    def updateForward(self, M: Wrapper, dt: Float):
         """
 
-        :param M: wrapper for mapper
+        :param M: wrapper for forward mapper
         :param dt:
         :return:
         """
