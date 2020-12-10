@@ -62,6 +62,7 @@ class BimMocqGridData(MacGridData):
             m[I] = m.getW(I)
 
     def reset(self):
+        super(BimMocqGridData, self).reset()
         self.materialize()
         # init the map
         self.d_T.fill(ts.vecND(1, 0.0))

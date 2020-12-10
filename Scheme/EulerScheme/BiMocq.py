@@ -3,9 +3,10 @@ import taichi_glsl as ts
 import numpy as np
 from .Euler_Scheme import EulerScheme
 from utils import Vector, Matrix, Wrapper, Float
-import numpy as np
+from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 
-# ref Bimocq 2019, from Qu ziyin
+# paper ref: Bimocq 2019, from Qu ziyin .etal
+
 err = 0.0001
 
 
@@ -28,7 +29,7 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            self.blend_coefficient = 1.0
+            self.blend_coefficient = 0.5
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
@@ -47,26 +48,47 @@ class Bimocq_Scheme(EulerScheme):
         """
         return ts.clamp(pos, 0.0, ti.Vector(self.cfg.res) * self.cfg.dx)
 
+    def advect_velocity(self, dt):
+        for v_pair in self.grid.advect_v_pairs:
+            self.SemiLagAdvect(v_pair.cur, v_pair.nxt, dt)
+
+    def SimpleEulerAdvect(self, dt):
+        self.advect_velocity(dt)
+        self.SemiLagAdvect(self.grid.density_pair.cur,
+                           self.grid.density_pair.nxt,
+                           dt)
+        if self.cfg.SimType == SimulateType.Gas:
+            self.SemiLagAdvect(self.grid.density_pair.cur,
+                               self.grid.density_pair.nxt,
+                               dt)
+            self.grid.t_pair.swap()
+        self.grid.swap_v()
+        self.grid.density_pair.swap()
+
     def advect(self, dt):
+        """
+        Advect part for Bimocq
+        :param dt:
+        :return:
+        """
         self.updateForward(self.grid.forward_map, dt)
         self.updateForward(self.grid.forward_scalar_map, dt)
 
         self.updateBackward(self.grid.backward_map, dt)
         # self.grid.backward_map.copy(self.grid.tmp_map)
-        self.grid.backward_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_map
+        # self.grid.backward_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_map
 
         self.updateBackward(self.grid.backward_scalar_map, dt)
         # self.grid.backward_scalar_map.copy(self.grid.tmp_map)
-        self.grid.backward_scalar_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_scalar_map
+        # self.grid.backward_scalar_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_scalar_map
 
         # advect velocity, temperature, density
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before original advect:  max abs Velocity : {}".format(max_vel))
 
-        super(Bimocq_Scheme, self).advect(dt)
-
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("after original advect:  max abs Velocity : {}".format(max_vel))
+        # super(Bimocq_Scheme, self).advect(dt)
+        # simple advect
+        self.SimpleEulerAdvect(dt)
 
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
@@ -115,6 +137,21 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.swap_v()
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("after swap_v:  max abs Velocity : {}".format(max_vel))
+
+    @ti.kernel
+    def SemiLagAdvect(self, f0: Wrapper, f1: Wrapper, dt: Float):
+        """
+        A simple semiLag with substep solve
+        :param f0:
+        :param f1:
+        :param dt:
+        :return:
+        """
+        vf = ti.static(self.grid.v_pair.cur)
+        for I in ti.static(f0):
+            pos = f0.getW(I)
+            backpos = self.solveODE(pos, dt)
+            f1[I] = f0.interpolate(backpos)
 
     def advectBimocq_velocity(self):
         for d, v_pair in enumerate(self.grid.advect_v_pairs):
@@ -355,7 +392,6 @@ class Bimocq_Scheme(EulerScheme):
             d = ti.max(d, ts.distance(p_init, p_frwd))
             # TODO Taichi has thread local memory,
             # so this won't be too slow
-            # TODO atomic_max might not work
             ti.atomic_max(ret, d)
             # if d > ret:
             #     ret = d
@@ -468,6 +504,24 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.init_map(self.grid.forward_map)
         self.grid.init_map(self.grid.backward_map)
 
+    def reSampleScalarBuffer(self):
+        self.total_resampleCount += 1
+
+        self.grid.rho_origin.copy(self.grid.rho_init)
+        self.grid.rho_init.copy(self.grid.density_pair.cur)
+        self.grid.d_rho_prev.copy(self.grid.d_rho)
+        self.grid.d_rho.fill(ts.vecND(3, 0.0))
+
+        self.grid.T_origin.copy(self.grid.T_init)
+        self.grid.T_init.copy(self.grid.t_pair.cur)
+        self.grid.d_T_prev.copy(self.grid.d_T)
+        self.grid.d_T.fill(ts.vecND(1, 0.0))
+
+        self.grid.backward_scalar_map_bffr.copy(self.grid.backward_scalar_map)
+
+        self.grid.init_map(self.grid.forward_scalar_map)
+        self.grid.init_map(self.grid.backward_scalar_map)
+
     @ti.kernel
     def blendVel(self,
                  v1: Wrapper,
@@ -494,8 +548,8 @@ class Bimocq_Scheme(EulerScheme):
         self.calCFL()
         print("CFL: {}".format(self.grid.CFL[None]))
 
-        # if self.curFrame != 0:
-        #     self.grid.v_pair.cur.copy(self.grid.v_tmp)
+        if self.curFrame != 0:
+            self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
         self.advect(self.cfg.dt)
         # self.decorator_track_delta(
@@ -521,6 +575,7 @@ class Bimocq_Scheme(EulerScheme):
         self.project()
         self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
 
+        # difference of backward and forward
         d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
         d_scalar = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
@@ -534,8 +589,12 @@ class Bimocq_Scheme(EulerScheme):
         print("Scalar Distortion : {}".format(ScalarDistortion))
         print("Max abs Velocity : {}".format(max_vel))
 
-        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
-        rho_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
+        # vel_remapping = (VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)) and self.curFrame > 4
+        # sca_remapping = (ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)) and self.curFrame > 4
+
+        vel_remapping = (VelocityDistortion > 1.0 and (self.curFrame - self.LastVelRemeshFrame >= 8))
+        sca_remapping = (ScalarDistortion > 1.0 and (self.curFrame - self.LastScalarRemeshFrame >= 20))
+
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)
         #
@@ -544,14 +603,20 @@ class Bimocq_Scheme(EulerScheme):
         self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
 
         if vel_remapping:
+            print("Remap velocity")
             self.LastVelRemeshFrame = self.curFrame
             self.reSampleVelBuffer()
             self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
 
+        if sca_remapping:
+            print("Remap scalar")
+            self.LastScalarRemeshFrame = self.curFrame
+            self.reSampleScalarBuffer()
+
         self.grid.v_tmp.copy(self.grid.v_pair.cur)
 
-        # if self.curFrame != 0:
-        #     self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
+        if self.curFrame != 0:
+            self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
 
         print("Cur frame ", self.curFrame)
         print("")
