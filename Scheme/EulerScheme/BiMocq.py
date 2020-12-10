@@ -82,6 +82,10 @@ class Bimocq_Scheme(EulerScheme):
         # TODO need correct
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before double advect:  max abs Velocity : {}".format(max_vel))
+
+        max_vel = self.getMaxVel(self.grid.v_init)
+        print("before double advect v init:  max abs Velocity : {}".format(max_vel))
+
         self.advectBimocq_velocity()
         self.doubleAdvect_kernel(self.grid.t_pair.cur,
                                  self.grid.t_pair.nxt,
@@ -106,6 +110,9 @@ class Bimocq_Scheme(EulerScheme):
         # self.grid.v_pair.swap()
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before swap_v:  max abs Velocity : {}".format(max_vel))
+
+        max_vel = self.getMaxVel(self.grid.v_pair.nxt)
+        print("before swap_v:  max nxt abs Velocity : {}".format(max_vel))
         self.grid.swap_v()
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("after swap_v:  max abs Velocity : {}".format(max_vel))
@@ -303,6 +310,7 @@ class Bimocq_Scheme(EulerScheme):
             d = ti.max(d, ts.distance(p_init, p_frwd))
             # TODO Taichi has thread local memory,
             # so this won't be too slow
+            # TODO atomic_max might not work
             ret = ti.atomic_max(d, ret)
             # if d > ret:
             #     ret = d
@@ -370,7 +378,7 @@ class Bimocq_Scheme(EulerScheme):
         for I in ti.static(d_f_src):
             for drct, w in ti.static(zip(self.dirs, self.ws)):
                 pos = d_f_src.getW(I + ti.Vector(drct))
-                samplePos = BM.interpolate(pos)
+                samplePos = FM.interpolate(pos)
                 samplePos = self.clampPos(samplePos)
                 d_f[I] += w * coeff * d_f_src.interpolate(samplePos)
 
@@ -381,6 +389,8 @@ class Bimocq_Scheme(EulerScheme):
         :param coeff:
         :return:
         """
+        # should fill this buffer with zero
+        self.grid.tmp_v.fill(ts.vecND(self.dim, 0.0))
         for i, v_pair in enumerate(self.grid.advect_v_pairs):
             """
             Here use v_pair.nxt, tmp_v as buffer
