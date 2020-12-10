@@ -58,8 +58,8 @@ class Bimocq_Scheme(EulerScheme):
                            self.grid.density_pair.nxt,
                            dt)
         if self.cfg.SimType == SimulateType.Gas:
-            self.SemiLagAdvect(self.grid.density_pair.cur,
-                               self.grid.density_pair.nxt,
+            self.SemiLagAdvect(self.grid.t_pair.cur,
+                               self.grid.t_pair.nxt,
                                dt)
             self.grid.t_pair.swap()
         self.grid.swap_v()
@@ -89,6 +89,9 @@ class Bimocq_Scheme(EulerScheme):
         # super(Bimocq_Scheme, self).advect(dt)
         # simple advect
         self.SimpleEulerAdvect(dt)
+
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("after simple advect:  max abs Velocity : {}".format(max_vel))
 
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
@@ -257,7 +260,7 @@ class Bimocq_Scheme(EulerScheme):
             substeps *= 2
             pos2 = pos
             for _ in range(substeps):
-                pos2 = self.traceFunc(vf, pos2, dt)
+                pos2 = self.traceFunc(vf, pos2, ddt)
             iter += 1
         return pos2
 
@@ -592,8 +595,8 @@ class Bimocq_Scheme(EulerScheme):
         # vel_remapping = (VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)) and self.curFrame > 4
         # sca_remapping = (ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)) and self.curFrame > 4
 
-        vel_remapping = (VelocityDistortion > 1.0 and (self.curFrame - self.LastVelRemeshFrame >= 8))
-        sca_remapping = (ScalarDistortion > 1.0 and (self.curFrame - self.LastScalarRemeshFrame >= 20))
+        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
+        sca_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
 
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)
