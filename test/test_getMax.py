@@ -38,7 +38,7 @@ def set(a:ti.template()):
 def getBmax(b: ti.template()) -> ti.f32:
     ret = 0.0
     for I in ti.grouped(b):
-        ret = ti.atomic_max(b[I][0], ret)
+        ti.atomic_max(ret, b[I][0])
 
     return ret
 

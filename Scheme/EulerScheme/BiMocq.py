@@ -28,16 +28,15 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            # self.w_self = 0.5
-            # self.w_nghbr = (1.0 - self.w_self) / 4.0
             self.blend_coefficient = 1.0
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
         elif self.dim == 3:
-            # self.w_self = 0.0
-            # self.ws = (1.0 - self.w_self) / 8.0
-            self.doubleAdvect_kernel = self.doubleAdvectKern2D
+            self.blend_coefficient = 0.5
+            self.doubleAdvect_kernel = self.doubleAdvectKern3D
+
+        self.traceFunc = self.advection_solver.backtrace
 
     @ti.pyfunc
     def clampPos(self, pos):
@@ -157,10 +156,14 @@ class Bimocq_Scheme(EulerScheme):
                 f_n[I] = f[I]
             else:
                 for drct, w in ti.static(zip(self.dirs, self.ws)):
+                    # drct = [0.0, 0.0]
+                    # w = 0.125
                     pos = f.getW(I + ti.Vector(drct))
-
+                    # print("pos: ", pos)
                     pos1 = BM.interpolate(pos)
+                    # print("pos1: before clamp", pos1)
                     pos1 = self.clampPos(pos1)
+                    # print("pos1: after clamp", pos1)
 
                     pos2 = p_BM.interpolate(pos1)
                     pos2 = self.clampPos(pos2)
@@ -170,6 +173,12 @@ class Bimocq_Scheme(EulerScheme):
                             d_f.interpolate(pos1) +
                             d_f_prev.interpolate(pos2)
                     )
+                    # add_what = self.blend_coefficient * w * (
+                    #         f_init.interpolate(pos1) +
+                    #         d_f.interpolate(pos1)
+                    # )
+                    # print(f_init.interpolate(pos1))
+                    # print(pos, pos1, pos2, add_what)
                     f_n[I] += self.blend_coefficient * w * (
                             f_init.interpolate(pos1) +
                             d_f.interpolate(pos1)
@@ -194,6 +203,30 @@ class Bimocq_Scheme(EulerScheme):
             M_tmp[I] = M.interpolate(back_pos)
 
     @ti.func
+    def solveODE(self, pos, dt):
+        vf = ti.static(self.grid.v_pair.cur)
+
+        ddt = dt
+        pos1 = self.traceFunc(vf, pos, ddt)
+        ddt /= 2.0
+        substeps = 2
+        pos2 = self.traceFunc(vf, pos, ddt)
+        pos2 = self.traceFunc(vf, pos2, ddt)
+
+        iter = 0
+        while ts.distance(pos2, pos1) > (err * self.cfg.dx) and iter < 6:
+            pos1 = pos2
+            ddt /= 2.0
+            substeps *= 2
+            pos2 = pos
+            for _ in range(substeps):
+                pos2 = self.traceFunc(vf, pos2, dt)
+            iter += 1
+        return pos2
+
+
+
+    @ti.func
     def solveODE_DMC(self, pos, dt):
         """
         Based on (12) ~ (14)
@@ -209,7 +242,7 @@ class Bimocq_Scheme(EulerScheme):
         vel = vf.interpolate(pos)
         dmc_trace_pos = pos - dt * vel
 
-        back_trace_pos = self.advection_solver.backtrace(vf, pos, dt)
+        back_trace_pos = self.solveODE(pos, dt)
         for d in ti.static(range(self.dim)):
             if ti.abs(a[d]) > ti.static(err):
                 dmc_trace_pos[d] = pos[d] - (1.0 - ti.exp(-a[d] * dt)) * vel[d] / a[d]
@@ -237,14 +270,13 @@ class Bimocq_Scheme(EulerScheme):
         return (new_vel - vel) / (new_pos - pos)
 
     @ti.kernel
-    def updateBackward(self, M: Matrix, dt: Float):
+    def BackwardIter(self, M: Matrix, dt: Float):
         """
-        Dual mesh characteristic
+        Dual mesh characteristic in each iteration
         :param M: backward mapper
         :param dt:
         :return:
         """
-        # DMC
         M_tmp = ti.static(self.grid.tmp_map)
         for I in ti.static(M):
             pos = M.getW(I)
@@ -252,7 +284,20 @@ class Bimocq_Scheme(EulerScheme):
             back_pos = self.clampPos(back_pos)
             M_tmp[I] = M.interpolate(back_pos)
 
-        # M, tmp_M = tmp_M, M
+    def updateBackward(self, M: Matrix, dt: Float):
+        """
+        Dual mesh characteristic
+        :param M: backward mapper
+        :param dt:
+        :return:
+        """
+        substep = self.grid.CFL[None]
+        back_step = ti.ceil(dt / substep)
+        # DMC
+        for _ in range(back_step):
+            self.BackwardIter(M, substep)
+            M, self.grid.tmp_map = self.grid.tmp_map, M
+
 
     @ti.kernel
     def updateForward(self, M: Matrix, dt: Float):
@@ -266,7 +311,7 @@ class Bimocq_Scheme(EulerScheme):
         for I in ti.static(M):
             pos = M[I]
             # TODO maybe need clamp here
-            M[I] = self.clampPos(self.advection_solver.backtrace(vf, pos, -dt))
+            M[I] = self.clampPos(self.solveODE(pos, -dt))
 
     def decorator_track_delta(self, delta, track_what):
         """
@@ -311,13 +356,13 @@ class Bimocq_Scheme(EulerScheme):
             # TODO Taichi has thread local memory,
             # so this won't be too slow
             # TODO atomic_max might not work
-            ret = ti.atomic_max(d, ret)
+            ti.atomic_max(ret, d)
             # if d > ret:
             #     ret = d
 
         return ret
 
-    # @ti.kernel
+    @ti.kernel
     def getMaxVel(self, v: Wrapper) -> Float:
         """
         Assume v is FaceGrid
@@ -325,15 +370,19 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         ret = 0.0
-        # for d in ti.static(range(self.dim)):
-        #     for I in ti.static(v.fields[d]):
-        #         v_abs = ti.abs(v.fields[d][I][0])
-        #         ret = ti.atomic_max(v_abs, ret)
-        for d in range(self.dim):
-            np_f = v.fields[d].field.to_numpy()
-            cur_max = np.max(np_f)
-            ret = max(cur_max, ret)
+        for d in ti.static(range(self.dim)):
+            for I in ti.static(v.fields[d]):
+                v_abs = ti.abs(v.fields[d][I][0])
+                ti.atomic_max(ret, v_abs)
+        # for d in range(self.dim):
+        #     np_f = v.fields[d].field.to_numpy()
+        #     cur_max = np.max(np_f)
+        #     ret = max(cur_max, ret)
         return ret
+
+    def calCFL(self):
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        self.grid.CFL[None] = self.cfg.dx / abs(max_vel)
 
     @ti.kernel
     def AccumulateField(self,
@@ -408,13 +457,13 @@ class Bimocq_Scheme(EulerScheme):
 
     def reSampleVelBuffer(self):
         self.total_resampleCount += 1
-        self.grid.v_origin = self.grid.v_init
-        self.grid.v_init = self.grid.v
-        self.grid.d_v_prev = self.grid.d_v
+        self.grid.v_origin.copy(self.grid.v_init)
+        self.grid.v_init.copy(self.grid.v_pair.cur)
+        self.grid.d_v_prev.copy(self.grid.d_v)
 
         self.grid.d_v.fill(ts.vecND(self.dim, 0.0))
 
-        self.grid.backward_map_bffr = self.grid.backward_map
+        self.grid.backward_map_bffr.copy(self.grid.backward_map)
 
         self.grid.init_map(self.grid.forward_map)
         self.grid.init_map(self.grid.backward_map)
@@ -442,8 +491,8 @@ class Bimocq_Scheme(EulerScheme):
             emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
 
     def schemeStep(self, ext_input: np.array):
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("after schemeStep: max abs Velocity : {}".format(max_vel))
+        self.calCFL()
+        print("CFL: {}".format(self.grid.CFL[None]))
 
         # if self.curFrame != 0:
         #     self.grid.v_pair.cur.copy(self.grid.v_tmp)
@@ -500,6 +549,7 @@ class Bimocq_Scheme(EulerScheme):
             self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
 
         self.grid.v_tmp.copy(self.grid.v_pair.cur)
+
         # if self.curFrame != 0:
         #     self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
 

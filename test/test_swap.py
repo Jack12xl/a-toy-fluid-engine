@@ -15,6 +15,7 @@ class foo():
         self.test_bar1, self.test_bar2 = self.test_bar2, self.test_bar1
 
 
+
 if __name__ == "__main__":
     bar1 = foo([[2, 3], [4, 5], [6, 7]])
     bar2 = foo([[11, 22], [33, 44], [55, 66]])

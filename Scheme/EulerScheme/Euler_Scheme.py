@@ -40,9 +40,6 @@ class EulerScheme(metaclass=ABCMeta):
         elif cfg.v_grid_type == GRIDTYPE.CELL_GRID:
             self.ApplyBuoyancyForce = self.ApplyBuoyancyForceUniform
 
-    def get_CFL(self):
-        pass
-
     def advect_velocity(self, dt):
         for v_pair in self.grid.advect_v_pairs:
             self.advection_solver.advect(self.grid.v_pair.cur, v_pair.cur, v_pair.nxt,
@@ -237,7 +234,7 @@ class EulerScheme(metaclass=ABCMeta):
         self.grid.reset()
         self.renderer.clr_bffr.fill(ti.Vector([0, 0, 0]))
         self.boundarySolver.reset()
-
+        self.materialize()
         self.curFrame = 0
 
     @ti.kernel

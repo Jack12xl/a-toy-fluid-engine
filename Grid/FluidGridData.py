@@ -30,6 +30,8 @@ class FluidGridData(metaclass=ABCMeta):
         self.new_v = None
         self.tmp_v = None
 
+        self.CFL = ti.field(dtype=ti.f32, shape=())
+
         # velocity divergence
         self.v_divs = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx),
                                o=ts.vecND(self.dim, 0.5))
@@ -69,6 +71,10 @@ class FluidGridData(metaclass=ABCMeta):
     @abstractmethod
     def swap_v(self):
         # Due to design of the pipeline, each grid data V has to be specialized
+        pass
+
+
+    def calCFL(self):
         pass
 
     @abstractmethod

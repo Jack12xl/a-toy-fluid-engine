@@ -62,27 +62,27 @@ class BimMocqGridData(MacGridData):
             m[I] = m.getW(I)
 
     def reset(self):
-        super(BimMocqGridData, self).reset()
-        # init the map
         self.materialize()
+        # init the map
         self.d_T.fill(ts.vecND(1, 0.0))
         self.d_T_tmp.fill(ts.vecND(1, 0.0))
         self.d_T_prev.fill(ts.vecND(1, 0.0))
-        self.T_init.fill(ts.vecND(1, 0.0))
-        self.T_origin.fill(ts.vecND(1, 0.0))
+        # self.T_init.fill(ts.vecND(1, 0.0))
+        # self.T_origin.fill(ts.vecND(1, 0.0))
 
         self.d_rho.fill(ts.vecND(3, 0.0))
         self.d_rho_tmp.fill(ts.vecND(3, 0.0))
         self.d_rho_prev.fill(ts.vecND(3, 0.0))
-        self.rho_init.fill(ts.vecND(3, 0.0))
-        self.rho_origin.fill(ts.vecND(3, 0.0))
+        # self.rho_init.fill(ts.vecND(3, 0.0))
+        # self.rho_origin.fill(ts.vecND(3, 0.0))
 
         self.d_v.fill(ts.vecND(self.dim, 0.0))
         self.d_v_prev.fill(ts.vecND(self.dim, 0.0))
         self.d_v_tmp.fill(ts.vecND(self.dim, 0.0))
         self.d_v_proj.fill(ts.vecND(self.dim, 0.0))
-        self.v_init.fill(ts.vecND(self.dim, 0.0))
-        self.v_origin.fill(ts.vecND(self.dim, 0.0))
+        # self.v_init.fill(ts.vecND(self.dim, 0.0))
+        # self.v_origin.fill(ts.vecND(self.dim, 0.0))
 
         self.v_presave.fill(ts.vecND(self.dim, 0.0))
         self.v_tmp.fill(ts.vecND(self.dim, 0.0))
+
