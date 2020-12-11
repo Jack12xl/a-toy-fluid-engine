@@ -21,20 +21,20 @@ class BimMocqGridData(MacGridData):
                 for _ in range(7)]
 
         # Temperature
-        self.d_T, self.d_T_tmp, self.d_T_prev, self.T_init, self.T_origin = \
+        self.T_tmp, self.d_T, self.d_T_tmp, self.d_T_prev, self.T_init, self.T_origin = \
             [CellGrid(
                 ti.Vector.field(1, dtype=ti.f32, shape=cfg.res), cfg.dim,
                 dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5)
             )
-                for _ in range(5)]
+                for _ in range(6)]
 
         # Density
-        self.d_rho, self.d_rho_tmp, self.d_rho_prev, self.rho_init, self.rho_origin = \
+        self.rho_tmp, self.d_rho, self.d_rho_tmp, self.d_rho_prev, self.rho_init, self.rho_origin = \
             [CellGrid(
                 ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim,
                 dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5)
             )
-                for _ in range(5)]
+                for _ in range(6)]
 
         self.d_v, self.d_v_prev, self.d_v_tmp, self.d_v_proj, self.v_init, self.v_origin, self.v_presave, self.v_tmp = \
             [FaceGrid(ti.f32,

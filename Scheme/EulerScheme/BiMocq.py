@@ -2,7 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 import numpy as np
 from .Euler_Scheme import EulerScheme
-from utils import Vector, Matrix, Wrapper, Float
+from utils import Vector, Matrix, Wrapper, Float, Int
 from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 
 # paper ref: Bimocq 2019, from Qu ziyin .etal
@@ -29,7 +29,7 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            self.blend_coefficient = 0.5
+            self.blend_coefficient = 1.0
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
@@ -95,14 +95,14 @@ class Bimocq_Scheme(EulerScheme):
 
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
-        # IntegrateMultiLevel {3.5}
-        self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
-        self.grid.t_pair.nxt.fill(ts.vecND(1, 0.0))
-        self.grid.density_pair.nxt.fill(ts.vecND(3, 0.0))
-        #
+        # IntegrateMultiLevel {#3.5}
         self.IntegrateMultiLevel(dt)
 
     def IntegrateMultiLevel(self, dt):
+        # fresh the buffer
+        self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
+        self.grid.t_pair.nxt.fill(ts.vecND(1, 0.0))
+        self.grid.density_pair.nxt.fill(ts.vecND(3, 0.0))
         # TODO need correct
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before double advect:  max abs Velocity : {}".format(max_vel))
@@ -132,14 +132,55 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.density_pair.swap()
         self.grid.t_pair.swap()
         # self.grid.v_pair.swap()
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("before swap_v:  max abs Velocity : {}".format(max_vel))
-
-        max_vel = self.getMaxVel(self.grid.v_pair.nxt)
-        print("before swap_v:  max nxt abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("before swap_v:  max abs Velocity : {}".format(max_vel))
+        #
+        # max_vel = self.getMaxVel(self.grid.v_pair.nxt)
+        # print("before swap_v:  max nxt abs Velocity : {}".format(max_vel))
         self.grid.swap_v()
+
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("after swap_v:  max abs Velocity : {}".format(max_vel))
+        print("before correction:  max abs Velocity : {}".format(max_vel))
+
+        for d, v_pair in enumerate(self.grid.advect_v_pairs):
+            self.ErrorCorrectField(
+                1,
+                v_pair.cur,
+                v_pair.nxt,
+                self.grid.v_tmp.fields[d],
+                self.grid.v_init.fields[d],
+                self.grid.d_v.fields[d],
+                self.grid.forward_map,
+                self.grid.backward_map
+            )
+        # density
+        self.ErrorCorrectField(
+            3,
+            self.grid.density_pair.cur,
+            self.grid.density_pair.nxt,
+            self.grid.rho_tmp,
+            self.grid.rho_init,
+            self.grid.d_rho,
+            self.grid.forward_scalar_map,
+            self.grid.backward_scalar_map
+        )
+        # temperature
+        self.ErrorCorrectField(
+            1,
+            self.grid.t_pair.cur,
+            self.grid.t_pair.nxt,
+            self.grid.T_tmp,
+            self.grid.T_init,
+            self.grid.d_T,
+            self.grid.forward_scalar_map,
+            self.grid.backward_scalar_map
+        )
+        self.grid.density_pair.swap()
+        self.grid.t_pair.swap()
+        self.grid.swap_v()
+
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("After correction:  max abs Velocity : {}".format(max_vel))
 
     @ti.kernel
     def SemiLagAdvect(self, f0: Wrapper, f1: Wrapper, dt: Float):
@@ -264,8 +305,6 @@ class Bimocq_Scheme(EulerScheme):
             iter += 1
         return pos2
 
-
-
     @ti.func
     def solveODE_DMC(self, pos, dt):
         """
@@ -337,7 +376,6 @@ class Bimocq_Scheme(EulerScheme):
         for _ in range(back_step):
             self.BackwardIter(M, substep)
             M, self.grid.tmp_map = self.grid.tmp_map, M
-
 
     @ti.kernel
     def updateForward(self, M: Wrapper, dt: Float):
@@ -494,6 +532,98 @@ class Bimocq_Scheme(EulerScheme):
                 self.grid.backward_map
             )
 
+    def ErrorCorrectField(self,
+                          f_dim: int,
+                          f0: Wrapper,
+                          f1: Wrapper,
+                          f_tmp: Wrapper,
+                          f_init: Wrapper,
+                          d_f: Wrapper,
+                          FM: Wrapper,
+                          BM: Wrapper
+                          ):
+        """
+
+        :param f_dim: dimension of the field we are dealing with
+        :param BM:
+        :param FM:
+        :param d_f:
+        :param f0: field after double advection
+        :param f1:
+        :param f_tmp: field to store the error term (25)
+        :param f_init:
+        :return:
+        """
+        f_tmp.fill(ts.vecND(f_dim, 0.0))
+        f1.copy(f0)
+        self.ECkern(f0, f1, f_tmp, f_init, d_f, FM, BM)
+        self.clampExtreme(f0, f1, f_dim)
+
+    @ti.kernel
+    def ECkern(self,
+               f0: Wrapper,
+               f1: Wrapper,
+               f_tmp: Wrapper,
+               f_init: Wrapper,
+               d_f: Wrapper,
+               FM: Wrapper,
+               BM: Wrapper
+               ):
+        """
+        Error correction
+        :param f0:
+        :param f1:
+        :param f_tmp:
+        :param f_init:
+        :return:
+        """
+        for I in ti.static(f0):
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = f0.getW(I + ti.Vector(drct))
+                pos1 = self.clampPos(FM.interpolate(pos))
+                f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
+        # error term (25)
+        for I in ti.static(f_tmp):
+            f_tmp[I] -= f_init[I]
+            f_tmp[I] *= 0.5
+
+        for I in ti.static(f0):
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = f0.getW(I + ti.Vector(drct))
+                pos1 = self.clampPos(BM.interpolate(pos))
+                f1[I] -= w * f_tmp.interpolate(pos1)
+
+    @ti.kernel
+    def clampExtreme(self,
+                     f0: Wrapper,
+                     f1: Wrapper,
+                     e_dim: Int):
+        """
+        do maximum suppresion {3.7.2}
+        to f1
+        on surrounding neighbours (for 2D, 3x3 for 3D, 3x3x3)
+        based on f0
+
+        :param e_dim: the element dimension
+        :param f0: field before EC
+        :param f1: field after EC
+        :return:
+        """
+        for I in ti.static(f0):
+            min_val = ts.vecND(ti.static(e_dim), 1e+6)
+            max_val = ts.vecND(ti.static(e_dim), 0.0)
+
+            kernel_scope = [[I[d] - 1, I[d] + 1 + 1] for d in range(self.dim)]
+            # for d in ti.static(range(self.dim)):
+            for J in ti.grouped(ti.ndrange(*kernel_scope)):
+                val = abs(f0.sample[J])
+                max_val = ti.max(max_val, val)
+                min_val = ti.min(min_val, val)
+
+            # TODO ts.sign is not right in version 0.10.0
+            s = -ts.sign(f1[I])
+            f1[I] = s * ts.clamp(s * f1[I], min_val, max_val)
+
     def reSampleVelBuffer(self):
         self.total_resampleCount += 1
         self.grid.v_origin.copy(self.grid.v_init)
@@ -555,10 +685,6 @@ class Bimocq_Scheme(EulerScheme):
             self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
         self.advect(self.cfg.dt)
-        # self.decorator_track_delta(
-        #     delta=self.grid.d_v_tmp,
-        #     track_what=self.grid.v_pair.cur
-        # )(self.externalForce)(ext_input, self.cfg.dt)
 
         # trace the d_v
         # serve as v_save
