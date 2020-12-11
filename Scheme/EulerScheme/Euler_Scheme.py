@@ -77,6 +77,7 @@ class EulerScheme(metaclass=ABCMeta):
             # calculate buoyancy
             self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t_pair.cur.field)
             # self.ApplyBuoyancyForce(dt)
+        self.refill()
 
     @ti.kernel
     def ApplyBuoyancyForceMac(self, dt: ti.f32):
@@ -190,7 +191,7 @@ class EulerScheme(metaclass=ABCMeta):
 
         self.dye_fade()
         # refill the fluid
-        self.refill()
+        # self.refill()
 
         self.renderer.renderStep(self.boundarySolver)
         self.curFrame += 1

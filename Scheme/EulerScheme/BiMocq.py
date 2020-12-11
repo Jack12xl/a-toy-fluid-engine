@@ -597,7 +597,7 @@ class Bimocq_Scheme(EulerScheme):
     def clampExtreme(self,
                      f0: Wrapper,
                      f1: Wrapper,
-                     e_dim: Int):
+                     e_dim: ti.template()):
         """
         do maximum suppresion {3.7.2}
         to f1
@@ -609,20 +609,21 @@ class Bimocq_Scheme(EulerScheme):
         :param f1: field after EC
         :return:
         """
+        # dim = ti.static(f0.field.n)
         for I in ti.static(f0):
-            min_val = ts.vecND(ti.static(e_dim), 1e+6)
-            max_val = ts.vecND(ti.static(e_dim), 0.0)
+            min_val = ts.vecND(e_dim, 1e+6)
+            max_val = ts.vecND(e_dim, 0.0)
 
             kernel_scope = [[I[d] - 1, I[d] + 1 + 1] for d in range(self.dim)]
             # for d in ti.static(range(self.dim)):
             for J in ti.grouped(ti.ndrange(*kernel_scope)):
-                val = abs(f0.sample[J])
+                val = abs(f0.sample(J))
                 max_val = ti.max(max_val, val)
                 min_val = ti.min(min_val, val)
 
             # TODO ts.sign is not right in version 0.10.0
             s = -ts.sign(f1[I])
-            f1[I] = s * ts.clamp(s * f1[I], min_val, max_val)
+            f1[I] = s * ts.clamp(ti.abs(f1[I]), min_val, max_val)
 
     def reSampleVelBuffer(self):
         self.total_resampleCount += 1
@@ -659,9 +660,15 @@ class Bimocq_Scheme(EulerScheme):
     def blendVel(self,
                  v1: Wrapper,
                  v2: Wrapper):
+        """
+
+        :param v1: velocity field
+        :param v2:
+        :return:
+        """
         for d in ti.static(range(self.dim)):
             for I in ti.static(v1.fields[d]):
-                v1[I] = 0.5 * (v1[I] + v2[I])
+                v1.fields[d][I] = 0.5 * (v1.fields[d][I] + v2.fields[d][I])
 
     def refill(self):
         for emitter in self.emitters:
@@ -681,8 +688,8 @@ class Bimocq_Scheme(EulerScheme):
         self.calCFL()
         print("CFL: {}".format(self.grid.CFL[None]))
 
-        if self.curFrame != 0:
-            self.grid.v_pair.cur.copy(self.grid.v_tmp)
+        # if self.curFrame != 0:
+        #     self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
         self.advect(self.cfg.dt)
 
@@ -716,7 +723,7 @@ class Bimocq_Scheme(EulerScheme):
         print("d_scalar: {}".format(d_scalar))
         print("Velocity Distortion : {}".format(VelocityDistortion))
         print("Scalar Distortion : {}".format(ScalarDistortion))
-        print("Max abs Velocity : {}".format(max_vel))
+        print("After project Max abs Velocity : {}".format(max_vel))
 
         # vel_remapping = (VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)) and self.curFrame > 4
         # sca_remapping = (ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)) and self.curFrame > 4
@@ -742,10 +749,10 @@ class Bimocq_Scheme(EulerScheme):
             self.LastScalarRemeshFrame = self.curFrame
             self.reSampleScalarBuffer()
 
-        self.grid.v_tmp.copy(self.grid.v_pair.cur)
-
-        if self.curFrame != 0:
-            self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
+        # self.grid.v_tmp.copy(self.grid.v_pair.cur)
+        #
+        # if self.curFrame != 0:
+        #     self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
 
         print("Cur frame ", self.curFrame)
         print("")
