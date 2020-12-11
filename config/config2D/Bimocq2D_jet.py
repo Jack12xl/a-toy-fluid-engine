@@ -22,7 +22,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 v_grid_type = GRIDTYPE.Bimocq_GRID
 
 SceneType = SceneEnum.Jet
-VisualType = VisualizeEnum.Density
+VisualType = VisualizeEnum.Velocity
 
 SimType = SimulateType.Gas
 GasAlpha = 8.0
