@@ -18,6 +18,7 @@ pip install taichi taichi_glsl
 python exp_play.py --cfg mouse2d # use mouse to drag the fluid
 python exp_play.py --cfg jet2d   # shot the jet from below
 python exp_play.py --cfg jet3d   # 3D jet
+python exp_play.py --cfg BMcq_jet2d # would explode
 ```
 
 #### Feature:

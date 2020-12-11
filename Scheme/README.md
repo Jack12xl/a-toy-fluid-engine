@@ -12,7 +12,7 @@ Both running in RK=3, MacCormack + Gauss-Sedial.
 
 #### Performance Comparison
 
-Advection projection surely runs faster but hard to preserve detail.
+Todo..
 
 
 
@@ -22,4 +22,11 @@ Pause the implementation. Find the stream function way too difficult.
 
 ##### BiMocq (2019)
 
+Velocity field would explooooode.  Need help on this..
+
+| Velocity field                                    |
+| ------------------------------------------------- |
+| ![](../results/BiMocq/bimocq_failed_velocity.gif) |
+
 In progress.
+
