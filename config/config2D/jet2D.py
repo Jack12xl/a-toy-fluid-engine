@@ -33,6 +33,8 @@ GasMaxT = 85.0
 # run Scheme
 run_scheme = SchemeType.Advection_Reflection
 
+CFL = None
+
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
 advection_solver = MacCormackSolver
@@ -118,7 +120,6 @@ Emitters.append(SquareEmitter(
 profile_name = '2D' + '-'\
                + 'x'.join(map(str, res)) + '-' \
                + str(v_grid_type) + '-' \
-               + str(VisualType) + '-' \
                + str(run_scheme) + '-' \
                + filterUpCase(advection_solver.__name__) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
@@ -132,11 +133,16 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
+save_what = [
+    VisualizeEnum.Density,
+    VisualizeEnum.Velocity,
+    VisualizeEnum.Vorticity,
+    VisualizeEnum.Divergence,
+]
 
-save_frame_length = 360
+save_frame_length = 16
 save_root = './tmp_result'
+frame_rate = int(1.0 / dt)
 save_path = os.path.join(save_root, profile_name)
-video_manager = ti.VideoManager(output_dir=save_path,
-                                framerate=24,
-                                automatic_build=False)
+

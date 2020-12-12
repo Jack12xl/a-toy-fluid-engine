@@ -10,6 +10,8 @@ class PreConditioner(Enum):
 class SceneEnum(Enum):
     MouseDragDye = 0
     Jet = 1
+    # ref Bimocq
+    Vortex_leapfrogging = 2
     pass
 
 

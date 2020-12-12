@@ -114,8 +114,11 @@ if __name__ == '__main__':
                     video_manager.make_video(gif=True, mp4=False)
                     # m_cfg.video_manager.get_output_filename(".mp4")
                     video_manager.get_output_filename(".gif")
-                    break
+            if frame_count >= m_cfg.save_frame_length:
+                break
+
         frame_count += 1
+
         # print("frame", frame_count)
 
     ti.kernel_profiler_print()

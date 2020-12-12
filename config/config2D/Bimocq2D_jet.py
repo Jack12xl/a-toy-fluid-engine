@@ -71,7 +71,7 @@ Colliders = []
 
 res = [512, 512]
 
-dt = 0.025
+dt = 0.03
 dx = 1.0 / res[0]
 
 Emitters = []
@@ -121,6 +121,9 @@ bool_save = True
 save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,
+    VisualizeEnum.Vorticity,
+    VisualizeEnum.Divergence,
+    VisualizeEnum.Distortion,
     VisualizeEnum.BM,
     VisualizeEnum.FM
 ]

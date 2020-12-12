@@ -34,6 +34,8 @@ class Bimocq_Scheme(EulerScheme):
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
         elif self.dim == 3:
             self.blend_coefficient = 0.5
+            self.ws = 8 * [0.125]
+            self.dirs = []
             self.doubleAdvect_kernel = self.doubleAdvectKern3D
 
         self.traceFunc = self.advection_solver.backtrace
@@ -369,6 +371,7 @@ class Bimocq_Scheme(EulerScheme):
             self.BackwardIter(M, substep)
             M.copy(self.grid.tmp_map)
             t += substep
+        # comment this if not need to visualize BM
         # self.drawBackWard(M)
 
     @ti.kernel
@@ -384,12 +387,10 @@ class Bimocq_Scheme(EulerScheme):
         :param dt:
         :return:
         """
-        # vf = ti.static(self.grid.v_pair.cur)
         for I in ti.static(M):
             pos = M[I]
-            # TODO maybe need clamp here
             M[I] = self.clampPos(self.solveODE(pos, -dt))
-            # print(I, M[I])
+            # TODO comment this if not need to debug
             # self.grid.FM[I] = ts.vec3(M[I], 0.0)
 
     def decorator_track_delta(self, delta, track_what):

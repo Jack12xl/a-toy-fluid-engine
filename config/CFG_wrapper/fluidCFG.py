@@ -37,7 +37,7 @@ class FluidCFG(metaclass=ABCMeta):
         self.profile_name = cfg.profile_name
         # save to png(gif, mp4)
         self.save_frame_length = None
-        self.video_managers = None
+        self.video_managers = []
         self.save_what = None
         self.bool_save = cfg.bool_save
 
