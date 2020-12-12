@@ -38,7 +38,7 @@ In the map case, we are showing the first map. Each pixel value(R, G, B) represe
 
 Why the backmap and forward map stay the same and always map to itself?
 
-Failing case: Velocity field would explooooode.  ..
+**A Failed case**(due to bug...): Velocity field would explooooode.  ..
 
 | Velocity field                                           | backward map                                | Forward Map                                 | Distortion                                     |
 | -------------------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ---------------------------------------------- |
