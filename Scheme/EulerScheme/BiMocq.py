@@ -109,9 +109,6 @@ class Bimocq_Scheme(EulerScheme):
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before double advect v cur:  max abs Velocity : {}".format(max_vel))
 
-        max_vel = self.getMaxVel(self.grid.v_init)
-        print("before double advect v init:  max abs Velocity : {}".format(max_vel))
-
         max_vel = self.getMaxVel(self.grid.v_pair.nxt)
         print("before double advect v nxt:  max abs Velocity : {}".format(max_vel))
 
@@ -143,12 +140,6 @@ class Bimocq_Scheme(EulerScheme):
         # max_vel = self.getMaxVel(self.grid.v_pair.nxt)
         # print("before swap_v:  max nxt abs Velocity : {}".format(max_vel))
         self.grid.swap_v()
-
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("before correction:  max abs Velocity : {}".format(max_vel))
-
-        max_vel = self.getMaxVel(self.grid.v_pair.nxt)
-        print("before correction nxt:  max abs Velocity : {}".format(max_vel))
 
         for d, v_pair in enumerate(self.grid.advect_v_pairs):
             self.ErrorCorrectField(
@@ -747,9 +738,20 @@ class Bimocq_Scheme(EulerScheme):
             emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
 
     def schemeStep(self, ext_input: np.array):
+        T = 0.0
+        substep = self.cfg.CFL * self.cfg.dx / self.getMaxVel()
+
+        while T < self.cfg.dt:
+            if T + substep > self.cfg.dt:
+                substep = self.cfg.dt - T
+                print("cur CFL: {}".format(substep * self.getMaxVel() / self.cfg.dx ))
+                print("cur dt: {}".format(substep))
+                self.substep(substep)
+
+    def substep(self, dt):
         """
         Run once in each frame
-        :param ext_input:
+        :param dt:
         :return:
         """
         self.calCFL()

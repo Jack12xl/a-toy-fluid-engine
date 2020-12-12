@@ -29,6 +29,8 @@ class FluidCFG(metaclass=ABCMeta):
         self.half_inv_dx = None
         self.dx = cfg.dx
 
+        self.CFL = None or cfg.CFL
+
         self.Colliders = cfg.Colliders
         self.Emitters = cfg.Emitters
 

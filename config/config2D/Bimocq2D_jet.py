@@ -22,7 +22,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 v_grid_type = GRIDTYPE.Bimocq_GRID
 
 SceneType = SceneEnum.Jet
-VisualType = VisualizeEnum.Velocity
+VisualType = VisualizeEnum.Density
 
 SimType = SimulateType.Gas
 GasAlpha = 8.0
@@ -33,7 +33,9 @@ GasMaxT = 85.0
 # run Scheme
 run_scheme = SchemeType.Bimocq
 
-blend_coefficient = 0.5
+CFL = 0.5
+
+blend_coefficient = 0.25
 vel_remap_threshold = 0.8
 sclr_remap_threshold = 0.8
 vel_remap_frequency = 4
@@ -117,7 +119,7 @@ print(profile_name)
 # save to video(gif)
 bool_save = True
 
-save_frame_length = 96
+save_frame_length = 128
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,
