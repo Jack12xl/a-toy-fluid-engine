@@ -35,11 +35,11 @@ run_scheme = SchemeType.Bimocq
 
 CFL = 0.5
 
-blend_coefficient = 0.25
-vel_remap_threshold = 0.8
-sclr_remap_threshold = 0.8
-vel_remap_frequency = 4
-sclr_remap_frequency = 8
+blend_coefficient = 1.0
+vel_remap_threshold = 1.0
+sclr_remap_threshold = 1.0
+vel_remap_frequency = 8
+sclr_remap_frequency = 20
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
@@ -105,6 +105,7 @@ Emitters.append(SquareEmitter(
 profile_name = '2D' + '-'\
                 + 'x'.join(map(str, res)) + '-' \
                 + str(VisualType) + '-' \
+                + "CFL-" + str(CFL) + "-" \
                 + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \
                 + "-sclrRemap-" + str(sclr_remap_threshold) + "-" + str(sclr_remap_frequency) \
                 + "-BlndCoeff-" + str(blend_coefficient) + "-" \

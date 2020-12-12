@@ -368,12 +368,16 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         substep = self.grid.CFL[None]
-        back_step = ti.ceil(dt / substep)
+        T = dt
+        t = 0
+        # back_step = ti.ceil(dt / substep)
         # DMC
-        for _ in range(back_step):
+        while t < T:
+            if t + substep > T:
+                substep = T - t
             self.BackwardIter(M, substep)
-            # M, self.grid.tmp_map = self.grid.tmp_map, M
             M.copy(self.grid.tmp_map)
+            t += substep
         # self.drawBackWard(M)
 
     @ti.kernel
@@ -739,29 +743,29 @@ class Bimocq_Scheme(EulerScheme):
 
     def schemeStep(self, ext_input: np.array):
         T = 0.0
-        substep = self.cfg.CFL * self.cfg.dx / self.getMaxVel()
+        substep = self.cfg.CFL * self.cfg.dx / self.getMaxVel(self.grid.v_pair.cur)
 
         while T < self.cfg.dt:
             if T + substep > self.cfg.dt:
                 substep = self.cfg.dt - T
-                print("cur CFL: {}".format(substep * self.getMaxVel() / self.cfg.dx ))
-                print("cur dt: {}".format(substep))
-                self.substep(substep)
+            print("cur CFL: {}".format(substep * self.getMaxVel(self.grid.v_pair.cur) / self.cfg.dx))
+            print("cur dt: {}".format(substep))
+            self.substep(ext_input, substep)
+            T += substep
 
-    def substep(self, dt):
+    def substep(self, ext_input, subdt):
         """
         Run once in each frame
-        :param dt:
+        :param subdt:
         :return:
         """
         self.calCFL()
-        print("Substep: {}".format(self.grid.CFL[None]))
-        print("CFL: {}".format(self.cfg.dt / self.grid.CFL[None]))
+        print("ODE Substep: {}".format(self.grid.CFL[None]))
 
         if self.curFrame != 0:
             self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
-        self.advect(self.cfg.dt)
+        self.advect(subdt)
 
         # trace the d_v
         # serve as v_save
@@ -772,7 +776,7 @@ class Bimocq_Scheme(EulerScheme):
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("after advection max abs Velocity : {}".format(max_vel))
         ### External Force
-        self.externalForce(ext_input, self.cfg.dt)
+        self.externalForce(ext_input, subdt)
 
         self.grid.d_v_tmp.subself(self.grid.v_pair.cur)
         self.grid.d_T_tmp.subself(self.grid.t_pair.cur)
@@ -791,8 +795,8 @@ class Bimocq_Scheme(EulerScheme):
         d_scalar = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
 
-        VelocityDistortion = d_vel / (max_vel * self.cfg.dt + err)
-        ScalarDistortion = d_scalar / (max_vel * self.cfg.dt + err)
+        VelocityDistortion = d_vel / ((max_vel + err) * subdt)
+        ScalarDistortion = d_scalar / ((max_vel + err) * subdt)
 
         print("d_vel: {}".format(d_vel))
         print("d_scalar: {}".format(d_scalar))
@@ -800,8 +804,10 @@ class Bimocq_Scheme(EulerScheme):
         print("Scalar Distortion : {}".format(ScalarDistortion))
         print("After project Max abs Velocity : {}".format(max_vel))
 
-        vel_remapping = VelocityDistortion > self.cfg.vel_remap_threshold or (self.curFrame - self.LastVelRemeshFrame >= self.cfg.vel_remap_frequency)
-        sca_remapping = ScalarDistortion > self.cfg.sclr_remap_threshold or (self.curFrame - self.LastScalarRemeshFrame >= self.cfg.sclr_remap_frequency)
+        vel_remapping = VelocityDistortion > self.cfg.vel_remap_threshold or (
+                    self.curFrame - self.LastVelRemeshFrame >= self.cfg.vel_remap_frequency)
+        sca_remapping = ScalarDistortion > self.cfg.sclr_remap_threshold or (
+                    self.curFrame - self.LastScalarRemeshFrame >= self.cfg.sclr_remap_frequency)
 
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)
