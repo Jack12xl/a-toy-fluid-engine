@@ -16,8 +16,8 @@ class foo():
         self.test_bar1, self.test_bar2 = self.test_bar2, self.test_bar1
 
     def test_swap(self, M):
-        M, self.b = self.b, M
-        print(self.b)
+        M[0] = self.b[0]
+
 
 if __name__ == "__main__":
     bar1 = foo([[2, 3], [4, 5], [6, 7]])
@@ -39,5 +39,6 @@ if __name__ == "__main__":
 
     a = [2,3]
     bar1.test_swap(a)
+    print(a)
     bar1.test_swap(a)
 

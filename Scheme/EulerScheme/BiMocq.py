@@ -71,16 +71,19 @@ class Bimocq_Scheme(EulerScheme):
         :param dt:
         :return:
         """
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("Before update map: max abs Velocity : {}".format(max_vel))
+
         self.updateForward(self.grid.forward_map, dt)
         self.updateForward(self.grid.forward_scalar_map, dt)
 
         self.updateBackward(self.grid.backward_map, dt)
-        # self.grid.backward_map.copy(self.grid.tmp_map)
-        # self.grid.backward_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_map
-
         self.updateBackward(self.grid.backward_scalar_map, dt)
-        # self.grid.backward_scalar_map.copy(self.grid.tmp_map)
-        # self.grid.backward_scalar_map, self.grid.tmp_map = self.grid.tmp_map, self.grid.backward_scalar_map
+
+        d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
+        print("Before advect vel distortion: {}".format(d_vel))
+        d_sca = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
+        print("Before advect vel distortion: {}".format(d_sca))
 
         # advect velocity, temperature, density
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
@@ -103,7 +106,7 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.v_pair.nxt.fill(ts.vecND(self.dim, 0.0))
         self.grid.t_pair.nxt.fill(ts.vecND(1, 0.0))
         self.grid.density_pair.nxt.fill(ts.vecND(3, 0.0))
-        # TODO need correct
+
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before double advect v cur:  max abs Velocity : {}".format(max_vel))
 
@@ -279,15 +282,6 @@ class Bimocq_Scheme(EulerScheme):
         dir = [1.0, -1.0]
 
     @ti.func
-    def advectDMC(self, M, dt):
-        raise DeprecationWarning
-        M_tmp = ti.static(self.grid.tmp_map)
-        for I in ti.static(M):
-            pos = M.getW(I)
-            back_pos = self.solveODE_DMC(pos, dt)
-            M_tmp[I] = M.interpolate(back_pos)
-
-    @ti.func
     def solveODE(self, pos, dt):
         vf = ti.static(self.grid.v_pair.cur)
 
@@ -345,6 +339,7 @@ class Bimocq_Scheme(EulerScheme):
 
         vel = vf.interpolate(pos)
         # (10)
+        # TODO fix this after glsl is merged
         new_pos = pos + vf.dx * ts.sign(vel)
         # (11)
         new_vel = vf.interpolate(new_pos)
@@ -395,6 +390,7 @@ class Bimocq_Scheme(EulerScheme):
             pos = M[I]
             # TODO maybe need clamp here
             M[I] = self.clampPos(self.solveODE(pos, -dt))
+            # print(M[I])
 
     def decorator_track_delta(self, delta, track_what):
         """
@@ -436,6 +432,9 @@ class Bimocq_Scheme(EulerScheme):
             p_frwd = FM.interpolate(p_bkwd)
 
             d = ti.max(d, ts.distance(p_init, p_frwd))
+
+            self.grid.distortion[d] = ts.vec3(d)
+
             # TODO Taichi has thread local memory,
             # so this won't be too slow
             ti.atomic_max(ret, d)
@@ -465,6 +464,7 @@ class Bimocq_Scheme(EulerScheme):
     def calCFL(self):
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         self.grid.CFL[None] = self.cfg.dx / abs(max_vel)
+        # self.grid.CFL[None] = 0.01
 
     @ti.kernel
     def AccumulateField(self,
@@ -726,11 +726,10 @@ class Bimocq_Scheme(EulerScheme):
         if self.curFrame != 0:
             self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
-
-        d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
-        print("Before advect vel distortion: {}".format(d_vel))
-        d_sca = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
-        print("Before advect vel distortion: {}".format(d_sca))
+        # d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
+        # print("Before advect vel distortion: {}".format(d_vel))
+        # d_sca = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
+        # print("Before advect vel distortion: {}".format(d_sca))
 
         self.advect(self.cfg.dt)
 

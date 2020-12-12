@@ -45,6 +45,16 @@ class BimMocqGridData(MacGridData):
                       )
              for _ in range(8)]
 
+        self.distortion, self.distortion_scalar, = \
+            [CellGrid(
+                ti.Vector.field(3, dtype=ti.f32, shape=cfg.res),
+                cfg.dim,
+                dx=ts.vecND(self.dim, self.cfg.dx),
+                o=ts.vecND(self.dim, 0.5)
+            )
+                for _ in range(2)]
+
+
     def materialize(self):
         super(BimMocqGridData, self).materialize()
         # init the forward and backward, t == 0 should map to itself

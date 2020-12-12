@@ -63,7 +63,7 @@ Colliders = []
 
 res = [512, 512]
 
-dt = 0.03
+dt = 0.02
 dx = 1.0 / res[0]
 
 Emitters = []
