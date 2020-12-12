@@ -22,7 +22,7 @@ set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FI
 v_grid_type = GRIDTYPE.Bimocq_GRID
 
 SceneType = SceneEnum.Jet
-VisualType = VisualizeEnum.BM
+VisualType = VisualizeEnum.Velocity
 
 SimType = SimulateType.Gas
 GasAlpha = 8.0
@@ -63,7 +63,7 @@ Colliders = []
 
 res = [512, 512]
 
-dt = 0.03
+dt = 0.025
 dx = 1.0 / res[0]
 
 Emitters = []

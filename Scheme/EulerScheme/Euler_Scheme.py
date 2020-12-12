@@ -12,7 +12,7 @@ from utils import getFieldMeanCpu
 
 @ti.data_oriented
 class EulerScheme(metaclass=ABCMeta):
-    def __init__(self, cfg:EulerCFG, ):
+    def __init__(self, cfg: EulerCFG, ):
         self.cfg = cfg
         self.dim = cfg.dim
 
@@ -90,7 +90,7 @@ class EulerScheme(metaclass=ABCMeta):
                      + self.cfg.GasBeta * (
                              (
                                      t_f.sample(I) + t_f.sample(I - D)
-                              )[0] * 0.5 - self.grid.t_ambient
+                             )[0] * 0.5 - self.grid.t_ambient
                      )
             v_y[I][0] += f_buoy * dt
 
@@ -105,7 +105,7 @@ class EulerScheme(metaclass=ABCMeta):
             # print(f_buoy)
             v_f[I].y += f_buoy * dt
 
-    def project(self):
+    def project(self, outBoundary=False):
         self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
 
         self.grid.calVorticity(self.grid.v_pair.cur)
@@ -207,7 +207,6 @@ class EulerScheme(metaclass=ABCMeta):
         """
         for emitter in self.emitters:
             emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
-
 
     def materialize(self):
         """

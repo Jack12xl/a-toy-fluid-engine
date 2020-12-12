@@ -129,3 +129,27 @@ class Grid(metaclass=ABCMeta):
     #     """
     #     pass
 
+    @ti.func
+    def GisNearBoundary(self, g, howNear):
+        """
+        Assume g is cell center
+        :param g:
+        :param howNear:
+        note: Taichi use -1 as True
+        :return:
+        """
+        # print("<", g, ts.vecND(self.dim, howNear), g < ts.vecND(self.dim, howNear))
+        # print(">", g, ti.Vector(self.shape) - howNear, g >= ti.Vector(self.shape) - howNear)
+        return ((g < ts.vecND(self.dim, howNear)).sum() > 0) or ((g >= ti.Vector(self.shape) - howNear).sum() > 0)
+
+    @ti.func
+    def WisNearBoundary(self, w, howNear):
+        """
+        whether a World pos is  near the out boundary
+        assume cell in the middle
+        :param w: position in World
+        :param howNear:
+        :return:
+        """
+        g = ti.cast((w - self.o) / self.dx, ti.i32)
+        return self.GisNearBoundary(g, howNear)

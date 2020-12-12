@@ -143,3 +143,6 @@ class FluidGridData(metaclass=ABCMeta):
         if self.cfg.SimType == SimulateType.Gas:
             self.t.fill(self.cfg.GasInitAmbientT)
 
+    @abstractmethod
+    def boundaryZeroVelocity(self):
+        pass

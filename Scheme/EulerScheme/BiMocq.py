@@ -29,7 +29,7 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            self.blend_coefficient = 1.0
+            self.blend_coefficient = 0.5
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
@@ -241,7 +241,8 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         for I in ti.static(f):
-            if I[0] == 0 or I[1] == 0 or I[0] == f.shape[0] - 1 or I[1] == f.shape[1] - 1:
+            # if I[0] == 0 or I[1] == 0 or I[0] == f.shape[0] - 1 or I[1] == f.shape[1] - 1:
+            if f.GisNearBoundary(I, 2):
                 # on the boundary
                 f_n[I] = f[I]
             else:
@@ -436,24 +437,23 @@ class Bimocq_Scheme(EulerScheme):
         ret = 0.0
         for I in ti.static(BM):
             # TODO origin code handles boundary
-            p_init = BM.getW(I)
-            p_frwd = FM.sample(I)
-            p_bkwd = BM.interpolate(p_frwd)
+            if BM.GisNearBoundary(I, 3) == 0:
+                p_init = BM.getW(I)
+                p_frwd = FM.sample(I)
+                p_bkwd = BM.interpolate(p_frwd)
 
-            d = ts.distance(p_init, p_bkwd)
+                d = ts.distance(p_init, p_bkwd)
 
-            p_bkwd = BM.sample(I)
-            p_frwd = FM.interpolate(p_bkwd)
+                p_bkwd = BM.sample(I)
+                p_frwd = FM.interpolate(p_bkwd)
 
-            d = ti.max(d, ts.distance(p_init, p_frwd))
+                d = ti.max(d, ts.distance(p_init, p_frwd))
 
-            self.grid.distortion[I] = ts.vec3(d)
+                self.grid.distortion[I] = ts.vec3(d)
 
-            # TODO Taichi has thread local memory,
-            # so this won't be too slow
-            ti.atomic_max(ret, d)
-            # if d > ret:
-            #     ret = d
+                # TODO Taichi has thread local memory,
+                # so this won't be too slow
+                ti.atomic_max(ret, d)
 
         return ret
 
@@ -627,20 +627,22 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         for I in ti.static(f0):
-            for drct, w in ti.static(zip(self.dirs, self.ws)):
-                pos = f0.getW(I + ti.Vector(drct))
-                pos1 = self.clampPos(FM.interpolate(pos))
-                f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
+            if f0.GisNearBoundary(I, 2) == 0:
+                for drct, w in ti.static(zip(self.dirs, self.ws)):
+                    pos = f0.getW(I + ti.Vector(drct))
+                    pos1 = self.clampPos(FM.interpolate(pos))
+                    f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
         # error term (25)
         for I in ti.static(f_tmp):
             f_tmp[I] -= f_init[I]
             f_tmp[I] *= 0.5
 
         for I in ti.static(f0):
-            for drct, w in ti.static(zip(self.dirs, self.ws)):
-                pos = f0.getW(I + ti.Vector(drct))
-                pos1 = self.clampPos(BM.interpolate(pos))
-                f1[I] -= w * f_tmp.interpolate(pos1)
+            if f0.GisNearBoundary(I, 2) == 0:
+                for drct, w in ti.static(zip(self.dirs, self.ws)):
+                    pos = f0.getW(I + ti.Vector(drct))
+                    pos1 = self.clampPos(BM.interpolate(pos))
+                    f1[I] -= w * f_tmp.interpolate(pos1)
 
     @ti.pyfunc
     def getSign(self, x, edge=0):
@@ -752,15 +754,11 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         self.calCFL()
-        print("CFL: {}".format(self.grid.CFL[None]))
+        print("Substep: {}".format(self.grid.CFL[None]))
+        print("CFL: {}".format(self.cfg.dt / self.grid.CFL[None]))
 
         if self.curFrame != 0:
             self.grid.v_pair.cur.copy(self.grid.v_tmp)
-
-        # d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
-        # print("Before advect vel distortion: {}".format(d_vel))
-        # d_sca = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
-        # print("Before advect vel distortion: {}".format(d_sca))
 
         self.advect(self.cfg.dt)
 
@@ -785,6 +783,7 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.d_v_proj.copy(self.grid.v_pair.cur)
         self.project()
         self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
+        self.grid.boundaryZeroVelocity(howNear=2)
 
         # difference of backward and forward
         d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
@@ -803,8 +802,8 @@ class Bimocq_Scheme(EulerScheme):
         # vel_remapping = (VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)) and self.curFrame > 4
         # sca_remapping = (ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)) and self.curFrame > 4
 
-        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
-        sca_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
+        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 4)
+        sca_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 8)
 
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)

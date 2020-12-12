@@ -1,6 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from utils import bufferPair, Vector, Matrix, MultiBufferPair
+from utils import bufferPair, Vector, Matrix, Wrapper
 from .FaceGrid import FaceGrid
 from config import SimulateType
 from .FluidGridData import FluidGridData
@@ -149,3 +149,18 @@ class MacGridData(FluidGridData):
         for d in ti.static(range(self.dim)):
             for I in ti.static(to_be_reflected.fields[d]):
                 to_be_reflected.fields[d][I] = 2.0 * mid_point.fields[d][I] - to_be_reflected.fields[d][I]
+
+    def boundaryZeroVelocity(self, howNear = 2):
+        """
+
+        :return:
+        """
+        for v_pair in self.advect_v_pairs:
+            self._boundaryZeroVelocity(v_pair.cur, howNear)
+
+    @ti.kernel
+    def _boundaryZeroVelocity(self, vf: Wrapper, howNear: ti.template()):
+        for I in ti.static(vf):
+            if vf.GisNearBoundary(I, howNear):
+                # print(I, "boundary")
+                vf[I][0] = 0.0

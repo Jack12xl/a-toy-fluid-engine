@@ -126,3 +126,4 @@ class CellGrid(Grid):
     @ti.pyfunc
     def fill(self, value):
         self.field.fill(value)
+

@@ -16,8 +16,18 @@ def test_int():
     print(ts.fract(I))
     print(f)
 
+@ti.kernel
+def test_cast(a: ti.template()):
+    # b = a.cast(ti.i32)
+    b = ti.cast(a, ti.i32)
+    print(b)
+
 if __name__ == "__main__":
-    print("floor: ")
-    test_floor()
-    print("int: ")
-    test_int()
+    # print("floor: ")
+    # test_floor()
+    # print("int: ")
+    # test_int()
+
+    a = ts.vec(23.3, 2.33)
+    test_cast(a)
+    print(a)

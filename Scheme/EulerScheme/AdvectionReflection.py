@@ -26,3 +26,4 @@ class AdvectionReflectionEulerScheme(EulerScheme):
         self.externalForce(ext_input, self.cfg.half_dt)
         self.project()
         self.grid.subtract_gradient(self.grid.v_pair.cur, self.grid.p_pair.cur)
+        # self.grid.boundaryZeroVelocity(2)
