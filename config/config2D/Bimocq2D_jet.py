@@ -63,7 +63,7 @@ Colliders = []
 
 res = [512, 512]
 
-dt = 0.02
+dt = 0.03
 dx = 1.0 / res[0]
 
 Emitters = []
@@ -86,7 +86,7 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jet_v=ts.vec2(0.0, 0.5),
+    jet_v=ts.vec2(0.0, 0.3),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
@@ -113,7 +113,7 @@ print(profile_name)
 # save to video(gif)
 bool_save = True
 
-save_frame_length = 32
+save_frame_length = 128
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,

@@ -116,7 +116,6 @@ class Bimocq_Scheme(EulerScheme):
         max_vel = self.getMaxVel(self.grid.v_pair.nxt)
         print("before double advect v nxt:  max abs Velocity : {}".format(max_vel))
 
-
         self.advectBimocq_velocity()
         self.doubleAdvect_kernel(self.grid.t_pair.cur,
                                  self.grid.t_pair.nxt,
@@ -326,9 +325,13 @@ class Bimocq_Scheme(EulerScheme):
         for d in ti.static(range(self.dim)):
             if ti.abs(a[d]) > ti.static(err):
                 dmc_trace_pos[d] = pos[d] - (1.0 - ti.exp(-a[d] * dt)) * vel[d] / a[d]
+                # print(">, dt, a[d]", -a[d], dt)
+                # print(">, exp", 1.0 - ti.exp(-a[d] * dt))
+                # print(">", dmc_trace_pos[d])
             else:
                 dmc_trace_pos[d] = back_trace_pos[d]
-
+        # TODO
+        # dmc_trace_pos = back_trace_pos
         return dmc_trace_pos
 
     @ti.func
@@ -343,15 +346,16 @@ class Bimocq_Scheme(EulerScheme):
         vel = vf.interpolate(pos)
         # (10)
         # TODO fix this after glsl is merged
-        new_pos = pos + vf.dx * ts.sign(vel)
+        new_pos = pos - self.cfg.dx * self.getSign(vel)
         # (11)
         new_vel = vf.interpolate(new_pos)
+        # print("a", new_pos, pos, new_vel, vel)
         # (11)
         # return (new_vel - vel) / (new_pos - pos + err)
         return (new_vel - vel) / (new_pos - pos)
 
     @ti.kernel
-    def BackwardIter(self, M: Matrix, dt: Float):
+    def BackwardIter(self, M: Wrapper, dt: Float):
         """
         Dual mesh characteristic in each iteration
         :param M: backward mapper
@@ -379,7 +383,7 @@ class Bimocq_Scheme(EulerScheme):
             self.BackwardIter(M, substep)
             # M, self.grid.tmp_map = self.grid.tmp_map, M
             M.copy(self.grid.tmp_map)
-        self.drawBackWard(M)
+        # self.drawBackWard(M)
 
     @ti.kernel
     def drawBackWard(self, M: Wrapper):
@@ -394,13 +398,13 @@ class Bimocq_Scheme(EulerScheme):
         :param dt:
         :return:
         """
-        vf = ti.static(self.grid.v_pair.cur)
+        # vf = ti.static(self.grid.v_pair.cur)
         for I in ti.static(M):
             pos = M[I]
             # TODO maybe need clamp here
             M[I] = self.clampPos(self.solveODE(pos, -dt))
-            # print(M[I])
-            self.grid.FM[I] = ts.vec3(M[I], 0.0)
+            # print(I, M[I])
+            # self.grid.FM[I] = ts.vec3(M[I], 0.0)
 
     def decorator_track_delta(self, delta, track_what):
         """
@@ -638,6 +642,18 @@ class Bimocq_Scheme(EulerScheme):
                 pos1 = self.clampPos(BM.interpolate(pos))
                 f1[I] -= w * f_tmp.interpolate(pos1)
 
+    @ti.pyfunc
+    def getSign(self, x, edge=0):
+        """
+        ref ts.sign, for those from ts version <= 0.10.0, ts.sign is wrong
+        :param x:
+        :param edge:
+        :return -1 <=0, 1 > 0
+        """
+        ret = x + edge  # type promotion
+        ret = abs(x > edge) - abs(x <= edge)
+        return ret
+
     @ti.kernel
     def clampExtreme(self,
                      f0: Wrapper,
@@ -667,7 +683,7 @@ class Bimocq_Scheme(EulerScheme):
                 min_val = ti.min(min_val, val)
 
             # TODO ts.sign is not right in version 0.10.0
-            s = -ts.sign(f1[I])
+            s = self.getSign(f1[I])
             f1[I] = s * ts.clamp(ti.abs(f1[I]), min_val, max_val)
 
     def reSampleVelBuffer(self):
@@ -726,10 +742,15 @@ class Bimocq_Scheme(EulerScheme):
             emitter.kern_materialize()
             # init the density and velocity for advection
             emitter.stepEmitHardCode(self.grid.v_pair.cur, self.grid.density_pair.cur, self.grid.t_pair.cur)
-            # emitter.stepEmitHardCode(self.grid.v_init, self.grid.rho_init, self.grid.T_init)
-            # emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
+            emitter.stepEmitHardCode(self.grid.v_init, self.grid.rho_init, self.grid.T_init)
+            emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
 
     def schemeStep(self, ext_input: np.array):
+        """
+        Run once in each frame
+        :param ext_input:
+        :return:
+        """
         self.calCFL()
         print("CFL: {}".format(self.grid.CFL[None]))
 
@@ -782,8 +803,8 @@ class Bimocq_Scheme(EulerScheme):
         # vel_remapping = (VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)) and self.curFrame > 4
         # sca_remapping = (ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)) and self.curFrame > 4
 
-        vel_remapping = VelocityDistortion > 1.5 or (self.curFrame - self.LastVelRemeshFrame >= 8)
-        sca_remapping = ScalarDistortion > 1.5 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
+        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)
+        sca_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)
 
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)

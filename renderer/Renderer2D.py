@@ -84,7 +84,7 @@ class renderer2D(renderer):
             self.vis_density(self.grid.distortion)
         elif self.cfg.VisualType == VisualizeEnum.BM:
             self.vis_mapper(self.grid.BM)
-        elif self.cfg.VisualType == VisualizeEnum.Distortion:
+        elif self.cfg.VisualType == VisualizeEnum.FM:
             self.vis_mapper(self.grid.FM)
 
     def renderStep(self, bdrySolver):
