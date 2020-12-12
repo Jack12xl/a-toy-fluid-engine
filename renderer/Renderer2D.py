@@ -4,6 +4,7 @@ from .abstractRenderer import renderer
 from config import PixelType, VisualizeEnum
 from utils import cmapper, Vector, Matrix, Wrapper
 
+
 @ti.data_oriented
 class renderer2D(renderer):
     def __init__(self, cfg, grid):
@@ -67,27 +68,30 @@ class renderer2D(renderer):
         for I in ti.static(M):
             self.clr_bffr[I] = M[I]
 
-    def render_frame(self):
-        if self.cfg.VisualType == VisualizeEnum.Velocity:
+    def render_frame(self, render_what: VisualizeEnum = None):
+        if render_what is None:
+            render_what = self.cfg.VisualType
+        if render_what == VisualizeEnum.Velocity:
             self.vis_v(self.grid.v_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Density:
+        elif render_what == VisualizeEnum.Density:
             self.vis_density(self.grid.density_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Divergence:
+        elif render_what == VisualizeEnum.Divergence:
             self.vis_vd(self.grid.v_divs)
-        elif self.cfg.VisualType == VisualizeEnum.Vorticity:
+        elif render_what == VisualizeEnum.Vorticity:
             self.vis_vt(self.grid.v_curl)
-        elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
+        elif render_what == VisualizeEnum.VelocityMagnitude:
             self.vis_v_mag(self.grid.v_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Temperature:
+        elif render_what == VisualizeEnum.Temperature:
             self.vis_t(self.grid.t, self.cfg.GasMaxT)
-        elif self.cfg.VisualType == VisualizeEnum.Distortion:
+        elif render_what == VisualizeEnum.Distortion:
             self.vis_density(self.grid.distortion)
-        elif self.cfg.VisualType == VisualizeEnum.BM:
+        elif render_what == VisualizeEnum.BM:
             self.vis_mapper(self.grid.BM)
-        elif self.cfg.VisualType == VisualizeEnum.FM:
+        elif render_what == VisualizeEnum.FM:
             self.vis_mapper(self.grid.FM)
 
     def renderStep(self, bdrySolver):
+        # TODO prepared to be called multiple time in exp_main
         self.render_frame()
 
         if len(bdrySolver.colliders):

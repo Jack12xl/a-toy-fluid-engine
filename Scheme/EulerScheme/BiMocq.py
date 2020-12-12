@@ -70,8 +70,8 @@ class Bimocq_Scheme(EulerScheme):
         :param dt:
         :return:
         """
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("Before update map: max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("Before update map: max abs Velocity : {}".format(max_vel))
 
         self.updateForward(self.grid.forward_map, dt)
         self.updateForward(self.grid.forward_scalar_map, dt)
@@ -79,21 +79,21 @@ class Bimocq_Scheme(EulerScheme):
         self.updateBackward(self.grid.backward_map, dt)
         self.updateBackward(self.grid.backward_scalar_map, dt)
 
-        d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
-        print("Before advect vel distortion: {}".format(d_vel))
-        d_sca = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
-        print("Before advect vel distortion: {}".format(d_sca))
+        # d_vel = self.estimateDistortion(self.grid.backward_map, self.grid.forward_map)
+        # print("Before advect vel distortion: {}".format(d_vel))
+        # d_sca = self.estimateDistortion(self.grid.backward_scalar_map, self.grid.forward_scalar_map)
+        # print("Before advect vel distortion: {}".format(d_sca))
 
         # advect velocity, temperature, density
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("before original advect:  max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("before original advect:  max abs Velocity : {}".format(max_vel))
 
         # super(Bimocq_Scheme, self).advect(dt)
         # simple advect
         self.SimpleEulerAdvect(dt)
 
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("after simple advect:  max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("after simple advect:  max abs Velocity : {}".format(max_vel))
 
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
@@ -106,11 +106,8 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.t_pair.nxt.fill(ts.vecND(1, 0.0))
         self.grid.density_pair.nxt.fill(ts.vecND(3, 0.0))
 
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("before double advect v cur:  max abs Velocity : {}".format(max_vel))
-
-        max_vel = self.getMaxVel(self.grid.v_pair.nxt)
-        print("before double advect v nxt:  max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("before double advect v cur:  max abs Velocity : {}".format(max_vel))
 
         self.advectBimocq_velocity()
         self.doubleAdvect_kernel(self.grid.t_pair.cur,
@@ -133,12 +130,6 @@ class Bimocq_Scheme(EulerScheme):
                                  )
         self.grid.density_pair.swap()
         self.grid.t_pair.swap()
-        # self.grid.v_pair.swap()
-        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        # print("before swap_v:  max abs Velocity : {}".format(max_vel))
-        #
-        # max_vel = self.getMaxVel(self.grid.v_pair.nxt)
-        # print("before swap_v:  max nxt abs Velocity : {}".format(max_vel))
         self.grid.swap_v()
 
         for d, v_pair in enumerate(self.grid.advect_v_pairs):
@@ -178,8 +169,8 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.t_pair.swap()
         self.grid.swap_v()
         #
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("After correction:  max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("After correction:  max abs Velocity : {}".format(max_vel))
 
     @ti.kernel
     def SemiLagAdvect(self, f0: Wrapper, f1: Wrapper, dt: Float):
@@ -773,8 +764,8 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.d_T_tmp.copy(self.grid.t_pair.cur)
         self.grid.d_rho_tmp.copy(self.grid.density_pair.cur)
 
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("after advection max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("after advection max abs Velocity : {}".format(max_vel))
         ### External Force
         self.externalForce(ext_input, subdt)
 
@@ -782,8 +773,8 @@ class Bimocq_Scheme(EulerScheme):
         self.grid.d_T_tmp.subself(self.grid.t_pair.cur)
         self.grid.d_rho_tmp.subself(self.grid.density_pair.cur)
 
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("after external force  max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("after external force  max abs Velocity : {}".format(max_vel))
         # track the delta v from projection
         self.grid.d_v_proj.copy(self.grid.v_pair.cur)
         self.project()
@@ -798,11 +789,11 @@ class Bimocq_Scheme(EulerScheme):
         VelocityDistortion = d_vel / ((max_vel + err) * subdt)
         ScalarDistortion = d_scalar / ((max_vel + err) * subdt)
 
-        print("d_vel: {}".format(d_vel))
-        print("d_scalar: {}".format(d_scalar))
-        print("Velocity Distortion : {}".format(VelocityDistortion))
-        print("Scalar Distortion : {}".format(ScalarDistortion))
-        print("After project Max abs Velocity : {}".format(max_vel))
+        # print("d_vel: {}".format(d_vel))
+        # print("d_scalar: {}".format(d_scalar))
+        # print("Velocity Distortion : {}".format(VelocityDistortion))
+        # print("Scalar Distortion : {}".format(ScalarDistortion))
+        # print("After project Max abs Velocity : {}".format(max_vel))
 
         vel_remapping = VelocityDistortion > self.cfg.vel_remap_threshold or (
                     self.curFrame - self.LastVelRemeshFrame >= self.cfg.vel_remap_frequency)
@@ -814,11 +805,11 @@ class Bimocq_Scheme(EulerScheme):
         #
         proj_coeff = 1.0 if vel_remapping else 2.0
         self.AccumulateVelocity(self.grid.d_v_tmp, 1.0)
-        max_vel = self.getMaxVel(self.grid.d_v)
-        print("Accumulate external d_v: {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.d_v)
+        # print("Accumulate external d_v: {}".format(max_vel))
         self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
-        max_vel = self.getMaxVel(self.grid.d_v_proj)
-        print("Accumulate project d_v: {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.d_v_proj)
+        # print("Accumulate project d_v: {}".format(max_vel))
         self.AccumulateScalar(self.grid.d_T, self.grid.d_rho)
 
         if vel_remapping:
@@ -826,7 +817,7 @@ class Bimocq_Scheme(EulerScheme):
             self.LastVelRemeshFrame = self.curFrame
             self.reSampleVelBuffer()
             self.AccumulateVelocity(self.grid.d_v_proj, proj_coeff)
-            max_vel = self.getMaxVel(self.grid.d_v_proj)
+            # max_vel = self.getMaxVel(self.grid.d_v_proj)
             print("Accumulate project d_v: {}".format(max_vel))
 
         if sca_remapping:

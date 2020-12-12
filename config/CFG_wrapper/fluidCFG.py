@@ -1,6 +1,6 @@
 import taichi as ti
 from abc import ABCMeta, abstractmethod
-
+import os
 from utils import SetterProperty
 
 
@@ -37,8 +37,10 @@ class FluidCFG(metaclass=ABCMeta):
         self.profile_name = cfg.profile_name
         # save to png(gif, mp4)
         self.save_frame_length = None
-        self.video_manager = None
+        self.video_managers = None
+        self.save_what = None
         self.bool_save = cfg.bool_save
+
 
     @SetterProperty
     def dt(self, dt):
@@ -58,7 +60,13 @@ class FluidCFG(metaclass=ABCMeta):
     @SetterProperty
     def bool_save(self, save):
         self.__dict__['bool_save'] = save
-
         if save:
+            self.save_what = self.cfg.save_what
             self.save_frame_length = self.cfg.save_frame_length
-            self.video_manager = self.cfg.video_manager
+            for save_thing in self.save_what:
+                self.video_managers.append(ti.VideoManager(
+                        output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
+                        framerate=self.cfg.frame_rate,
+                        automatic_build=False
+                    )
+                )

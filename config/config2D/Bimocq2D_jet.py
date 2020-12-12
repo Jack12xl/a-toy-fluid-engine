@@ -47,7 +47,7 @@ advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 160
+p_jacobi_iters = 128
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
 
@@ -94,7 +94,7 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jet_v=ts.vec2(0.0, 0.3),
+    jet_v=ts.vec2(0.0, 0.5),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
@@ -104,7 +104,6 @@ Emitters.append(SquareEmitter(
 
 profile_name = '2D' + '-'\
                 + 'x'.join(map(str, res)) + '-' \
-                + str(VisualType) + '-' \
                 + "CFL-" + str(CFL) + "-" \
                 + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \
                 + "-sclrRemap-" + str(sclr_remap_threshold) + "-" + str(sclr_remap_frequency) \
@@ -119,10 +118,13 @@ print(profile_name)
 
 # save to video(gif)
 bool_save = True
-
-save_frame_length = 128
+save_what = [
+    VisualizeEnum.Density,
+    VisualizeEnum.Velocity,
+    VisualizeEnum.BM,
+    VisualizeEnum.FM
+]
+save_frame_length = 360
 save_root = './tmp_result'
+frame_rate = int(1.0 / dt)
 save_path = os.path.join(save_root, profile_name)
-video_manager = ti.VideoManager(output_dir=save_path,
-                                framerate=24,
-                                automatic_build=False)

@@ -102,15 +102,19 @@ if __name__ == '__main__':
         gui.show()
 
         if m_cfg.bool_save:
-            if frame_count <= m_cfg.save_frame_length:
-                # not sure this would work
-                img = s.renderer.clr_bffr.to_numpy()
-                m_cfg.video_manager.write_frame(img)
-            else:
-                m_cfg.video_manager.make_video(gif=True, mp4=False)
-                # m_cfg.video_manager.get_output_filename(".mp4")
-                m_cfg.video_manager.get_output_filename(".gif")
-                break
+            for save_what, video_manager in zip(m_cfg.save_what, m_cfg.video_managers):
+
+                if frame_count < m_cfg.save_frame_length:
+                    # blit the corresponding frame
+                    s.renderer.render_frame(save_what)
+
+                    img = s.renderer.clr_bffr.to_numpy()
+                    video_manager.write_frame(img)
+                else:
+                    video_manager.make_video(gif=True, mp4=False)
+                    # m_cfg.video_manager.get_output_filename(".mp4")
+                    video_manager.get_output_filename(".gif")
+                    break
         frame_count += 1
         # print("frame", frame_count)
 
