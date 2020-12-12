@@ -14,7 +14,7 @@ class Bimocq_Scheme(EulerScheme):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        self.blend_coefficient = 0.5
+        self.blend_coefficient = self.cfg.blend_coefficient
 
         self.LastVelRemeshFrame = 0
         self.LastScalarRemeshFrame = 0
@@ -29,7 +29,6 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            self.blend_coefficient = 0.5
             self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
@@ -799,11 +798,8 @@ class Bimocq_Scheme(EulerScheme):
         print("Scalar Distortion : {}".format(ScalarDistortion))
         print("After project Max abs Velocity : {}".format(max_vel))
 
-        # vel_remapping = (VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 8)) and self.curFrame > 4
-        # sca_remapping = (ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 20)) and self.curFrame > 4
-
-        vel_remapping = VelocityDistortion > 1.0 or (self.curFrame - self.LastVelRemeshFrame >= 4)
-        sca_remapping = ScalarDistortion > 1.0 or (self.curFrame - self.LastScalarRemeshFrame >= 8)
+        vel_remapping = VelocityDistortion > self.cfg.vel_remap_threshold or (self.curFrame - self.LastVelRemeshFrame >= self.cfg.vel_remap_frequency)
+        sca_remapping = ScalarDistortion > self.cfg.sclr_remap_threshold or (self.curFrame - self.LastScalarRemeshFrame >= self.cfg.sclr_remap_frequency)
 
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)

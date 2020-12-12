@@ -25,7 +25,17 @@ class EulerCFG(FluidCFG):
         elif self.v_grid_type == GRIDTYPE.Bimocq_GRID:
             self.grid = BimMocqGridData
 
+        self.blend_coefficient = None
+        self.vel_remap_threshold = None
+        self.sclr_remap_threshold = None
+        self.vel_remap_frequency = None
+        self.sclr_remap_frequency = None
+
         self.run_scheme = cfg.run_scheme
+        #Bimocq
+
+
+
         self.VisualType = cfg.VisualType
         self.SceneType = cfg.SceneType
 
@@ -42,6 +52,20 @@ class EulerCFG(FluidCFG):
 
         self.dye_decay = cfg.dye_decay
         self.curl_strength = cfg.curl_strength
+
+    @property
+    def run_scheme(self):
+        return self._run_scheme
+
+    @run_scheme.setter
+    def run_scheme(self, s: SchemeType):
+        self._run_scheme = s
+        if s == SchemeType.Bimocq:
+            self.blend_coefficient = self.cfg.blend_coefficient
+            self.vel_remap_threshold = self.cfg.vel_remap_threshold
+            self.sclr_remap_threshold = self.cfg.sclr_remap_threshold
+            self.vel_remap_frequency = self.cfg.vel_remap_frequency
+            self.sclr_remap_frequency = self.cfg.sclr_remap_frequency
 
     @property
     def SimType(self):

@@ -33,13 +33,19 @@ GasMaxT = 85.0
 # run Scheme
 run_scheme = SchemeType.Bimocq
 
+blend_coefficient = 0.5
+vel_remap_threshold = 0.8
+sclr_remap_threshold = 0.8
+vel_remap_frequency = 4
+sclr_remap_frequency = 8
+
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
 advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 128
+p_jacobi_iters = 160
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
 
@@ -95,16 +101,14 @@ Emitters.append(SquareEmitter(
 
 
 profile_name = '2D' + '-'\
-               + 'x'.join(map(str, res)) + '-' \
-               + str(v_grid_type) + '-' \
-               + str(VisualType) + '-' \
-               + str(run_scheme) + '-' \
-               + filterUpCase(advection_solver.__name__) + '-' \
-               + filterUpCase(projection_solver.__name__) + '-' \
-               + str(p_jacobi_iters) + 'it-' \
-               + 'RK' + str(int(semi_order)) + '-' \
-               + 'curl' + str(curl_strength) + '-' \
-               + 'dt-' + str(dt)
+                + 'x'.join(map(str, res)) + '-' \
+                + str(VisualType) + '-' \
+                + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \
+                + "-sclrRemap-" + str(sclr_remap_threshold) + "-" + str(sclr_remap_frequency) \
+                + "-BlndCoeff-" + str(blend_coefficient) + "-" \
+                + filterUpCase(projection_solver.__name__) + '-' \
+                + str(p_jacobi_iters) + 'it-' \
+                + 'dt-' + str(dt)
 
 if Colliders:
     profile_name += '-Collider'
@@ -113,7 +117,7 @@ print(profile_name)
 # save to video(gif)
 bool_save = True
 
-save_frame_length = 128
+save_frame_length = 96
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 video_manager = ti.VideoManager(output_dir=save_path,
