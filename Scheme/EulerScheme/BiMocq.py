@@ -149,6 +149,9 @@ class Bimocq_Scheme(EulerScheme):
         max_vel = self.getMaxVel(self.grid.v_pair.cur)
         print("before correction:  max abs Velocity : {}".format(max_vel))
 
+        max_vel = self.getMaxVel(self.grid.v_pair.nxt)
+        print("before correction nxt:  max abs Velocity : {}".format(max_vel))
+
         for d, v_pair in enumerate(self.grid.advect_v_pairs):
             self.ErrorCorrectField(
                 1,
@@ -376,6 +379,12 @@ class Bimocq_Scheme(EulerScheme):
             self.BackwardIter(M, substep)
             # M, self.grid.tmp_map = self.grid.tmp_map, M
             M.copy(self.grid.tmp_map)
+        self.drawBackWard(M)
+
+    @ti.kernel
+    def drawBackWard(self, M: Wrapper):
+        for I in ti.static(M):
+            self.grid.BM[I] = ts.vec3(M[I], 0.0)
 
     @ti.kernel
     def updateForward(self, M: Wrapper, dt: Float):
@@ -391,6 +400,7 @@ class Bimocq_Scheme(EulerScheme):
             # TODO maybe need clamp here
             M[I] = self.clampPos(self.solveODE(pos, -dt))
             # print(M[I])
+            self.grid.FM[I] = ts.vec3(M[I], 0.0)
 
     def decorator_track_delta(self, delta, track_what):
         """
@@ -433,7 +443,7 @@ class Bimocq_Scheme(EulerScheme):
 
             d = ti.max(d, ts.distance(p_init, p_frwd))
 
-            self.grid.distortion[d] = ts.vec3(d)
+            self.grid.distortion[I] = ts.vec3(d)
 
             # TODO Taichi has thread local memory,
             # so this won't be too slow

@@ -45,14 +45,15 @@ class BimMocqGridData(MacGridData):
                       )
              for _ in range(8)]
 
-        self.distortion, self.distortion_scalar, = \
+        # Debug
+        self.distortion, self.BM, self.FM= \
             [CellGrid(
                 ti.Vector.field(3, dtype=ti.f32, shape=cfg.res),
                 cfg.dim,
                 dx=ts.vecND(self.dim, self.cfg.dx),
                 o=ts.vecND(self.dim, 0.5)
             )
-                for _ in range(2)]
+                for _ in range(3)]
 
 
     def materialize(self):
@@ -67,7 +68,7 @@ class BimMocqGridData(MacGridData):
         self.init_map(self.backward_scalar_map_bffr)
 
     @ti.kernel
-    def init_map(self, m: Matrix):
+    def init_map(self, m: Wrapper):
         for I in ti.static(m):
             m[I] = m.getW(I)
 

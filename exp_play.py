@@ -77,6 +77,12 @@ if __name__ == '__main__':
                 m_cfg.VisualType = VisualizeEnum.VelocityMagnitude
             elif e.key == '5' and m_cfg.SimType == SimulateType.Gas:
                 m_cfg.VisualType = VisualizeEnum.Temperature
+            elif e.key == "6":
+                m_cfg.VisualType = VisualizeEnum.Distortion
+            elif e.key == "7":
+                m_cfg.VisualType = VisualizeEnum.BM
+            elif e.key == "8":
+                m_cfg.VisualType = VisualizeEnum.FM
 
         if not paused:
             mouse_data = md_gen(gui)

@@ -2,7 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 from .abstractRenderer import renderer
 from config import PixelType, VisualizeEnum
-from utils import cmapper, Vector, Matrix
+from utils import cmapper, Vector, Matrix, Wrapper
 
 @ti.data_oriented
 class renderer2D(renderer):
@@ -62,6 +62,11 @@ class renderer2D(renderer):
         for I in ti.static(tf):
             self.clr_bffr[I] = ts.vec3(tf[I][0] / MaxT)
 
+    @ti.kernel
+    def vis_mapper(self, M: Wrapper):
+        for I in ti.static(M):
+            self.clr_bffr[I] = M[I]
+
     def render_frame(self):
         if self.cfg.VisualType == VisualizeEnum.Velocity:
             self.vis_v(self.grid.v_pair.cur)
@@ -75,6 +80,12 @@ class renderer2D(renderer):
             self.vis_v_mag(self.grid.v_pair.cur)
         elif self.cfg.VisualType == VisualizeEnum.Temperature:
             self.vis_t(self.grid.t, self.cfg.GasMaxT)
+        elif self.cfg.VisualType == VisualizeEnum.Distortion:
+            self.vis_density(self.grid.distortion)
+        elif self.cfg.VisualType == VisualizeEnum.BM:
+            self.vis_mapper(self.grid.BM)
+        elif self.cfg.VisualType == VisualizeEnum.Distortion:
+            self.vis_mapper(self.grid.FM)
 
     def renderStep(self, bdrySolver):
         self.render_frame()

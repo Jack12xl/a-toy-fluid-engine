@@ -20,10 +20,13 @@ class VisualizeEnum(Enum):
     Vorticity = 3
     VelocityMagnitude = 4
     Temperature = 5
+    Distortion = 6
+    BM = 7
+    FM = 8
 
     def __init__(self, *args):
         super().__init__()
-        self.map = ['Density', 'Velocity', 'Div', 'Curl', 'Vel-Norm']
+        self.map = ['Density', 'Velocity', 'Div', 'Curl', 'Vel-Norm', "T", "Dstrt", 'BM', 'FW']
 
     def __str__(self):
         return self.map[self.value]
