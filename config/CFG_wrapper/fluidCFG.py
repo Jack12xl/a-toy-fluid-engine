@@ -1,7 +1,7 @@
 import taichi as ti
 from abc import ABCMeta, abstractmethod
 import os
-from utils import SetterProperty
+from utils import SetterProperty, plyWriter
 
 
 class FluidCFG(metaclass=ABCMeta):
@@ -31,6 +31,8 @@ class FluidCFG(metaclass=ABCMeta):
 
         self.CFL = cfg.CFL
 
+        self.fluid_color = cfg.fluid_color
+
         self.Colliders = cfg.Colliders
         self.Emitters = cfg.Emitters
 
@@ -39,6 +41,7 @@ class FluidCFG(metaclass=ABCMeta):
         self.save_frame_length = None
         self.video_managers = []
         self.save_what = None
+        self.PLYwriter = None
         self.bool_save = cfg.bool_save
 
 
@@ -88,6 +91,8 @@ class FluidCFG(metaclass=ABCMeta):
         print(">>>>>>")
         if save:
             print("We will save ply this time !")
-
+            self.PLYwriter = plyWriter(self.fluid_color, self)
+            print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
+        print(">>>>>>")
 
 

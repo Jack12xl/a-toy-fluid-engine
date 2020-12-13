@@ -44,7 +44,7 @@ advection_solver = MacCormackSolver
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 64
+p_jacobi_iters = 65
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
 
@@ -97,10 +97,10 @@ save_what = [
     VisualizeEnum.VelocityMagnitude
 ]
 
-save_frame_length = 180
+save_frame_length = 8
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 frame_rate = int(1.0 / dt)
 
-bool_save_ply = False
+bool_save_ply = True
 

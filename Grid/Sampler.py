@@ -68,18 +68,18 @@ class LinearSampler3D(Sampler):
         return c0 * w1.z + c1 * w0.z
 
     @ti.pyfunc
-    def sample_minmax(self, f, P):
+    def sample_minmax(self, field, P):
         I = ti.floor(P)
 
-        a = ts.sample(f, I + ts.D.xxx)
-        b = ts.sample(f, I + ts.D.xxy)
-        c = ts.sample(f, I + ts.D.xyx)
-        d = ts.sample(f, I + ts.D.yxx)
+        a = ts.sample(field, I + ts.D.xxx)
+        b = ts.sample(field, I + ts.D.xxy)
+        c = ts.sample(field, I + ts.D.xyx)
+        d = ts.sample(field, I + ts.D.yxx)
 
-        e = ts.sample(f, I + ts.D.yyy)
-        f = ts.sample(f, I + ts.D.xyy)
-        g = ts.sample(f, I + ts.D.yyx)
-        h = ts.sample(f, I + ts.D.yxy)
+        e = ts.sample(field, I + ts.D.yyy)
+        f = ts.sample(field, I + ts.D.xyy)
+        g = ts.sample(field, I + ts.D.yyx)
+        h = ts.sample(field, I + ts.D.yxy)
 
         return min(a, b, c, d, e, f, g, h), max(a, b, c, d, e, f, g, h)
 
