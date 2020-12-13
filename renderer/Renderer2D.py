@@ -68,6 +68,13 @@ class renderer2D(renderer):
         for I in ti.static(M):
             self.clr_bffr[I] = M[I]
 
+    @ti.kernel
+    def vis_distortion(self, D: Wrapper):
+        para = self.cfg.CFL * self.cfg.dx / 0.5
+        for I in D:
+            # approximate 1
+            self.clr_bffr[I] = D[I] / para
+
     def render_frame(self, render_what: VisualizeEnum = None):
         if render_what is None:
             render_what = self.cfg.VisualType

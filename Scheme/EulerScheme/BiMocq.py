@@ -21,7 +21,7 @@ class Bimocq_Scheme(EulerScheme):
 
         self.total_resampleCount = 0
 
-        self.doubleAdvect_kernel = None
+        # self.doubleAdvect_kernel = None
         self.w_self = None
         # weight S
         self.ws = None
@@ -29,16 +29,25 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            self.doubleAdvect_kernel = self.doubleAdvectKern2D
+            # self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
         elif self.dim == 3:
             self.blend_coefficient = 0.5
             self.ws = 8 * [0.125]
+
             self.dirs = []
-            self.doubleAdvect_kernel = self.doubleAdvectKern3D
+            for i in [-0.25, 0.25]:
+                for j in [-0.25, 0.25]:
+                    for k in [-0.25, 0.25]:
+                        self.dirs.append([i, j, k])
+            print(self.dirs)
+            # self.doubleAdvect_kernel = self.doubleAdvectKern3D
 
         self.traceFunc = self.advection_solver.backtrace
+        self.save_BM = self.cfg.bool_save and VisualizeEnum.BM in self.cfg.save_what
+        self.save_FM = self.cfg.bool_save and VisualizeEnum.FM in self.cfg.save_what
+        self.save_Distortion = self.cfg.bool_save and VisualizeEnum.Distortion in self.cfg.save_what
 
     @ti.pyfunc
     def clampPos(self, pos):
@@ -93,9 +102,6 @@ class Bimocq_Scheme(EulerScheme):
         # super(Bimocq_Scheme, self).advect(dt)
         # simple advect
         self.SimpleEulerAdvect(dt)
-
-        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        # print("after simple advect:  max abs Velocity : {}".format(max_vel))
 
         # actually store the velocity before advection
         self.grid.v_presave.copy(self.grid.v_pair.nxt)
@@ -201,7 +207,7 @@ class Bimocq_Scheme(EulerScheme):
                                      self.grid.backward_map_bffr)
 
     @ti.kernel
-    def doubleAdvectKern2D(self,
+    def doubleAdvect_kernel(self,
                            f: Wrapper,
                            f_n: Wrapper,
                            f_orig: Wrapper,
@@ -258,14 +264,14 @@ class Bimocq_Scheme(EulerScheme):
                             d_f.interpolate(pos1)
                     )
 
-    @ti.kernel
-    def doubleAdvectKern3D(self, f: Wrapper):
-        """
-        advect twice
-        :param f: the wrapper of input field(T, rho, velocity)
-        :return:
-        """
-        dir = [1.0, -1.0]
+    # @ti.kernel
+    # def doubleAdvectKern3D(self, f: Wrapper):
+    #     """
+    #     advect twice
+    #     :param f: the wrapper of input field(T, rho, velocity)
+    #     :return:
+    #     """
+    #     dir = [1.0, -1.0]
 
     @ti.func
     def solveODE(self, pos, dt):
@@ -372,7 +378,8 @@ class Bimocq_Scheme(EulerScheme):
             M.copy(self.grid.tmp_map)
             t += substep
         # comment this if not need to visualize BM
-        # self.drawBackWard(M)
+        if self.save_Distortion:
+            self.drawBackWard(M)
 
     @ti.kernel
     def drawBackWard(self, M: Wrapper):
@@ -391,7 +398,8 @@ class Bimocq_Scheme(EulerScheme):
             pos = M[I]
             M[I] = self.clampPos(self.solveODE(pos, -dt))
             # TODO comment this if not need to debug
-            # self.grid.FM[I] = ts.vec3(M[I], 0.0)
+            if self.save_FM:
+                self.grid.FM[I] = ts.vec3(M[I], 0.0)
 
     def decorator_track_delta(self, delta, track_what):
         """
@@ -423,23 +431,24 @@ class Bimocq_Scheme(EulerScheme):
         ret = 0.0
         for I in ti.static(BM):
             # TODO origin code handles boundary
-            if BM.GisNearBoundary(I, 3) == 0:
-                p_init = BM.getW(I)
-                p_frwd = FM.sample(I)
-                p_bkwd = BM.interpolate(p_frwd)
+            # if BM.GisNearBoundary(I, 3) == 0:
+            p_init = BM.getW(I)
+            p_frwd = FM.sample(I)
+            p_bkwd = BM.interpolate(p_frwd)
 
-                d = ts.distance(p_init, p_bkwd)
+            d = ts.distance(p_init, p_bkwd)
 
-                p_bkwd = BM.sample(I)
-                p_frwd = FM.interpolate(p_bkwd)
+            p_bkwd = BM.sample(I)
+            p_frwd = FM.interpolate(p_bkwd)
 
-                d = ti.max(d, ts.distance(p_init, p_frwd))
+            d = ti.max(d, ts.distance(p_init, p_frwd))
 
+            if self.save_Distortion:
                 self.grid.distortion[I] = ts.vec3(d)
 
-                # TODO Taichi has thread local memory,
-                # so this won't be too slow
-                ti.atomic_max(ret, d)
+            # TODO Taichi has thread local memory,
+            # so this won't be too slow
+            ti.atomic_max(ret, d)
 
         return ret
 
@@ -613,22 +622,22 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         for I in ti.static(f0):
-            if f0.GisNearBoundary(I, 2) == 0:
-                for drct, w in ti.static(zip(self.dirs, self.ws)):
-                    pos = f0.getW(I + ti.Vector(drct))
-                    pos1 = self.clampPos(FM.interpolate(pos))
-                    f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
+            # if f0.GisNearBoundary(I, 2) == 0:
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = f0.getW(I + ti.Vector(drct))
+                pos1 = self.clampPos(FM.interpolate(pos))
+                f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
         # error term (25)
         for I in ti.static(f_tmp):
             f_tmp[I] -= f_init[I]
             f_tmp[I] *= 0.5
 
         for I in ti.static(f0):
-            if f0.GisNearBoundary(I, 2) == 0:
-                for drct, w in ti.static(zip(self.dirs, self.ws)):
-                    pos = f0.getW(I + ti.Vector(drct))
-                    pos1 = self.clampPos(BM.interpolate(pos))
-                    f1[I] -= w * f_tmp.interpolate(pos1)
+            # if f0.GisNearBoundary(I, 2) == 0:
+            for drct, w in ti.static(zip(self.dirs, self.ws)):
+                pos = f0.getW(I + ti.Vector(drct))
+                pos1 = self.clampPos(BM.interpolate(pos))
+                f1[I] -= w * f_tmp.interpolate(pos1)
 
     @ti.pyfunc
     def getSign(self, x, edge=0):
@@ -754,8 +763,8 @@ class Bimocq_Scheme(EulerScheme):
         self.calCFL()
         print("ODE Substep: {}".format(self.grid.CFL[None]))
 
-        if self.curFrame != 0:
-            self.grid.v_pair.cur.copy(self.grid.v_tmp)
+        # if self.curFrame != 0:
+        #     self.grid.v_pair.cur.copy(self.grid.v_tmp)
 
         self.advect(subdt)
 
@@ -792,8 +801,8 @@ class Bimocq_Scheme(EulerScheme):
 
         # print("d_vel: {}".format(d_vel))
         # print("d_scalar: {}".format(d_scalar))
-        # print("Velocity Distortion : {}".format(VelocityDistortion))
-        # print("Scalar Distortion : {}".format(ScalarDistortion))
+        print("Velocity Distortion : {}".format(VelocityDistortion))
+        print("Scalar Distortion : {}".format(ScalarDistortion))
         # print("After project Max abs Velocity : {}".format(max_vel))
 
         vel_remapping = VelocityDistortion > self.cfg.vel_remap_threshold or (
@@ -828,8 +837,8 @@ class Bimocq_Scheme(EulerScheme):
 
         self.grid.v_tmp.copy(self.grid.v_pair.cur)
 
-        if self.curFrame != 0:
-            self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
+        # if self.curFrame != 0:
+        #     self.blendVel(self.grid.v_pair.cur, self.grid.v_presave)
 
         print("Cur frame ", self.curFrame)
         print("")
