@@ -33,18 +33,18 @@ GasMaxT = 85.0
 
 
 # run scheme
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 CFL = None
 Colliders = []
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
-advection_solver = MacCormackSolver
+advection_solver = SemiLagrangeSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
-projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 65
+projection_solver = JacobiProjectionSolver
+p_jacobi_iters = 16
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
 
@@ -57,6 +57,8 @@ ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=10.0)
 
 from geometry import Transform3, Velocity3
 from Emitter import ForceEmitter3, SquareEmitter
+
+fluid_color = ts.vec3(0.5, 0.5 ,0.5)
 
 Emitters = []
 Emitters.append(SquareEmitter(
@@ -91,13 +93,13 @@ print(profile_name)
 bool_save = True
 save_what = [
     VisualizeEnum.Density,
-    VisualizeEnum.Velocity,
-    VisualizeEnum.Vorticity,
-    VisualizeEnum.Divergence,
-    VisualizeEnum.VelocityMagnitude
+    # # VisualizeEnum.Velocity,
+    # # VisualizeEnum.Vorticity,
+    # # VisualizeEnum.Divergence,
+    # # VisualizeEnum.VelocityMagnitude
 ]
 
-save_frame_length = 8
+save_frame_length = 180
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 frame_rate = int(1.0 / dt)

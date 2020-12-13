@@ -119,7 +119,7 @@ if __name__ == '__main__':
                     # m_cfg.video_manager.get_output_filename(".mp4")
                     video_manager.get_output_filename(".gif")
 
-            if m_cfg.bool_save_ply:
+            if m_cfg.bool_save_ply and frame_count % 10 == 0:
                 m_cfg.PLYwriter.save_frame(frame_count, s.grid.density_pair.cur)
 
             if frame_count >= m_cfg.save_frame_length:

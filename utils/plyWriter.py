@@ -4,6 +4,7 @@ from .basic_types import Wrapper
 import os
 
 
+@ti.data_oriented
 class plyWriter(ti.PLYWriter):
     """
     Simple use
@@ -19,13 +20,13 @@ class plyWriter(ti.PLYWriter):
 
         super(plyWriter, self).__init__(self.num_vertices)
 
-        self.ti_pos = ti.field.Vector(self.dim, dt=ti.f32, shape=self.cfg.res)
+        self.ti_pos = ti.Vector.field(self.dim, dtype=ti.f32, shape=self.cfg.res)
         self.np_pos = None
 
-        self.ti_den = ti.field(dt=ti.f32, shape=self.cfg.res)
+        self.ti_den = ti.field(dtype=ti.f32, shape=self.cfg.res)
         self.np_den = None
 
-        self.series_prefix = os.path.join(self.cfg.profile_name, 'PLYs')
+        self.series_prefix = os.path.join('./tmp_result', self.cfg.profile_name, 'PLYs')
 
     @ti.kernel
     def read_pos(self, f: Wrapper):
@@ -43,11 +44,20 @@ class plyWriter(ti.PLYWriter):
     def set_den(self):
         self.np_den = np.reshape(self.ti_den.to_numpy(), (self.num_vertices, 1))
 
+    def refresh(self):
+        self.num_vertex_channels = 0
+        self.vertex_channels = []
+        self.vertex_data_type = []
+        self.vertex_data = []
+
     def save_frame(self, frame_number, rho_f: Wrapper):
-        if frame_number == 0:
-            self.read_pos(rho_f)
-            self.set_pos()
+        print("Saving PLY frame {}".format(frame_number))
+        self.read_pos(rho_f)
+        self.set_pos()
         self.add_vertex_pos(self.np_pos[:, 0], self.np_pos[:, 1], self.np_pos[:, 2])
         self.read_den(rho_f)
+        self.set_den()
         self.add_vertex_alpha(self.np_den)
         self.export_frame_ascii(frame_number, self.series_prefix)
+
+        self.refresh()
