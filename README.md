@@ -1,3 +1,7 @@
+Here is the branch for CIS-565-submission.
+
+Here is the [link](https://drive.google.com/drive/folders/1dK6_DLhjfXc3D2G6hUvjzXfSlGX6axv3?usp=sharing) to my pitch, milestone 1 ~ 3.
+
 # A toy fluid engine
 
 ![](./results/teaser.gif)
@@ -34,6 +38,7 @@ Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by 
 - Advection
   - Semi-Lagrangian
   - MacCormack / BFECC
+  - [BiMocq2](./Scheme)
 - Projection
   - Jacobian
   - Gauss-Seidel 
