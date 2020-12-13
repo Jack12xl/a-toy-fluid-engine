@@ -38,11 +38,11 @@ In the map case, we are showing the first map. Each pixel value(R, G, B) represe
 
 Why the backmap and forward map stay the same and always map to itself?
 
-**A Failed case**(due to bug...): Velocity field would explooooode.  ..
+**A Failed case**(due to CFL too large...): 
 
-| Velocity field                                           | backward map                                | Forward Map                                 | Distortion                                     |
-| -------------------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ---------------------------------------------- |
-| ![](../results/BiMocq/failed/bimocq_failed_velocity.gif) | ![](../results/BiMocq/failed/failed_BM.gif) | ![](../results/BiMocq/failed/failed_FM.gif) | ![](../results/BiMocq/failed/failed_dstrt.gif) |
+| Density                                          | Velocity field                                           | backward map                                | Forward Map                                 | Distortion                                     |
+| ------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ---------------------------------------------- |
+| ![](../results/BiMocq/failed/failed_density.gif) | ![](../results/BiMocq/failed/bimocq_failed_velocity.gif) | ![](../results/BiMocq/failed/failed_BM.gif) | ![](../results/BiMocq/failed/failed_FM.gif) | ![](../results/BiMocq/failed/failed_dstrt.gif) |
 
 Still In progress.
 
