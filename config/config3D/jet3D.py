@@ -17,7 +17,7 @@ dim = 3
 res = [256, 256, 256]
 screen_res = [256, 256]
 
-dx = 0.5
+dx = 1.0 / res[0]
 dt = 0.03
 
 v_grid_type = GRIDTYPE.FACE_GRID
@@ -33,17 +33,17 @@ GasMaxT = 85.0
 
 
 # run scheme
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 CFL = None
 Colliders = []
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
-projection_solver = JacobiProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
@@ -66,7 +66,7 @@ Emitters.append(SquareEmitter(
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
-    jet_v=ts.vec3(0.0, 128.0, 0.0),
+    jet_v=ts.vec3(0.0, 1.0, 0.0),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
@@ -94,10 +94,13 @@ save_what = [
     VisualizeEnum.Velocity,
     VisualizeEnum.Vorticity,
     VisualizeEnum.Divergence,
+    VisualizeEnum.VelocityMagnitude
 ]
 
 save_frame_length = 180
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 frame_rate = int(1.0 / dt)
+
+bool_save_ply = False
 

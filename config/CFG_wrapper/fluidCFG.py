@@ -76,6 +76,18 @@ class FluidCFG(metaclass=ABCMeta):
             print("")
             print("for {} frame with {} Frame Per Second".format(self.save_frame_length, self.cfg.frame_rate))
             print("When done, plz go to {} for results !".format(self.cfg.save_path))
+
+            self.bool_save_ply = self.cfg.bool_save_ply
         else:
             print("No saving results !")
         print(">>>>>>>>>>")
+
+    @SetterProperty
+    def bool_save_ply(self, save):
+        self.__dict__['bool_save_ply'] = save
+        print(">>>>>>")
+        if save:
+            print("We will save ply this time !")
+
+
+

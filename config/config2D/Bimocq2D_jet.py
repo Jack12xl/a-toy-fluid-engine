@@ -45,10 +45,11 @@ from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
 advection_solver = SemiLagrangeSolver
 
-from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
+
+projection_solver = ConjugateGradientProjectionSolver
 p_jacobi_iters = 128
-dye_decay = 0.99
+dye_decay = 1.0
 semi_order = RK_Order.RK_3
 
 # vorticity enhancement
@@ -57,10 +58,11 @@ curl_strength = 0.0
 # collider
 from geometry import Transform2, Velocity2
 
-ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True, )
+ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True, device_memory_GB=8.0)
 # init should put before init ti.field
 
 from geometry import RigidBodyCollider, Ball
+
 Colliders = []
 # Colliders.append(RigidBodyCollider(Ball(
 #     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
@@ -98,19 +100,18 @@ Emitters.append(SquareEmitter(
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
-    )
+)
 )
 
-
-profile_name = '2D' + '-'\
-                + 'x'.join(map(str, res)) + '-' \
-                + "CFL-" + str(CFL) + "-" \
-                + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \
-                + "-sclrRemap-" + str(sclr_remap_threshold) + "-" + str(sclr_remap_frequency) \
-                + "-BlndCoeff-" + str(blend_coefficient) + "-" \
-                + filterUpCase(projection_solver.__name__) + '-' \
-                + str(p_jacobi_iters) + 'it-' \
-                + 'dt-' + str(dt)
+profile_name = '2D' + '-' \
+               + 'x'.join(map(str, res)) + '-' \
+               + "CFL-" + str(CFL) + "-" \
+               + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \
+               + "-sclrRemap-" + str(sclr_remap_threshold) + "-" + str(sclr_remap_frequency) \
+               + "-BlndCoeff-" + str(blend_coefficient) + "-" \
+               + filterUpCase(projection_solver.__name__) + '-' \
+               + str(p_jacobi_iters) + 'it-' \
+               + 'dt-' + str(dt)
 
 if Colliders:
     profile_name += '-Collider'
@@ -131,3 +132,5 @@ save_frame_length = 360
 save_root = './tmp_result'
 frame_rate = int(1.0 / dt)
 save_path = os.path.join(save_root, profile_name)
+
+bool_save_ply = False

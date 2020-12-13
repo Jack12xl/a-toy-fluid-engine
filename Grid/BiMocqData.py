@@ -46,7 +46,9 @@ class BimMocqGridData(MacGridData):
              for _ in range(8)]
 
         # Debug
-        self.distortion, self.BM, self.FM= \
+        # if self.dim == 2:
+        # could not afford more buffer in 3D
+        self.distortion, self.BM, self.FM = \
             [CellGrid(
                 ti.Vector.field(3, dtype=ti.f32, shape=cfg.res),
                 cfg.dim,
@@ -54,7 +56,6 @@ class BimMocqGridData(MacGridData):
                 o=ts.vecND(self.dim, 0.5)
             )
                 for _ in range(3)]
-
 
     def materialize(self):
         super(BimMocqGridData, self).materialize()
@@ -97,4 +98,3 @@ class BimMocqGridData(MacGridData):
 
         self.v_presave.fill(ts.vecND(self.dim, 0.0))
         self.v_tmp.fill(ts.vecND(self.dim, 0.0))
-

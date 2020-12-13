@@ -14,8 +14,8 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 # set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 dim = 3
-res = [256, 256, 256]
-screen_res = [256, 256]
+res = [192, 192, 192]
+screen_res = [192, 192]
 
 dx = 0.5
 dt = 0.03
@@ -81,7 +81,9 @@ Emitters.append(SquareEmitter(
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
-               + str(run_scheme) + '-' \
+               + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \
+               + "-sclrRemap-" + str(sclr_remap_threshold) + "-" + str(sclr_remap_frequency) \
+               + "-BlndCoeff-" + str(blend_coefficient) + "-" \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
                + 'dt-' + str(dt)

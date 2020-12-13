@@ -7,7 +7,7 @@ from .MGPCG import MGPCG
 @ti.data_oriented
 class ConjugateGradientProjectionSolver(ProjectionSolver):
 
-    def __init__(self, cfg, grid):
+    def __init__(self, cfg, grid, bdry):
         super().__init__(cfg, grid)
         self.core = MGPCG(dim=cfg.dim, N=cfg.res[0], n_mg_levels=4)
 

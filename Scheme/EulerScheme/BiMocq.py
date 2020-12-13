@@ -81,8 +81,8 @@ class Bimocq_Scheme(EulerScheme):
         :param dt:
         :return:
         """
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("Before update map: max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("Before update map: max abs Velocity : {}".format(max_vel))
 
         self.updateForward(self.grid.forward_map, dt)
         self.updateForward(self.grid.forward_scalar_map, dt)
@@ -96,8 +96,8 @@ class Bimocq_Scheme(EulerScheme):
         # print("Before advect vel distortion: {}".format(d_sca))
 
         # advect velocity, temperature, density
-        max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        print("before original advect:  max abs Velocity : {}".format(max_vel))
+        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        # print("before original advect:  max abs Velocity : {}".format(max_vel))
 
         # super(Bimocq_Scheme, self).advect(dt)
         # simple advect
@@ -444,24 +444,24 @@ class Bimocq_Scheme(EulerScheme):
         ret = 0.0
         for I in ti.static(BM):
             # TODO origin code handles boundary
-            # if BM.GisNearBoundary(I, 3) == 0:
-            p_init = BM.getW(I)
-            p_frwd = FM.sample(I)
-            p_bkwd = BM.interpolate(p_frwd)
+            if BM.GisNearBoundary(I, 3) == 0:
+                p_init = BM.getW(I)
+                p_frwd = FM.sample(I)
+                p_bkwd = BM.interpolate(p_frwd)
 
-            d = ts.distance(p_init, p_bkwd)
+                d = ts.distance(p_init, p_bkwd)
 
-            p_bkwd = BM.sample(I)
-            p_frwd = FM.interpolate(p_bkwd)
+                p_bkwd = BM.sample(I)
+                p_frwd = FM.interpolate(p_bkwd)
 
-            d = ti.max(d, ts.distance(p_init, p_frwd))
+                d = ti.max(d, ts.distance(p_init, p_frwd))
 
-            if self.save_Distortion:
-                self.grid.distortion[I] = ts.vec3(d)
+                if self.save_Distortion:
+                    self.grid.distortion[I] = ts.vec3(d)
 
-            # TODO Taichi has thread local memory,
-            # so this won't be too slow
-            ti.atomic_max(ret, d)
+                # TODO Taichi has thread local memory,
+                # so this won't be too slow
+                ti.atomic_max(ret, d)
 
         return ret
 
@@ -635,22 +635,22 @@ class Bimocq_Scheme(EulerScheme):
         :return:
         """
         for I in ti.static(f0):
-            # if f0.GisNearBoundary(I, 2) == 0:
-            for drct, w in ti.static(zip(self.dirs, self.ws)):
-                pos = f0.getW(I + ti.Vector(drct))
-                pos1 = self.clampPos(FM.interpolate(pos))
-                f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
+            if f0.GisNearBoundary(I, 2) == 0:
+                for drct, w in ti.static(zip(self.dirs, self.ws)):
+                    pos = f0.getW(I + ti.Vector(drct))
+                    pos1 = self.clampPos(FM.interpolate(pos))
+                    f_tmp[I] += w * (f0.interpolate(pos1) - d_f[I])
         # error term (25)
         for I in ti.static(f_tmp):
             f_tmp[I] -= f_init[I]
             f_tmp[I] *= 0.5
 
         for I in ti.static(f0):
-            # if f0.GisNearBoundary(I, 2) == 0:
-            for drct, w in ti.static(zip(self.dirs, self.ws)):
-                pos = f0.getW(I + ti.Vector(drct))
-                pos1 = self.clampPos(BM.interpolate(pos))
-                f1[I] -= w * f_tmp.interpolate(pos1)
+            if f0.GisNearBoundary(I, 2) == 0:
+                for drct, w in ti.static(zip(self.dirs, self.ws)):
+                    pos = f0.getW(I + ti.Vector(drct))
+                    pos1 = self.clampPos(BM.interpolate(pos))
+                    f1[I] -= w * f_tmp.interpolate(pos1)
 
     @ti.pyfunc
     def getSign(self, x, edge=0):
