@@ -29,7 +29,6 @@ class Bimocq_Scheme(EulerScheme):
         self.dirs = None
         self.dA_d = 0.25  # neighbour of double Advect
         if self.dim == 2:
-            # self.doubleAdvect_kernel = self.doubleAdvectKern2D
             self.ws = [0.125, 0.125, 0.125, 0.125, 0.5]
             self.dirs = [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25], [0.0, 0.0]]
         elif self.dim == 3:
@@ -41,13 +40,14 @@ class Bimocq_Scheme(EulerScheme):
                 for j in [-0.25, 0.25]:
                     for k in [-0.25, 0.25]:
                         self.dirs.append([i, j, k])
-            print(self.dirs)
-            # self.doubleAdvect_kernel = self.doubleAdvectKern3D
 
         self.traceFunc = self.advection_solver.backtrace
         self.save_BM = self.cfg.bool_save and VisualizeEnum.BM in self.cfg.save_what
         self.save_FM = self.cfg.bool_save and VisualizeEnum.FM in self.cfg.save_what
         self.save_Distortion = self.cfg.bool_save and VisualizeEnum.Distortion in self.cfg.save_what
+
+        self.saveFM = self.save_FM_2D if self.dim == 2 else self.save_FM_3D
+        self.saveBM = self.saveBM2D if self.dim == 2 else self.saveBM3D
 
     @ti.pyfunc
     def clampPos(self, pos):
@@ -81,8 +81,8 @@ class Bimocq_Scheme(EulerScheme):
         :param dt:
         :return:
         """
-        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        # print("Before update map: max abs Velocity : {}".format(max_vel))
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("Before update map: max abs Velocity : {}".format(max_vel))
 
         self.updateForward(self.grid.forward_map, dt)
         self.updateForward(self.grid.forward_scalar_map, dt)
@@ -96,8 +96,8 @@ class Bimocq_Scheme(EulerScheme):
         # print("Before advect vel distortion: {}".format(d_sca))
 
         # advect velocity, temperature, density
-        # max_vel = self.getMaxVel(self.grid.v_pair.cur)
-        # print("before original advect:  max abs Velocity : {}".format(max_vel))
+        max_vel = self.getMaxVel(self.grid.v_pair.cur)
+        print("before original advect:  max abs Velocity : {}".format(max_vel))
 
         # super(Bimocq_Scheme, self).advect(dt)
         # simple advect
@@ -379,12 +379,17 @@ class Bimocq_Scheme(EulerScheme):
             t += substep
         # comment this if not need to visualize BM
         if self.save_Distortion:
-            self.drawBackWard(M)
+            self.saveBM(M)
 
     @ti.kernel
-    def drawBackWard(self, M: Wrapper):
+    def saveBM2D(self, M: Wrapper):
         for I in ti.static(M):
             self.grid.BM[I] = ts.vec3(M[I], 0.0)
+
+    @ti.kernel
+    def saveBM3D(self, M: Wrapper):
+        for I in ti.static(M):
+            self.grid.BM[I] = M[I]
 
     @ti.kernel
     def updateForward(self, M: Wrapper, dt: Float):
@@ -399,7 +404,15 @@ class Bimocq_Scheme(EulerScheme):
             M[I] = self.clampPos(self.solveODE(pos, -dt))
             # TODO comment this if not need to debug
             if self.save_FM:
-                self.grid.FM[I] = ts.vec3(M[I], 0.0)
+                self.saveFM(M, I)
+
+    @ti.func
+    def save_FM_2D(self, M, I):
+        self.grid.FM[I] = ts.vec3(M[I], 0.0)
+
+    @ti.func
+    def save_FM_3D(self, M, I):
+        self.grid.FM[I] = M[I]
 
     def decorator_track_delta(self, delta, track_what):
         """

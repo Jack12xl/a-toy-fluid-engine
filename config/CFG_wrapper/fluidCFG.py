@@ -60,9 +60,11 @@ class FluidCFG(metaclass=ABCMeta):
     @SetterProperty
     def bool_save(self, save):
         self.__dict__['bool_save'] = save
+        print(">>>>>>>>>>")
         if save:
             self.save_what = self.cfg.save_what
             self.save_frame_length = self.cfg.save_frame_length
+            print("Here we will save: ")
             for save_thing in self.save_what:
                 self.video_managers.append(ti.VideoManager(
                         output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
@@ -70,3 +72,10 @@ class FluidCFG(metaclass=ABCMeta):
                         automatic_build=False
                     )
                 )
+                print(str(save_thing), end=" ")
+            print("")
+            print("for {} frame with {} Frame Per Second".format(self.save_frame_length, self.cfg.frame_rate))
+            print("When done, plz go to {} for results !".format(self.cfg.save_path))
+        else:
+            print("No saving results !")
+        print(">>>>>>>>>>")

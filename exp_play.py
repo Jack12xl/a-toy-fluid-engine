@@ -12,6 +12,7 @@ def parse_args():
 
     parser.add_argument("--cfg", help="configure file", type=str)
     args = parser.parse_args()
+    cfg = None
     if args.cfg == "mouse2d":
         import config.config2D.stable_fluid_mouse
         cfg = config.config2D.stable_fluid_mouse
@@ -24,13 +25,16 @@ def parse_args():
     elif args.cfg == "BMcq_jet2d":
         import config.config2D.Bimocq2D_jet
         cfg = config.config2D.Bimocq2D_jet
-
+    elif args.cfg == "BMcq_jet3d":
+        import config.config3D.Bimocq3D_jet
+        cfg = config.config3D.Bimocq3D_jet
     return EulerCFG(cfg)
 
 
 if __name__ == '__main__':
     m_cfg = parse_args()
 
+    s = None
     if m_cfg.run_scheme == SchemeType.Advection_Projection:
         s = AdvectionProjectionEulerScheme(m_cfg)
     elif m_cfg.run_scheme == SchemeType.Advection_Reflection:

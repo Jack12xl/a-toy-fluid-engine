@@ -69,18 +69,20 @@ class renderer25D(renderer):
             t = tf[I, self.z_plane][0]
             self.clr_bffr[I] = ts.vec3(t / MaxT)
 
-    def render_frame(self):
-        if self.cfg.VisualType == VisualizeEnum.Velocity:
+    def render_frame(self, render_what: VisualizeEnum = None):
+        if render_what is None:
+            render_what = self.cfg.VisualType
+        if render_what == VisualizeEnum.Velocity:
             self.vis_v(self.grid.v_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Density:
+        elif render_what == VisualizeEnum.Density:
             self.vis_density(self.grid.density_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Divergence:
+        elif render_what == VisualizeEnum.Divergence:
             self.vis_vd(self.grid.v_divs)
-        elif self.cfg.VisualType == VisualizeEnum.Vorticity:
+        elif render_what == VisualizeEnum.Vorticity:
             self.vis_vt(self.grid.v_curl)
-        elif self.cfg.VisualType == VisualizeEnum.VelocityMagnitude:
+        elif render_what == VisualizeEnum.VelocityMagnitude:
             self.vis_v_mag(self.grid.v_pair.cur)
-        elif self.cfg.VisualType == VisualizeEnum.Temperature:
+        elif render_what == VisualizeEnum.Temperature:
             self.vis_t(self.grid.t, self.cfg.GasMaxT)
 
     def renderStep(self, bdrySolver):

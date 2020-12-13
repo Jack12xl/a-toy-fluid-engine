@@ -20,7 +20,7 @@ screen_res = [256, 256]
 dx = 0.5
 dt = 0.03
 
-v_grid_type = GRIDTYPE.FACE_GRID
+v_grid_type = GRIDTYPE.Bimocq_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -33,8 +33,14 @@ GasMaxT = 85.0
 
 
 # run scheme
-run_scheme = SchemeType.Advection_Projection
-CFL = None
+run_scheme = SchemeType.Bimocq
+CFL = 0.5
+blend_coefficient = 1.0
+vel_remap_threshold = 1.0
+sclr_remap_threshold = 1.0
+vel_remap_frequency = 8
+sclr_remap_frequency = 20
+
 Colliders = []
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
@@ -75,13 +81,9 @@ Emitters.append(SquareEmitter(
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
-               + str(v_grid_type) + '-' \
                + str(run_scheme) + '-' \
-               + filterUpCase(advection_solver.__name__) + '-' \
                + filterUpCase(projection_solver.__name__) + '-' \
                + str(p_jacobi_iters) + 'it-' \
-               + 'RK' + str(int(semi_order)) + '-' \
-               + 'curl' + str(curl_strength) + '-' \
                + 'dt-' + str(dt)
 if Colliders:
     profile_name += '-Collider'
