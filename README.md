@@ -28,6 +28,7 @@ Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by 
 - [Euler-based Scheme](./Scheme/)
   - Advection-Projection(Stable fluid)
   - Advection-Reflection(MC + R)
+  - B
 - [Grid](./Grid)
   - Uniform
   - Mac( staggered )
@@ -124,6 +125,10 @@ From the results, the 3D perspective does have more details than 2D.
 - [Efficient and Conservative Fluids with Bidirectional Mapping](https://github.com/ziyinq/Bimocq#efficient-and-conservative-fluids-with-bidirectional-mapping)
 - A parallel multigrid poisson solver for fluids simulation on large grids
 - Visual simulation of Smoke
+- IVOCK
+- MacCormack
+- Stable fluid
+- Advection-reflection
 
 ##### CIS 565 submission
 
@@ -131,7 +136,7 @@ This project is presented in UPenn [CIS 565](https://cis565-fall-2020.github.io/
 
 You can also view other **cool** final project by other students at [here](https://cis565-fall-2020.github.io/projects/)!
 
-Here is the [google drivve link](https://drive.google.com/drive/folders/1dK6_DLhjfXc3D2G6hUvjzXfSlGX6axv3?usp=sharing) to my pitch, milestone 1 ~ 3.
+Here is the [google drive link](https://drive.google.com/drive/folders/1dK6_DLhjfXc3D2G6hUvjzXfSlGX6axv3?usp=sharing) to my pitch, milestone 1 ~ 3.
 
 
 
