@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import taichi as ti
 from config import PixelType, VisualizeEnum
+from utils import Wrapper
 
 @ti.data_oriented
 class renderer(metaclass=ABCMeta):
@@ -16,4 +17,12 @@ class renderer(metaclass=ABCMeta):
 
     @abstractmethod
     def render_frame(self, render_what: VisualizeEnum = None):
+        pass
+
+    @abstractmethod
+    def vis_density(self, rho_f: Wrapper):
+        pass
+
+    @abstractmethod
+    def vis_v(self, vf: Wrapper):
         pass

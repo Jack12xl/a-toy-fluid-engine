@@ -44,7 +44,7 @@ advection_solver = SemiLagrangeSolver
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
 projection_solver = JacobiProjectionSolver
-p_jacobi_iters = 16
+p_jacobi_iters = 64
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
 
@@ -52,19 +52,19 @@ semi_order = RK_Order.RK_3
 curl_strength = 0.0
 
 DEBUG = False
-ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=10.0)
+ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=4.0)
 # init should put before init ti.field
 
 from geometry import Transform3, Velocity3
 from Emitter import ForceEmitter3, SquareEmitter
 
-fluid_color = ts.vec3(0.5, 0.5 ,0.5)
+fluid_color = ts.vec3(1.0, 1.0, 1.0)
 
 Emitters = []
 Emitters.append(SquareEmitter(
     t=Transform3(
         translation=ts.vec3(res[0] // 2, res[2] // 8, res[2] // 2),
-        localscale=ts.vec3(8.0, 8.0, 4.0),
+        localscale=ts.vec3(res[0] / 32, res[1] / 32, res[2] / 32),
         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
     ),
     v=Velocity3(),
@@ -74,6 +74,20 @@ Emitters.append(SquareEmitter(
     v_grid_type=v_grid_type
 )
 )
+
+# Emitters.append(SquareEmitter(
+#     t=Transform3(
+#         translation=ts.vec3(res[0] // 2, res[2] // 8 * 7, res[2] // 2),
+#         localscale=ts.vec3(8.0, 8.0, 8.0),
+#         orientation=ts.vec2(math.pi / 2.0, math.pi / 2.0)  # Up along Y axis
+#     ),
+#     v=Velocity3(),
+#     jet_v=ts.vec3(0.0, 1.0, 0.0),
+#     jet_t=GasMaxT,
+#     fluid_color=fluid_color,
+#     v_grid_type=v_grid_type
+# )
+# )
 
 profile_name = '3D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
@@ -93,10 +107,10 @@ print(profile_name)
 bool_save = True
 save_what = [
     VisualizeEnum.Density,
-    # # VisualizeEnum.Velocity,
-    # # VisualizeEnum.Vorticity,
-    # # VisualizeEnum.Divergence,
-    # # VisualizeEnum.VelocityMagnitude
+    # VisualizeEnum.Velocity,
+    # VisualizeEnum.Vorticity,
+    # VisualizeEnum.Divergence,
+    # VisualizeEnum.VelocityMagnitude
 ]
 
 save_frame_length = 180
@@ -104,5 +118,6 @@ save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 frame_rate = int(1.0 / dt)
 
-bool_save_ply = True
+bool_save_ply = False
+ply_frequency = 4
 

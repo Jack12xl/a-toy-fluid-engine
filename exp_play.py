@@ -1,5 +1,5 @@
 from config import VisualizeEnum, SimulateType
-import taichi as ti
+from utils import ti
 from config.class_cfg import SchemeType
 from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme
 import argparse
@@ -28,6 +28,12 @@ def parse_args():
     elif args.cfg == "BMcq_jet3d":
         import config.config3D.Bimocq3D_jet
         cfg = config.config3D.Bimocq3D_jet
+    elif args.cfg == "jet3d_collide":
+        import config.config3D.jet3D_vortex_collide
+        cfg = config.config3D.jet3D_vortex_collide
+    elif args.cfg == "BMcq_collide":
+        import config.config3D.Bimocq_vrtx_cld
+        cfg = config.config3D.Bimocq_vrtx_cld
     return EulerCFG(cfg)
 
 
@@ -119,13 +125,14 @@ if __name__ == '__main__':
                     # m_cfg.video_manager.get_output_filename(".mp4")
                     video_manager.get_output_filename(".gif")
 
-            if m_cfg.bool_save_ply and frame_count % 10 == 0:
-                m_cfg.PLYwriter.save_frame(frame_count, s.grid.density_pair.cur)
+            if m_cfg.bool_save_ply and frame_count % m_cfg.ply_frequency == 0:
+                m_cfg.PLYwriter.save_npy(frame_count, s.grid.density_pair.cur)
 
             if frame_count >= m_cfg.save_frame_length:
                 break
 
         frame_count += 1
+        m_cfg.frame_count += 1
 
         # print("frame", frame_count)
 

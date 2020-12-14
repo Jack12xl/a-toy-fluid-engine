@@ -1,20 +1,16 @@
-import taichi as ti
+from utils import ti
 import taichi_glsl as ts
 
 ti.init(ti.gpu)
 
-
-@ti.func
-def t(a):
-    return a == ti.approx(ts.vec3(233.0))
-
+a = ti.field(dtype=ti.f32, shape=())
 
 @ti.kernel
-def test_approx():
-    assert((233, 233) == (233, 233))
-    a = ts.vec3(233.0)
+def test_approx(_in: ti.template()):
+    assert ((233, 233) == (233, 233))
+    print(_in[None])
     # print(t(a))
 
 
 if __name__ == "__main__":
-    test_approx()
+    test_approx(a)

@@ -29,6 +29,8 @@ class FluidCFG(metaclass=ABCMeta):
         self.half_inv_dx = None
         self.dx = cfg.dx
 
+        self.frame_count = 0
+
         self.CFL = cfg.CFL
 
         self.fluid_color = cfg.fluid_color
@@ -42,6 +44,7 @@ class FluidCFG(metaclass=ABCMeta):
         self.video_managers = []
         self.save_what = None
         self.PLYwriter = None
+        self.ply_frequency = None
         self.bool_save = cfg.bool_save
 
 
@@ -90,8 +93,9 @@ class FluidCFG(metaclass=ABCMeta):
         self.__dict__['bool_save_ply'] = save
         print(">>>>>>")
         if save:
-            print("We will save ply this time !")
+            print("We will save ply every {} !".format(self.ply_frequency))
             self.PLYwriter = plyWriter(self.fluid_color, self)
+            self.ply_frequency = self.cfg.ply_frequency
             print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
         print(">>>>>>")
 

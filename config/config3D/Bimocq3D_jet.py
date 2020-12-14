@@ -1,4 +1,4 @@
-import taichi as ti
+from utils import ti
 import taichi_glsl as ts
 import sys
 import math
@@ -64,6 +64,8 @@ ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=10.0)
 from geometry import Transform3, Velocity3
 from Emitter import ForceEmitter3, SquareEmitter
 
+fluid_color = ts.vec3(0.9, 0.9, 0.9)
+
 Emitters = []
 Emitters.append(SquareEmitter(
     t=Transform3(
@@ -92,7 +94,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,
@@ -105,3 +107,4 @@ save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 frame_rate = int(1.0 / dt)
 
+bool_save_ply = False

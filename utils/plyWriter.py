@@ -27,6 +27,8 @@ class plyWriter(ti.PLYWriter):
         self.np_den = None
 
         self.series_prefix = os.path.join('./tmp_result', self.cfg.profile_name, 'PLYs')
+        self.npy_prefix = os.path.join('./tmp_result', self.cfg.profile_name, 'rho_npys')
+        os.makedirs(self.npy_prefix, exist_ok=True)
 
     @ti.kernel
     def read_pos(self, f: Wrapper):
@@ -41,6 +43,13 @@ class plyWriter(ti.PLYWriter):
     def set_pos(self):
         self.np_pos = np.reshape(self.ti_pos.to_numpy(), (self.num_vertices, 3))
 
+    def set_den_npy(self):
+        """
+        to res[0] x 1 x2
+        :return:
+        """
+        self.np_den = np.reshape(self.ti_den.to_numpy(), self.res)
+
     def set_den(self):
         self.np_den = np.reshape(self.ti_den.to_numpy(), (self.num_vertices, 1))
 
@@ -49,6 +58,14 @@ class plyWriter(ti.PLYWriter):
         self.vertex_channels = []
         self.vertex_data_type = []
         self.vertex_data = []
+
+    def save_npy(self, frame_number, rho_f: Wrapper):
+        print("Saving NPY frame {}".format(frame_number))
+        self.read_den(rho_f)
+        self.set_den_npy()
+        # print(self.np_den.shape)
+        file_name = os.path.join(self.npy_prefix, "{0:0=6d}".format(frame_number) + ".npy")
+        np.save(file_name, self.np_den)
 
     def save_frame(self, frame_number, rho_f: Wrapper):
         print("Saving PLY frame {}".format(frame_number))

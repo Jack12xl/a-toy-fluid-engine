@@ -6,7 +6,7 @@ from config import VisualizeEnum, SceneEnum, SchemeType, SimulateType
 from boundary import StdGridBoundaryConditionSolver
 from config import PixelType, EulerCFG
 from abc import ABCMeta, abstractmethod
-from renderer import renderer2D, renderer25D
+from renderer import renderer2D, renderer25D, renderer29D
 from utils import getFieldMeanCpu
 
 
@@ -33,6 +33,7 @@ class EulerScheme(metaclass=ABCMeta):
         if self.dim == 2:
             self.renderer = renderer2D(cfg, self.grid)
         elif self.dim == 3:
+            # self.renderer = renderer29D(cfg, self.grid)
             self.renderer = renderer25D(cfg, self.grid, self.cfg.res[2] // 2)
 
         if cfg.v_grid_type == GRIDTYPE.FACE_GRID:
@@ -77,7 +78,8 @@ class EulerScheme(metaclass=ABCMeta):
             # calculate buoyancy
             self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t_pair.cur.field)
             # self.ApplyBuoyancyForce(dt)
-        self.refill()
+        if self.cfg.frame_count < 5:
+            self.refill()
 
     @ti.kernel
     def ApplyBuoyancyForceMac(self, dt: ti.f32):

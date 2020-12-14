@@ -58,7 +58,7 @@ semi_order = RK_Order.RK_3
 curl_strength = 0.0
 
 DEBUG = False
-ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=8.0)
+ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=10.0)
 # init should put before init ti.field
 
 from geometry import Transform3, Velocity3

@@ -41,9 +41,9 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 projection_solver = RedBlackGaussSedialProjectionSolver
-p_jacobi_iters = 128
+p_jacobi_iters = 64
 dye_decay = 0.99
-semi_order = RK_Order.RK_3
+semi_order = RK_Order.RK_2
 
 # vorticity enhancement
 curl_strength = 0.0
@@ -141,8 +141,9 @@ save_what = [
     VisualizeEnum.Divergence,
 ]
 
-save_frame_length = 16
+save_frame_length = 360
 save_root = './tmp_result'
 frame_rate = int(1.0 / dt)
 save_path = os.path.join(save_root, profile_name)
 
+bool_save_ply = False
