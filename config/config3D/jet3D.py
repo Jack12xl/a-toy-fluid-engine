@@ -108,7 +108,7 @@ bool_save = True
 save_what = [
     VisualizeEnum.Density,
     # VisualizeEnum.Velocity,
-    # VisualizeEnum.Vorticity,
+    VisualizeEnum.Vorticity
     # VisualizeEnum.Divergence,
     # VisualizeEnum.VelocityMagnitude
 ]

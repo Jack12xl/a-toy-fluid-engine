@@ -17,7 +17,7 @@ dim = 3
 res = [256, 256, 256]
 screen_res = [256, 256]
 
-dx = 0.5
+dx = 1.0 / res[0]
 dt = 0.03
 
 v_grid_type = GRIDTYPE.Bimocq_GRID

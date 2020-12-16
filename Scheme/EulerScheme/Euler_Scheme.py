@@ -78,8 +78,8 @@ class EulerScheme(metaclass=ABCMeta):
             # calculate buoyancy
             self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t_pair.cur.field)
             # self.ApplyBuoyancyForce(dt)
-        if self.cfg.frame_count < 5:
-            self.refill()
+        # if self.cfg.frame_count < 5:
+        self.refill()
 
     @ti.kernel
     def ApplyBuoyancyForceMac(self, dt: ti.f32):
