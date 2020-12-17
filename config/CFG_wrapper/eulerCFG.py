@@ -25,6 +25,7 @@ class EulerCFG(FluidCFG):
         elif self.v_grid_type == GRIDTYPE.Bimocq_GRID:
             self.grid = BimMocqGridData
 
+        #Bimocq
         self.blend_coefficient = None
         self.vel_remap_threshold = None
         self.sclr_remap_threshold = None

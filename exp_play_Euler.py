@@ -40,13 +40,13 @@ def parse_args():
 if __name__ == '__main__':
     m_cfg = parse_args()
 
-    s = None
+    scheme = None
     if m_cfg.run_scheme == SchemeType.Advection_Projection:
-        s = AdvectionProjectionEulerScheme(m_cfg)
+        scheme = AdvectionProjectionEulerScheme(m_cfg)
     elif m_cfg.run_scheme == SchemeType.Advection_Reflection:
-        s = AdvectionReflectionEulerScheme(m_cfg)
+        scheme = AdvectionReflectionEulerScheme(m_cfg)
     elif m_cfg.run_scheme == SchemeType.Bimocq:
-        s = Bimocq_Scheme(m_cfg)
+        scheme = Bimocq_Scheme(m_cfg)
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
     md_gen = utils.MouseDataGen(m_cfg)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     frame_count = 0
 
-    s.materialize()
+    scheme.materialize()
     # print the instruction
 
     for k in VisualizeEnum:
@@ -67,7 +67,7 @@ if __name__ == '__main__':
             elif e.key == 'p':
                 paused = not paused
             elif e.key == 'r':
-                s.reset()
+                scheme.reset()
             # change visualize type
             elif e.key == ',':
                 # TODO
@@ -87,16 +87,16 @@ if __name__ == '__main__':
                 m_cfg.VisualType = VisualizeEnum.VelocityMagnitude
             elif e.key == '5' and m_cfg.SimType == SimulateType.Gas:
                 m_cfg.VisualType = VisualizeEnum.Temperature
-            elif e.key == "6":
+            elif e.key == "6" and m_cfg.run_scheme == SchemeType.Bimocq:
                 m_cfg.VisualType = VisualizeEnum.Distortion
-            elif e.key == "7":
+            elif e.key == "7" and m_cfg.run_scheme == SchemeType.Bimocq:
                 m_cfg.VisualType = VisualizeEnum.BM
-            elif e.key == "8":
+            elif e.key == "8" and m_cfg.run_scheme == SchemeType.Bimocq:
                 m_cfg.VisualType = VisualizeEnum.FM
 
         if not paused:
             mouse_data = md_gen(gui)
-            s.step(mouse_data)
+            scheme.step(mouse_data)
 
         # gui.set_image()
         # too slow
@@ -104,11 +104,11 @@ if __name__ == '__main__':
             import skimage
             import skimage.transform
 
-            img = s.renderer.clr_bffr.to_numpy()
+            img = scheme.renderer.clr_bffr.to_numpy()
             img = skimage.transform.resize(img, m_cfg.screen_res)
             gui.set_image(img)
         else:
-            gui.set_image(s.renderer.clr_bffr)
+            gui.set_image(scheme.renderer.clr_bffr)
         gui.show()
 
         if m_cfg.bool_save:
@@ -116,9 +116,9 @@ if __name__ == '__main__':
 
                 if frame_count < m_cfg.save_frame_length:
                     # blit the corresponding frame
-                    s.renderer.render_frame(save_what)
+                    scheme.renderer.render_frame(save_what)
 
-                    img = s.renderer.clr_bffr.to_numpy()
+                    img = scheme.renderer.clr_bffr.to_numpy()
                     video_manager.write_frame(img)
                 else:
                     video_manager.make_video(gif=True, mp4=False)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                     video_manager.get_output_filename(".gif")
 
             if m_cfg.bool_save_ply and frame_count % m_cfg.ply_frequency == 0:
-                m_cfg.PLYwriter.save_npy(frame_count, s.grid.density_pair.cur)
+                m_cfg.PLYwriter.save_npy(frame_count, scheme.grid.density_pair.cur)
 
             if frame_count >= m_cfg.save_frame_length:
                 break

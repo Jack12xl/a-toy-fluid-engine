@@ -15,10 +15,10 @@ pip install taichi taichi_glsl
 ##### Fast Run
 
 ```bash
-python exp_play.py --cfg mouse2d # use mouse to drag the fluid
-python exp_play.py --cfg jet2d   # shot the jet from below
-python exp_play.py --cfg jet3d   # 3D jet
-python exp_play.py --cfg BMcq_jet2d # takes time
+python exp_play_Euler.py --cfg mouse2d # use mouse to drag the fluid
+python exp_play_Euler.py --cfg jet2d   # shot the jet from below
+python exp_play_Euler.py --cfg jet3d   # 3D jet
+python exp_play_Euler.py --cfg BMcq_jet2d # takes time
 ```
 
 #### Feature:
