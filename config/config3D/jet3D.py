@@ -7,7 +7,8 @@ import config.euler_config
 from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
 from utils import set_attribute_from_cfg, filterUpCase
-from Grid import collocatedGridData, MacGridData, GRIDTYPE
+from Grid import GRIDTYPE
+from DataLayout.Euler import collocatedGridData, MacGridData
 
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
@@ -39,11 +40,11 @@ Colliders = []
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
-projection_solver = JacobiProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
@@ -104,7 +105,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 save_what = [
     VisualizeEnum.Density,
     # VisualizeEnum.Velocity,

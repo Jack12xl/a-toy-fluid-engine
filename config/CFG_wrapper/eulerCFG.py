@@ -17,7 +17,8 @@ class EulerCFG(FluidCFG):
         self.v_grid_type = cfg.v_grid_type
 
         self.grid = None
-        from Grid import GRIDTYPE, collocatedGridData, MacGridData, BimMocqGridData
+        from Grid import GRIDTYPE
+        from DataLayout import collocatedGridData, MacGridData, BimMocqGridData
         if self.v_grid_type == GRIDTYPE.CELL_GRID:
             self.grid = collocatedGridData
         elif self.v_grid_type == GRIDTYPE.FACE_GRID:

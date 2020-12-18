@@ -4,7 +4,7 @@ import functools
 import atexit
 import time
 
-
+print("[@archibate] Inject taichi with materialize inspector !")
 def inject(module, name, enable=True):
     if not enable:
         return lambda x: x

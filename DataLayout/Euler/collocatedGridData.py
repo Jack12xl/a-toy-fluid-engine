@@ -1,6 +1,6 @@
 import taichi as ti
 from utils import bufferPair, Matrix
-from CellGrid import CellGrid
+from Grid.CellGrid import CellGrid
 import taichi_glsl as ts
 from Euler.FluidGridData import FluidGridData
 
