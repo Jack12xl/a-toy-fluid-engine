@@ -25,7 +25,7 @@ python exp_play_Euler.py --cfg BMcq_jet2d # takes time
 
 Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by slice.
 
-- [Euler-based Scheme](./Scheme/)
+- [Euler-based Scheme](Engine/)
   - Advection-Projection(Stable fluid)
   - Advection-Reflection(MC + R)
   - B
@@ -35,7 +35,7 @@ Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by 
 - Advection
   - Semi-Lagrangian
   - MacCormack / BFECC
-  - [BiMocq2](./Scheme)
+  - [BiMocq2](Engine)
 - Projection
   - Jacobian
   - Gauss-Seidel 
@@ -107,7 +107,7 @@ From the results, the 3D perspective does have more details than 2D.
 - [Advection](./advection/)
 - [Projection](./projection/)
 
-- [Euler Solver Scheme](./Scheme)
+- [Euler Solver Scheme](Engine)
 
 #### Reference
 

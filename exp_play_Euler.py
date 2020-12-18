@@ -1,7 +1,7 @@
 from config import VisualizeEnum, SimulateType
 from utils import ti
 from config.class_cfg import SchemeType
-from Scheme import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme
+from Engine import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme
 import argparse
 from config import EulerCFG
 import utils

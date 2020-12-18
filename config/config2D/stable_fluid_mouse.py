@@ -20,7 +20,7 @@ v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.MouseDragDye
 VisualType = VisualizeEnum.Density
-# run Scheme
+# run Engine
 run_scheme = SchemeType.Advection_Projection
 # run_scheme = SchemeType.Advection_Reflection
 SimType = SimulateType.Liquid

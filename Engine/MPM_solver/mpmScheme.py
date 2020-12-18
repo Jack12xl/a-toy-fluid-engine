@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import mpmCFG
 from utils import Vector, Float
 
+
 @ti.data_oriented
 class mpmScheme(metaclass=ABCMeta):
     def __init__(self, cfg: mpmCFG):
@@ -13,8 +14,6 @@ class mpmScheme(metaclass=ABCMeta):
 
         self.curFrame = 0
         pass
-
-
 
     def materialize(self):
         # initial the ti.field

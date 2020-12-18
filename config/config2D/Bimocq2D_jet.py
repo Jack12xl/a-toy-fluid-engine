@@ -30,7 +30,7 @@ GasBeta = 2.0
 GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
-# run Scheme
+# run Engine
 run_scheme = SchemeType.Bimocq
 
 CFL = 0.5
