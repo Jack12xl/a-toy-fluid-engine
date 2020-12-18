@@ -35,6 +35,10 @@ class EulerCFG(FluidCFG):
         self.run_scheme = cfg.run_scheme
         #Bimocq
 
+        self.fluid_color = cfg.fluid_color
+
+        self.Colliders = cfg.Colliders
+        self.Emitters = cfg.Emitters
 
 
         self.VisualType = cfg.VisualType

@@ -33,11 +33,6 @@ class FluidCFG(metaclass=ABCMeta):
 
         self.CFL = cfg.CFL
 
-        self.fluid_color = cfg.fluid_color
-
-        self.Colliders = cfg.Colliders
-        self.Emitters = cfg.Emitters
-
         self.profile_name = cfg.profile_name
         # save to png(gif, mp4)
         self.save_frame_length = None
