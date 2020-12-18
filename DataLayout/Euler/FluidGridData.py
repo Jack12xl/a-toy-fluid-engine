@@ -3,7 +3,7 @@ import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
 from config import EulerCFG, SimulateType
 from utils import bufferPair, Vector, Matrix
-from .CellGrid import CellGrid
+from CellGrid import CellGrid
 
 @ti.data_oriented
 class FluidGridData(metaclass=ABCMeta):

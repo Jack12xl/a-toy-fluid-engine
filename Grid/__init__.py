@@ -1,6 +1,4 @@
-from .collocatedGridData import collocatedGridData
-from .CellGrid import CellGrid
-from .FaceGrid import FaceGrid
-from .staggeredGridData import MacGridData
-from .BiMocqData import BimMocqGridData
-from .Grid import GRIDTYPE
+from .Grid import GRIDTYPE, Grid
+from .FaceGrid import *
+from .CellGrid import *
+from .Sampler import *

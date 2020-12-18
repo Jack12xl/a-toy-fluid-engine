@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from utils import bufferPair, Vector, Matrix, MultiBufferPair, Wrapper
-from .FaceGrid import FaceGrid, CellGrid
+from FaceGrid import FaceGrid, CellGrid
 from config import SimulateType
 from .staggeredGridData import MacGridData
 

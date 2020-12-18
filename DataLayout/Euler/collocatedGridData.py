@@ -1,9 +1,8 @@
 import taichi as ti
-from utils import bufferPair, Vector, Matrix
-from .CellGrid import CellGrid
+from utils import bufferPair, Matrix
+from CellGrid import CellGrid
 import taichi_glsl as ts
-from config import SimulateType
-from .FluidGridData import FluidGridData
+from Euler.FluidGridData import FluidGridData
 
 
 @ti.data_oriented
