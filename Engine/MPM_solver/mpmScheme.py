@@ -3,6 +3,12 @@ import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import mpmCFG
 from utils import Vector, Float
+"""
+ref : 
+    taichi elements
+    mpm2d.py
+"""
+
 
 
 @ti.data_oriented
@@ -21,6 +27,7 @@ class mpmScheme(metaclass=ABCMeta):
         pass
 
     def substep(self, dt: Float):
+
         pass
 
     def step(self):
