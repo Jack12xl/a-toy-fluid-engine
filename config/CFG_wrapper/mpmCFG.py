@@ -1,6 +1,13 @@
 from .fluidCFG import FluidCFG
 import taichi as ti
-from utils import SetterProperty, plyWriter
+from utils import SetterProperty
+from enum import IntEnum
+
+
+class DataLayout(IntEnum):
+    FLAT = 0
+    H1 = 1  # inspired by Taichi Elements
+
 
 class mpmCFG(FluidCFG):
     """
@@ -24,6 +31,8 @@ class mpmCFG(FluidCFG):
 
         self.p_mass = self.p_vol * self.p_rho
 
+        self.layout_method = DataLayout.FLAT
+
         # Lame(not Lame... Well how to type that)
         self.mu_0 = None
         self.lambda_0 = None
@@ -42,7 +51,6 @@ class mpmCFG(FluidCFG):
         self.n_particle = 9000 * q ** 2
         self.n_grid = 128 * q
         self.dt = 1e-4 / q
-
 
     @property
     def E(self):
@@ -63,8 +71,3 @@ class mpmCFG(FluidCFG):
         self._nu = _nu
         self.mu_0 = self.E / (2 * (1 + _nu))
         self.lambda_0 = self.E * _nu / ((1 + _nu) * (1 - 2 * _nu))
-
-
-
-
-

@@ -3,6 +3,8 @@ import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import mpmCFG
 from utils import Vector, Float
+from DataLayout.MPM import mpmLayout
+
 """
 ref : 
     taichi elements
@@ -18,15 +20,18 @@ class mpmScheme(metaclass=ABCMeta):
 
         self.dim = cfg.dim
 
+        self.Layout = mpmLayout(cfg)
         self.curFrame = 0
         pass
 
     def materialize(self):
         # initial the ti.field
-
+        self.Layout.materialize()
         pass
 
     def substep(self, dt: Float):
+        self.Layout.grid2zero()
+
 
         pass
 
