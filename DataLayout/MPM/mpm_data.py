@@ -92,7 +92,7 @@ class mpmLayout(metaclass=ABCMeta):
 
     @ti.func
     def stencil_range(self, l_b, r_u):
-        return ti.ndrange(*[[l_b[d], r_u[d]] for d in range(self.dim)])
+        return [[l_b[d], r_u[d]] for d in range(self.dim)]
 
     @ti.kernel
     def P2G(self, dt: Float):
@@ -108,6 +108,9 @@ class mpmLayout(metaclass=ABCMeta):
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
         p_Jp = ti.static(self.p_Jp)
+
+        l_b = ts.vecND(self.dim, 0)
+        r_u = ts.vecND(self.dim, 3)
         for P in p_x:
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
@@ -130,9 +133,7 @@ class mpmLayout(metaclass=ABCMeta):
             # Kirchoff Stress
             kirchoff = kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
 
-            l_b = ts.vecND(self.dim, 0)
-            r_u = ts.vecND(self.dim, 3)
-            for offset in ti.grouped(self.stencil_range(l_b, r_u)):
+            for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
                 dpos = g_m.getW(offset.cast(Float) - fx)
 
                 weight = 1.0
@@ -187,6 +188,9 @@ class mpmLayout(metaclass=ABCMeta):
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
 
+        l_b = ts.vecND(self.dim, 0)
+        r_u = ts.vecND(self.dim, 3)
+
         for P in p_x:
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
@@ -200,7 +204,7 @@ class mpmLayout(metaclass=ABCMeta):
             new_C = ti.Matrix.zero(Float, self.dim, self.dim)
             new_F = ti.Matrix.zero(Float, self.dim, self.dim)
 
-            for offset in ti.grouped(self.stencil_range(ts.vecND(self.dim, 0), ts.vecND(self.dim, 3))):
+            for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
                 dpos = offset.cast(Float) - fx
                 v = g_v[base + offset]
 

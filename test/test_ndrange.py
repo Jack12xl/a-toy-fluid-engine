@@ -38,14 +38,14 @@ def test_int(f: ti.template(), d: ti.template()):
 
 @ti.func
 def stencil_range(l_b, r_u):
-    return ti.ndrange(*[[l_b[d], r_u[d]] for d in range(3)])
+    return [[l_b[d], r_u[d]] for d in range(3)]
 
 
 @ti.kernel
 def test():
     l_b = ts.vecND(3, 0)
     r_u = ts.vecND(3, 3)
-    for offset in ti.grouped(stencil_range(l_b, r_u)):
+    for offset in ti.grouped(ti.ndrange(*stencil_range(l_b, r_u))):
         print(offset)
 
 
