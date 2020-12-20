@@ -1,5 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
+import numpy as np
 from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import mpmCFG
 from utils import Vector, Float
@@ -10,7 +11,6 @@ ref :
     taichi elements
     mpm2d.py
 """
-
 
 
 @ti.data_oriented
@@ -30,15 +30,22 @@ class mpmScheme(metaclass=ABCMeta):
         pass
 
     def substep(self, dt: Float):
-        self.Layout.grid2zero()
-
-
-        pass
+        self.Layout.G2zero()
+        self.Layout.P2G(dt)
+        self.Layout.G_Normalize_plus_Gravity(dt)
+        self.Layout.G_boundary_condition()
+        self.Layout.G2P(dt)
 
     def step(self):
+        """
+        Call once in each frame
+        :return:
+        """
         for _ in range(int(2e-3 // self.cfg.dt)):
             self.substep(self.cfg.dt)
+
         self.curFrame += 1
+        print("frame {}".format(self.curFrame))
 
     def reset(self):
         """

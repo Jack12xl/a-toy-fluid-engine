@@ -5,6 +5,13 @@ from config.CFG_wrapper import mpmCFG, DataLayout
 from utils import Int, Float, Matrix
 from Grid import CellGrid
 
+
+@ti.func
+def kirchoff_FCR(F, R, J, mu, la):
+    return 2 * mu * (F - R) @ F.transpose() + ti.Matrix.identity(float, 2) * la * J * (
+            J - 1)  # compute kirchoff stress for FCR model (remember tau = P F^T)
+
+
 @ti.data_oriented
 class mpmLayout(metaclass=ABCMeta):
     """
@@ -15,8 +22,10 @@ class mpmLayout(metaclass=ABCMeta):
         self.cfg = cfg
 
         self.dim = cfg.dim
-        self.n_particles = ti.field(dtype=Int)
+        self.n_particles = ti.field(dtype=Int, shape=())
 
+        self.gravity = ts.vecND(self.dim, 0.0)
+        self.gravity[1] = -9.8
         # Particle
 
         # position
@@ -52,9 +61,9 @@ class mpmLayout(metaclass=ABCMeta):
         pass
 
     def materialize(self):
-        self._particle = ti.root.dense(ti.i, self.n_particles)
+        self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
         _indices = ti.ij if self.dim == 2 else ti.ijk
-        if self.cfg.layout_method == DataLayout.FLAT:
+        if ti.static(self.cfg.layout_method) == DataLayout.FLAT:
             self._particle.place(self.p_x)
             self._particle.place(self.p_v)
             self._particle.place(self.p_C)
@@ -66,7 +75,7 @@ class mpmLayout(metaclass=ABCMeta):
             self._grid = ti.root.dense(_indices, self.cfg.res)
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
-        elif self.cfg.layout_method == DataLayout.H1:
+        elif ti.static(self.cfg.layout_method) == DataLayout.H1:
             self._particle.place(self.p_x,
                                  self.p_v,
                                  self.p_C,
@@ -77,9 +86,13 @@ class mpmLayout(metaclass=ABCMeta):
             # TODO finish the setup
         pass
 
-    def grid2zero(self):
+    def G2zero(self):
         self.g_m.fill(0.0)
         self.g_v.fill(ts.vecND(self.dim, 0.0))
+
+    @ti.func
+    def stencil_range(self, l_b, r_u):
+        return ti.ndrange(*[[l_b[d], r_u[d]] for d in range(self.dim)])
 
     @ti.kernel
     def P2G(self, dt: Float):
@@ -88,15 +101,126 @@ class mpmLayout(metaclass=ABCMeta):
         :param dt:
         :return:
         """
+        p_C = ti.static(self.p_C)
+        p_v = ti.static(self.p_v)
         p_x = ti.static(self.p_x)
         g_m = ti.static(self.g_m)
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
-        for I in p_x:
-            base = ti.floor(g_m.getG(p_x[I] - 0.5 * g_m.dx)).cast(int)
-            fx = g_m.getG(p_x[I]) - base.cast(float)
+        p_Jp = ti.static(self.p_Jp)
+        for P in p_x:
+            base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
+            fx = g_m.getG(p_x[P]) - base.cast(Float)
             # Here we adopt quadratic kernels
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
-            dw =
+            dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
 
-            U, sig, V = ti.svd(p_F[I])
+            mu, la = self.cfg.mu_0, self.cfg.lambda_0
+
+            U, sig, V = ti.svd(p_F[P])
+            J = 1.0
+
+            # TODO ?
+            for d in ti.static(range(self.dim)):
+                new_sig = sig[d, d]
+                p_Jp[P] *= sig[d, d] / new_sig
+                sig[d, d] = new_sig
+                J *= new_sig
+
+            # Kirchoff Stress
+            kirchoff = kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+
+            l_b = ts.vecND(self.dim, 0)
+            r_u = ts.vecND(self.dim, 3)
+            for offset in ti.grouped(self.stencil_range(l_b, r_u)):
+                dpos = g_m.getW(offset.cast(Float) - fx)
+
+                weight = 1.0
+                for d in ti.static(range(self.dim)):
+                    weight *= w[offset[d]][d]
+
+                dweight = ts.vecND(self.dim, self.cfg.inv_dx)
+                for d1 in ti.static(range(self.dim)):
+                    for d2 in ti.static(range(self.dim)):
+                        if d1 == d2:
+                            dweight[d1] *= dw[offset[d2]][d2]
+                        else:
+                            dweight[d1] *= w[offset[d2]][d2]
+
+                force = self.cfg.p_vol * kirchoff @ dweight
+                # TODO ? AFFINE
+                g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)
+                g_m[base + offset] += weight * self.cfg.p_mass
+
+                g_v[base + offset] += dt * force
+
+    @ti.kernel
+    def G_Normalize_plus_Gravity(self, dt: Float):
+        g_m = ti.static(self.g_m)
+        g_v = ti.static(self.g_v)
+        for I in ti.static(g_m):
+            # TODO why no need for epsilon here
+            if g_m[I] > 0:
+                # TODO
+                g_v[I] = 1 / g_m[I] * g_v[I]  # Momentum to velocity
+                g_v[I] += dt * self.gravity
+
+    @ti.kernel
+    def G_boundary_condition(self):
+        g_m = ti.static(self.g_m)
+        g_v = ti.static(self.g_v)
+        for I in ti.static(g_m):
+            # TODO Unbound
+            # TODO vectorize
+            for d in ti.static(range(self.dim)):
+                if I[d] < self.cfg.g_padding[d] and g_v[I][d] < 0.0:
+                    g_v[I][d] = 0.0
+                if I[d] > self.cfg.res - self.cfg.g_padding[d] and g_v[I][d] > 0.0:
+                    g_v[I][d] = 0.0
+
+    @ti.kernel
+    def G2P(self, dt: Float):
+        p_C = ti.static(self.p_C)
+        p_v = ti.static(self.p_v)
+        p_x = ti.static(self.p_x)
+        g_m = ti.static(self.g_m)
+        g_v = ti.static(self.g_v)
+        p_F = ti.static(self.p_F)
+
+        for P in p_x:
+            base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
+            fx = g_m.getG(p_x[P]) - base.cast(Float)
+
+            w = [
+                0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
+            ]
+            dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+
+            new_v = ti.Vector.zero(Float, self.dim)
+            new_C = ti.Matrix.zero(Float, self.dim, self.dim)
+            new_F = ti.Matrix.zero(Float, self.dim, self.dim)
+
+            for offset in ti.grouped(self.stencil_range(ts.vecND(self.dim, 0), ts.vecND(self.dim, 3))):
+                dpos = offset.cast(Float) - fx
+                v = g_v[base + offset]
+
+                weight = 1.0
+                for d in ti.static(range(self.dim)):
+                    weight *= w[offset[d]][d]
+
+                dweight = ts.vecND(self.dim, self.cfg.inv_dx)
+                for d1 in ti.static(range(self.dim)):
+                    for d2 in ti.static(range(self.dim)):
+                        if d1 == d2:
+                            dweight[d1] *= dw[offset[d2]][d2]
+                        else:
+                            dweight[d1] *= w[offset[d2]][d2]
+                new_v += weight * v
+                # TODO ? what the hell
+                new_C += 4 * self.cfg.inv_dx * v.outer_product(dpos)
+                new_F += v.outer_product(dweight)
+            p_v[P], p_C[P] = new_v, new_C
+            p_x[P] += dt * p_v[P]  # advection
+            p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
+
+

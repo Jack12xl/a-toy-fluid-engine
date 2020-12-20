@@ -31,6 +31,8 @@ class mpmCFG(FluidCFG):
 
         self.p_mass = self.p_vol * self.p_rho
 
+        self.g_padding = cfg.g_padding
+
         self.layout_method = DataLayout.FLAT
 
         # Lame(not Lame... Well how to type that)

@@ -1,4 +1,5 @@
 import taichi as ti
+import numpy as np
 import argparse
 from config import mpmCFG
 
@@ -23,6 +24,7 @@ if __name__ == '__main__':
     from Engine.MPM_solver import mpmScheme
 
     scheme = mpmScheme(m_cfg)
+    scheme.materialize()
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
     paused = False
@@ -38,4 +40,6 @@ if __name__ == '__main__':
         if not paused:
             scheme.step()
 
-        gui.show()
+        colors = np.array([0xED553B, 0x068587, 0xEEEEF0], dtype=np.uint32)
+        gui.circles(scheme.Layout.p_x.to_numpy(), radius=1.5, color=colors[0])
+        gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk

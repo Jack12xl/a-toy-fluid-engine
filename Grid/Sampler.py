@@ -84,3 +84,13 @@ class LinearSampler3D(Sampler):
         return min(a, b, c, d, e, f, g, h), max(a, b, c, d, e, f, g, h)
 
 #TODO Bspline interpolation
+@ti.func
+def Quadratic(x):
+    ret = x
+    if abs(x) < 0.5:
+        ret = 3.0 / 4.0 - x ** 2
+    elif 1.5 > abs(x) >= 0.5:
+        ret = 0.5 * (1.5 - x ** 2)
+    else:
+        ret *= 0
+    return ret
