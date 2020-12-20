@@ -15,7 +15,7 @@ screen_res = [512, 512]
 p_vol = (dx * 0.5) ** 2
 p_rho = 1
 
-g_padding = 3
+g_padding = [3, 3]
 
 E, nu = 1e3, 0.2
 

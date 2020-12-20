@@ -26,7 +26,7 @@ if __name__ == '__main__':
     scheme = mpmScheme(m_cfg)
     scheme.materialize()
 
-    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=True)
+    gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
     paused = False
 
     while gui.running:
@@ -41,5 +41,5 @@ if __name__ == '__main__':
             scheme.step()
 
         colors = np.array([0xED553B, 0x068587, 0xEEEEF0], dtype=np.uint32)
-        gui.circles(scheme.Layout.p_x.to_numpy(), radius=1.5, color=colors[0])
+        gui.circles(scheme.Layout.p_x.to_numpy(), radius=1.5, color=colors[scheme.Layout.p_material_id.to_numpy()])
         gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk

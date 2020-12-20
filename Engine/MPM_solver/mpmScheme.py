@@ -27,6 +27,7 @@ class mpmScheme(metaclass=ABCMeta):
     def materialize(self):
         # initial the ti.field
         self.Layout.materialize()
+        self.Layout.init_cube()
         pass
 
     def substep(self, dt: Float):
@@ -45,7 +46,7 @@ class mpmScheme(metaclass=ABCMeta):
             self.substep(self.cfg.dt)
 
         self.curFrame += 1
-        print("frame {}".format(self.curFrame))
+        # print("frame {}".format(self.curFrame))
 
     def reset(self):
         """
@@ -53,4 +54,5 @@ class mpmScheme(metaclass=ABCMeta):
         :return:
         """
         self.materialize()
+
         self.curFrame = 0

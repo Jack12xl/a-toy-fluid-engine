@@ -40,7 +40,7 @@ class mpmLayout(metaclass=ABCMeta):
         self.p_material_id = ti.field(dtype=Int)
         self.p_color = ti.field(dtype=Int)
         # plastic deformation volume ratio
-        self.p_Jp = ti.field(dtype=Int)
+        self.p_Jp = ti.field(dtype=float)
 
         # Grid
         # velocity
@@ -113,8 +113,6 @@ class mpmLayout(metaclass=ABCMeta):
         p_F = ti.static(self.p_F)
         p_Jp = ti.static(self.p_Jp)
 
-        l_b = ts.vecND(self.dim, 0)
-        r_u = ts.vecND(self.dim, 3)
         for P in p_x:
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
@@ -181,7 +179,7 @@ class mpmLayout(metaclass=ABCMeta):
             for d in ti.static(range(self.dim)):
                 if I[d] < self.cfg.g_padding[d] and g_v[I][d] < 0.0:
                     g_v[I][d] = 0.0
-                if I[d] > self.cfg.res - self.cfg.g_padding[d] and g_v[I][d] > 0.0:
+                if I[d] > self.cfg.res[d] - self.cfg.g_padding[d] and g_v[I][d] > 0.0:
                     g_v[I][d] = 0.0
 
     @ti.kernel
@@ -192,9 +190,6 @@ class mpmLayout(metaclass=ABCMeta):
         g_m = ti.static(self.g_m)
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
-
-        l_b = ts.vecND(self.dim, 0)
-        r_u = ts.vecND(self.dim, 3)
 
         for P in p_x:
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
@@ -233,4 +228,14 @@ class mpmLayout(metaclass=ABCMeta):
             p_x[P] += dt * p_v[P]  # advection
             p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
 
+    @ti.kernel
+    def init_cube(self):
+        group_size = self.n_particles // 1
+        for i in range(self.n_particles):
+            self.p_x[i] = [ti.random() * 0.2 + 0.3 + 0.10 * (i // group_size), ti.random() * 0.2 + 0.05 + 0.32 * (i // group_size)]
+            # material[i] = i // group_size # 0: fluid 1: jelly 2: snow
+            self.p_v[i] = [0, 0]
+            self.p_F[i] = ti.Matrix([[1, 0], [0, 1]])
+            self.p_Jp[i] = 1
+            self.p_C[i] = ti.Matrix.zero(float, 2, 2)
 
