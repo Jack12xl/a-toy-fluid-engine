@@ -5,10 +5,11 @@ dim = 2
 CFL = None
 
 quality = 1
-dx = 1.0 / 9000.0
+
 dt = 1e-4 / quality
 
 n_grid = 128 * quality
+dx = 1.0 / n_grid
 res = [n_grid, n_grid]
 screen_res = [512, 512]
 

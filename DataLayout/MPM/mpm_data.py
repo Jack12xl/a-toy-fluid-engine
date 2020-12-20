@@ -116,6 +116,7 @@ class mpmLayout(metaclass=ABCMeta):
         for P in p_x:
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
+            # print("P2G base: {}, fx: {}".format(base, fx))
             # Here we adopt quadratic kernels
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
             dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
@@ -231,11 +232,12 @@ class mpmLayout(metaclass=ABCMeta):
     @ti.kernel
     def init_cube(self):
         group_size = self.n_particles // 1
-        for i in range(self.n_particles):
-            self.p_x[i] = [ti.random() * 0.2 + 0.3 + 0.10 * (i // group_size), ti.random() * 0.2 + 0.05 + 0.32 * (i // group_size)]
+        self.n_particles[None] = self.cfg.n_particle
+        for P in self.p_x:
+            self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size), ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
             # material[i] = i // group_size # 0: fluid 1: jelly 2: snow
-            self.p_v[i] = [0, 0]
-            self.p_F[i] = ti.Matrix([[1, 0], [0, 1]])
-            self.p_Jp[i] = 1
-            self.p_C[i] = ti.Matrix.zero(float, 2, 2)
+            self.p_v[P] = [0, 0]
+            self.p_F[P] = ti.Matrix([[1, 0], [0, 1]])
+            self.p_Jp[P] = 1
+            self.p_C[P] = ti.Matrix.zero(float, 2, 2)
 

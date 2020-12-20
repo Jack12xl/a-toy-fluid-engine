@@ -37,14 +37,30 @@ class mpmScheme(metaclass=ABCMeta):
         self.Layout.G_boundary_condition()
         self.Layout.G2P(dt)
 
-    def step(self):
+        self.print_property()
+
+    @ti.kernel
+    def print_property(self):
+        p_x = ti.static(self.Layout.p_x)
+        for P in p_x:
+            print(p_x[P])
+
+    def step(self, print_stat=False):
         """
         Call once in each frame
         :return:
         """
+        # TODO change dt
         for _ in range(int(2e-3 // self.cfg.dt)):
             self.substep(self.cfg.dt)
-
+        self.print_property()
+        if print_stat:
+            ti.kernel_profiler_print()
+            try:
+                ti.memory_profiler_print()
+            except:
+                pass
+            print(f'num particles={self.Layout.n_particles[None]}')
         self.curFrame += 1
         # print("frame {}".format(self.curFrame))
 
