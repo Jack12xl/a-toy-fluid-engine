@@ -2,7 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 from utils import bufferPair, Matrix, Wrapper
 from Grid.FaceGrid import FaceGrid
-from Euler.FluidGridData import FluidGridData
+from .FluidGridData import FluidGridData
 
 
 @ti.data_oriented

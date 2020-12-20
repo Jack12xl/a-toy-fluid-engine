@@ -2,7 +2,7 @@ import taichi as ti
 from utils import bufferPair, Matrix
 from Grid.CellGrid import CellGrid
 import taichi_glsl as ts
-from Euler.FluidGridData import FluidGridData
+from .FluidGridData import FluidGridData
 
 
 @ti.data_oriented
