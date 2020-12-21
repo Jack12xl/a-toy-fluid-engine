@@ -31,7 +31,7 @@ class mpmScheme(metaclass=ABCMeta):
         pass
 
     def substep(self, dt: Float):
-        self.print_property(34)
+        # self.print_property(34)
         self.Layout.G2zero()
         # self.print_property(35)
         self.Layout.P2G(dt)
@@ -41,7 +41,7 @@ class mpmScheme(metaclass=ABCMeta):
         self.Layout.G_boundary_condition()
         # self.print_property(41)
         self.Layout.G2P(dt)
-        self.print_property(43)
+        # self.print_property(43)
 
     @ti.kernel
     def print_property(self, prefix: ti.template(), v:ti.template()):
