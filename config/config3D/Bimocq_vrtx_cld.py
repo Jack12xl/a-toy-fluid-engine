@@ -7,7 +7,7 @@ import config.euler_config
 from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
 from utils import set_attribute_from_cfg, filterUpCase
-from Grid import collocatedGridData, MacGridData, GRIDTYPE
+from Grid import GRIDTYPE
 
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)
@@ -58,7 +58,7 @@ semi_order = RK_Order.RK_3
 curl_strength = 0.0
 
 DEBUG = False
-ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=True, device_memory_GB=10.0)
+ti.init(arch=ti.gpu, debug=DEBUG, kernel_profiler=False, device_memory_GB=10.0)
 # init should put before init ti.field
 
 from geometry import Transform3, Velocity3

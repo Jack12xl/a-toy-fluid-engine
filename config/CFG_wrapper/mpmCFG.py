@@ -1,6 +1,4 @@
 from .fluidCFG import FluidCFG
-import taichi as ti
-from utils import SetterProperty
 from enum import IntEnum
 
 
@@ -33,7 +31,7 @@ class mpmCFG(FluidCFG):
 
         self.g_padding = cfg.g_padding
 
-        self.layout_method = DataLayout.FLAT
+        self.layout_method = cfg.layout_method
 
         # Lame(not Lame... Well how to type that)
         self.mu_0 = None

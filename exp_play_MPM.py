@@ -43,3 +43,5 @@ if __name__ == '__main__':
         colors = np.array([0xED553B, 0x068587, 0xEEEEF0], dtype=np.uint32)
         gui.circles(scheme.Layout.p_x.to_numpy(), radius=1.5, color=colors[scheme.Layout.p_material_id.to_numpy()])
         gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
+
+    ti.kernel_profiler_print()

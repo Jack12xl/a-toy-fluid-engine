@@ -26,7 +26,7 @@ class mpmLayout(metaclass=ABCMeta):
 
         self.gravity = ts.vecND(self.dim, 0.0)
         # TODO
-        self.gravity[1] = 2.0
+        self.gravity[1] = -9.8
         # Particle
 
         # position
@@ -84,6 +84,9 @@ class mpmLayout(metaclass=ABCMeta):
                                  self.p_material_id,
                                  self.p_color,
                                  self.p_Jp)
+            self._grid = ti.root.dense(_indices, self.cfg.res)
+            self._grid.place(self.g_v.field)
+            self._grid.place(self.g_m.field)
             # TODO finish the setup
         pass
 
@@ -229,6 +232,7 @@ class mpmLayout(metaclass=ABCMeta):
                 # TODO ? what the hell
                 new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
                 new_F += v.outer_product(dweight)
+            # Semi-Implicit
             p_v[P], p_C[P] = new_v, new_C
             p_x[P] += dt * p_v[P]  # advection
             p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
@@ -236,13 +240,12 @@ class mpmLayout(metaclass=ABCMeta):
     @ti.kernel
     def init_cube(self):
         # TODO remove this
+        # raise DeprecationWarning
         self.n_particles[None] = self.cfg.n_particle
         group_size = self.n_particles[None] // 1
         for P in self.p_x:
             self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size), ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
             # material[i] = i // group_size # 0: fluid 1: jelly 2: snow
-            # print("init cube: {}".format(self.p_x[P]))
-            # print(self.p_x[P])
             self.p_v[P] = [0, 0]
             self.p_F[P] = ti.Matrix([[1, 0], [0, 1]])
             self.p_Jp[P] = 1

@@ -1,8 +1,11 @@
 import taichi as ti
+from config.CFG_wrapper import DataLayout
 
 # Hello MPM
 dim = 2
 CFL = None
+
+layout_method = DataLayout.H1
 
 quality = 1
 

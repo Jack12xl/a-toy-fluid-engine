@@ -80,7 +80,7 @@ class FluidCFG(metaclass=ABCMeta):
 
             self.bool_save_ply = self.cfg.bool_save_ply
         else:
-            print("No saving results !")
+            print("Won't save results to disk this time !")
         print(">>>>>>>>>>")
 
     @SetterProperty
