@@ -117,6 +117,8 @@ class mpmLayout(metaclass=ABCMeta):
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
             # print("P2G base: {}, fx: {}".format(base, fx))
+            print("base:", base)
+            print("fx", fx)
             # Here we adopt quadratic kernels
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
             dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
@@ -154,7 +156,7 @@ class mpmLayout(metaclass=ABCMeta):
 
                 force = self.cfg.p_vol * kirchoff @ dweight
                 # TODO ? AFFINE
-                g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)
+                g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos) #  momentum transfer
                 g_m[base + offset] += weight * self.cfg.p_mass
 
                 g_v[base + offset] += dt * force
@@ -231,11 +233,14 @@ class mpmLayout(metaclass=ABCMeta):
 
     @ti.kernel
     def init_cube(self):
-        group_size = self.n_particles // 1
+        # TODO remove this
         self.n_particles[None] = self.cfg.n_particle
+        group_size = self.n_particles[None] // 1
         for P in self.p_x:
             self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size), ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
             # material[i] = i // group_size # 0: fluid 1: jelly 2: snow
+            print("init cube: {}".format(self.p_x[P]))
+            print(self.p_x[P])
             self.p_v[P] = [0, 0]
             self.p_F[P] = ti.Matrix([[1, 0], [0, 1]])
             self.p_Jp[P] = 1

@@ -31,19 +31,26 @@ class mpmScheme(metaclass=ABCMeta):
         pass
 
     def substep(self, dt: Float):
+        self.print_property(34)
         self.Layout.G2zero()
+        # self.print_property(35)
         self.Layout.P2G(dt)
+        # self.print_property(37)
         self.Layout.G_Normalize_plus_Gravity(dt)
+        # self.print_property(39)
         self.Layout.G_boundary_condition()
+        # self.print_property(41)
         self.Layout.G2P(dt)
-
-        self.print_property()
+        self.print_property(43)
 
     @ti.kernel
-    def print_property(self):
+    def print_property(self, prefix: ti.template(), v:ti.template()):
         p_x = ti.static(self.Layout.p_x)
         for P in p_x:
-            print(p_x[P])
+            print(prefix, v[P])
+            # assert(ts.isnan(p_x[P][0]))
+            # assert (ts.isnan(p_x[P][1]))
+            # print(p_x[P])
 
     def step(self, print_stat=False):
         """
@@ -53,7 +60,6 @@ class mpmScheme(metaclass=ABCMeta):
         # TODO change dt
         for _ in range(int(2e-3 // self.cfg.dt)):
             self.substep(self.cfg.dt)
-        self.print_property()
         if print_stat:
             ti.kernel_profiler_print()
             try:
