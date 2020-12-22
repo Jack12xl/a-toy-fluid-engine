@@ -1,18 +1,16 @@
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
-from config.CFG_wrapper import mpmCFG, DataLayout
-from utils import Int, Float, Matrix
+from config.CFG_wrapper import mpmCFG, DLYmethod
+from utils import Int, Float, Matrix, Vector
 from Grid import CellGrid
-
-
-
 
 
 @ti.data_oriented
 class mpmLayout(metaclass=ABCMeta):
     """
-    the default data for MPM
+    the default data for MPM,
+    Support fix size particle only
     """
 
     def __init__(self, cfg: mpmCFG):
@@ -38,7 +36,7 @@ class mpmLayout(metaclass=ABCMeta):
         self.p_material_id = ti.field(dtype=Int)
         self.p_color = ti.field(dtype=Int)
         # plastic deformation volume ratio
-        self.p_Jp = ti.field(dtype=float)
+        self.p_Jp = ti.field(dtype=Float)
 
         # Grid
         # velocity
@@ -60,11 +58,9 @@ class mpmLayout(metaclass=ABCMeta):
         self._grid = None
 
     def materialize(self):
-
+        self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
         _indices = ti.ij if self.dim == 2 else ti.ijk
-        if ti.static(self.cfg.layout_method) == DataLayout.FLAT:
-            self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
-
+        if ti.static(self.cfg.layout_method) == DLYmethod.SoA:
             self._particle.place(self.p_x)
             self._particle.place(self.p_v)
             self._particle.place(self.p_C)
@@ -77,8 +73,7 @@ class mpmLayout(metaclass=ABCMeta):
 
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
-        elif ti.static(self.cfg.layout_method) == DataLayout.H1:
-
+        elif ti.static(self.cfg.layout_method) == DLYmethod.AoS:
 
             self._particle.place(self.p_x,
                                  self.p_v,
@@ -99,7 +94,7 @@ class mpmLayout(metaclass=ABCMeta):
 
     @ti.func
     def kirchoff_FCR(self, F, R, J, mu, la):
-        return 2 * mu * (F - R) @ F.transpose() + ti.Matrix.identity(float, self.dim) * la * J * (
+        return 2 * mu * (F - R) @ F.transpose() + ti.Matrix.identity(Float, self.dim) * la * J * (
                 J - 1)  # compute kirchoff stress for FCR model (remember tau = P F^T)
 
     @ti.func
@@ -169,7 +164,7 @@ class mpmLayout(metaclass=ABCMeta):
 
                 force = - self.cfg.p_vol * kirchoff @ dweight
                 # TODO ? AFFINE
-                g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos) #  momentum transfer
+                g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)  # momentum transfer
                 g_m[base + offset] += weight * self.cfg.p_mass
 
                 g_v[base + offset] += dt * force
@@ -247,15 +242,14 @@ class mpmLayout(metaclass=ABCMeta):
 
     @ti.kernel
     def init_cube(self):
-        # TODO remove this
-        # raise DeprecationWarning
+        # TODO evolve this
         self.n_particles[None] = self.cfg.n_particle
         group_size = self.n_particles[None] // 1
         for P in self.p_x:
-            self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size), ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
+            self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
+                           ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
             # material[i] = i // group_size # 0: fluid 1: jelly 2: snow
-            self.p_v[P] = [0, 0]
-            self.p_F[P] = ti.Matrix([[1, 0], [0, 1]])
+            self.p_v[P] = ts.vecND(self.dim, 0.0)
+            self.p_F[P] = ti.Matrix.identity(Float, self.dim)
             self.p_Jp[P] = 1
-            self.p_C[P] = ti.Matrix.zero(float, 2, 2)
-
+            self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)

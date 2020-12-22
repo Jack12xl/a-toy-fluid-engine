@@ -1,11 +1,11 @@
 import taichi as ti
-from config.CFG_wrapper import DataLayout
+from config.CFG_wrapper import DLYmethod
 
 # Hello MPM
 dim = 2
 CFL = None
 
-layout_method = DataLayout.H1
+layout_method = DLYmethod.AoS
 
 quality = 1
 

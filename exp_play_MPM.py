@@ -1,7 +1,8 @@
 import taichi as ti
+import taichi_glsl as ts
 import numpy as np
 import argparse
-from config import mpmCFG
+from config import mpmCFG, MaType
 
 
 def parse_args():
@@ -21,10 +22,15 @@ def parse_args():
 if __name__ == '__main__':
     m_cfg = parse_args()
 
-    from Engine.MPM_solver import mpmScheme
+    from Engine.MPM_solver import MPMSolver
 
-    scheme = mpmScheme(m_cfg)
+    scheme = MPMSolver(m_cfg)
     scheme.materialize()
+
+    # scheme.add_cube(l_b=ts.vec2(0.2),
+    #                 cube_size=ts.vec2(0.2),
+    #                 mat=MaType.elastic
+    #                 )
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
     paused = False

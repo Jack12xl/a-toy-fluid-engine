@@ -2,7 +2,7 @@ import taichi as ti
 import taichi_glsl as ts
 import numpy as np
 from abc import ABCMeta, abstractmethod
-from config.CFG_wrapper import mpmCFG
+from config.CFG_wrapper import mpmCFG, MaType
 from utils import Vector, Float
 from DataLayout.MPM import mpmLayout
 
@@ -14,7 +14,7 @@ ref :
 
 
 @ti.data_oriented
-class mpmScheme(metaclass=ABCMeta):
+class MPMSolver(metaclass=ABCMeta):
     def __init__(self, cfg: mpmCFG):
         self.cfg = cfg
 
@@ -28,7 +28,6 @@ class mpmScheme(metaclass=ABCMeta):
         # initial the ti.field
         self.Layout.materialize()
         self.Layout.init_cube()
-        pass
 
     def substep(self, dt: Float):
         # self.print_property(34)
@@ -75,9 +74,34 @@ class mpmScheme(metaclass=ABCMeta):
         restart the whole process
         :return:
         """
+        # TODO
         self.materialize()
 
         self.curFrame = 0
 
-    def add_cube(self):
-        pass
+    # def add_cube(self,
+    #              l_b: Vector,
+    #              cube_size: Vector,
+    #              mat: MaType,
+    #              color=0xFFFFFF,
+    #              sample_density=None,
+    #              velocity=None):
+    #     if sample_density is None:
+    #         sample_density = 2 ** self.dim
+    #
+    #     vol = 1
+    #     for d in range(self.dim):
+    #         vol *= cube_size[d]
+    #     num_new_particles = int(sample_density * vol / self.cfg.dx ** self.dim + 1)
+    #     assert self.Layout.n_particles[
+    #                None] + num_new_particles <= self.cfg.max_n_particle
+    #
+    #     self.Layout.source_bound[0] = l_b
+    #     self.Layout.source_bound[1] = cube_size
+    #
+    #     if velocity is None:
+    #         self.Layout.source_velocity[None] = ts.vecND(self.dim, 0.0)
+    #     else:
+    #         self.Layout.source_velocity[None] = velocity
+    #
+    #     self.Layout.n_particles[None] += num_new_particles
