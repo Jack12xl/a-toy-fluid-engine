@@ -121,4 +121,5 @@ save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)
 frame_rate = int(1.0 / dt)
 
-bool_save_ply = False
+bool_save_ply = True
+ply_frequency = 1

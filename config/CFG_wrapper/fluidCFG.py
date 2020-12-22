@@ -89,7 +89,7 @@ class FluidCFG(metaclass=ABCMeta):
         print(">>>>>>")
         if save:
             print("We will save ply every {} !".format(self.ply_frequency))
-            self.PLYwriter = plyWriter(self.fluid_color, self)
+            self.PLYwriter = plyWriter(self)
             self.ply_frequency = self.cfg.ply_frequency
             print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
         print(">>>>>>")

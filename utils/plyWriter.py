@@ -2,6 +2,7 @@ import taichi as ti
 import numpy as np
 from .basic_types import Wrapper
 import os
+import taichi_glsl as ts
 
 
 @ti.data_oriented
@@ -10,13 +11,13 @@ class plyWriter(ti.PLYWriter):
     Simple use
     """
 
-    def __init__(self, fluid_color, cfg):
+    def __init__(self, cfg):
         self.cfg = cfg
         self.res = self.cfg.res
         self.dim = self.cfg.dim
         self.num_vertices = np.prod(self.res)
 
-        self.fluid_color = fluid_color
+        self.fluid_color = ts.vec3(1.0, 1.0, 1.0)
 
         super(plyWriter, self).__init__(self.num_vertices)
 

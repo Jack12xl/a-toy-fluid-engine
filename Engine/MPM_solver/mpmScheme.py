@@ -78,3 +78,6 @@ class mpmScheme(metaclass=ABCMeta):
         self.materialize()
 
         self.curFrame = 0
+
+    def add_cube(self):
+        pass

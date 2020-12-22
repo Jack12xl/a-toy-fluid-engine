@@ -6,10 +6,7 @@ from utils import Int, Float, Matrix
 from Grid import CellGrid
 
 
-@ti.func
-def kirchoff_FCR(F, R, J, mu, la):
-    return 2 * mu * (F - R) @ F.transpose() + ti.Matrix.identity(float, 2) * la * J * (
-            J - 1)  # compute kirchoff stress for FCR model (remember tau = P F^T)
+
 
 
 @ti.data_oriented
@@ -59,12 +56,15 @@ class mpmLayout(metaclass=ABCMeta):
             o=ts.vecND(self.dim, 0.0)
         )
 
-        pass
+        self._particle = None
+        self._grid = None
 
     def materialize(self):
-        self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
+
         _indices = ti.ij if self.dim == 2 else ti.ijk
         if ti.static(self.cfg.layout_method) == DataLayout.FLAT:
+            self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
+
             self._particle.place(self.p_x)
             self._particle.place(self.p_v)
             self._particle.place(self.p_C)
@@ -74,9 +74,12 @@ class mpmLayout(metaclass=ABCMeta):
             self._particle.place(self.p_Jp)
 
             self._grid = ti.root.dense(_indices, self.cfg.res)
+
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
         elif ti.static(self.cfg.layout_method) == DataLayout.H1:
+
+
             self._particle.place(self.p_x,
                                  self.p_v,
                                  self.p_C,
@@ -93,6 +96,11 @@ class mpmLayout(metaclass=ABCMeta):
     def G2zero(self):
         self.g_m.fill(0.0)
         self.g_v.fill(ts.vecND(self.dim, 0.0))
+
+    @ti.func
+    def kirchoff_FCR(self, F, R, J, mu, la):
+        return 2 * mu * (F - R) @ F.transpose() + ti.Matrix.identity(float, self.dim) * la * J * (
+                J - 1)  # compute kirchoff stress for FCR model (remember tau = P F^T)
 
     @ti.func
     def stencil_range(self, l_b, r_u):
@@ -140,7 +148,7 @@ class mpmLayout(metaclass=ABCMeta):
                 J *= new_sig
 
             # Kirchoff Stress
-            kirchoff = kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+            kirchoff = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
 
             # for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
             for offset in ti.static(ti.grouped(self.stencil_range3())):
