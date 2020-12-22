@@ -244,11 +244,11 @@ class mpmLayout(metaclass=ABCMeta):
     def init_cube(self):
         # TODO evolve this
         self.n_particles[None] = self.cfg.n_particle
-        group_size = self.n_particles[None] // 1
+        group_size = self.n_particles[None] // 3
         for P in self.p_x:
             self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
                            ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
-            # material[i] = i // group_size # 0: fluid 1: jelly 2: snow
+            self.p_material_id[P] = 0 // group_size # 0: fluid 1: jelly 2: snow
             self.p_v[P] = ts.vecND(self.dim, 0.0)
             self.p_F[P] = ti.Matrix.identity(Float, self.dim)
             self.p_Jp[P] = 1
