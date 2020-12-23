@@ -7,7 +7,7 @@ CFL = None
 
 layout_method = DLYmethod.AoS
 
-quality = 1
+quality = 2
 
 dt = 1e-4 / quality
 

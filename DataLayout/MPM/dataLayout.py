@@ -149,7 +149,7 @@ class mpmLayout(metaclass=ABCMeta):
         """
         p_Jp = ti.static(self.p_Jp)
         p_F = ti.static(self.p_F)
-
+        # hardening coefficient
         h = self.cfg.elastic_h
         mu, la = 0, h * self.cfg.lambda_0
 
@@ -199,29 +199,12 @@ class mpmLayout(metaclass=ABCMeta):
             # affine would do this in P2G.. why
             p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
 
-            # hardening coefficient
-            h = ti.exp(10 * (1.0 - p_Jp[P]))
-            mu, la = self.cfg.mu_0, self.cfg.lambda_0
-
-            U, sig, V = ti.svd(p_F[P])
-            J = 1.0
-
-            # TODO ?
-            for d in ti.static(range(self.dim)):
-                new_sig = sig[d, d]
-                p_Jp[P] *= sig[d, d] / new_sig
-                sig[d, d] = new_sig
-                J *= new_sig
-
-            # Kirchoff Stress
             force = ti.Matrix.zero(Float, self.dim, self.dim)
-            # kirchoff = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+            if self.p_material_id[P] == MaType.elastic:
+                force = self.elasticP2Gpp(P, dt)
+            elif self.p_material_id[P] == MaType.liquid:
+                force = self.liquidP2Gpp(P, dt)
 
-            if self.p_material_id[P] != MaType.sand:
-                force = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
-
-            # for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
-            force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx**2)
             affine = force + self.cfg.p_mass * self.p_C[P]
             for offset in ti.static(ti.grouped(self.stencil_range3())):
                 # print("P2G: ", offset)
@@ -292,7 +275,7 @@ class mpmLayout(metaclass=ABCMeta):
 
             new_v = ti.Vector.zero(Float, self.dim)
             new_C = ti.Matrix.zero(Float, self.dim, self.dim)
-            new_F = ti.Matrix.zero(Float, self.dim, self.dim)
+            # new_F = ti.Matrix.zero(Float, self.dim, self.dim)
 
             # for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
             for offset in ti.static(ti.grouped(self.stencil_range3())):
@@ -323,13 +306,13 @@ class mpmLayout(metaclass=ABCMeta):
     def init_cube(self):
         # TODO evolve this
         self.n_particles[None] = self.cfg.n_particle
-        group_size = self.n_particles[None] // 3
+        group_size = self.n_particles[None] // 2
         for P in self.p_x:
             self.p_x[P] = ts.randND(self.dim) * 0.2 + 0.05 + 0.32 * (P // group_size)
             self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
             # self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
             #                ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
-            self.p_material_id[P] = 0 // group_size # 0: fluid 1: jelly 2: snow
+            self.p_material_id[P] = P // group_size # 1: fluid 0: jelly 2: snow
             self.p_v[P] = ts.vecND(self.dim, 0.0)
             self.p_F[P] = ti.Matrix.identity(Float, self.dim)
             self.p_Jp[P] = 1
