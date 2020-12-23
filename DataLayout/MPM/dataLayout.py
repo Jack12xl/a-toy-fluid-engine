@@ -88,7 +88,13 @@ class mpmLayout(metaclass=ABCMeta):
             # TODO finish the setup
         pass
 
+    # @ti.kernel
     def G2zero(self):
+        # ti.block_dim(128)
+        # for I in ti.static(self.g_m):
+        #     self.g_m[I] = 0.0
+        # for I in ti.static(self.g_v):
+        #     self.g_v[I] = ts.vecND(self.dim, 0.0)
         self.g_m.fill(0.0)
         self.g_v.fill(ts.vecND(self.dim, 0.0))
 
