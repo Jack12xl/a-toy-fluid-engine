@@ -7,7 +7,7 @@ import config.euler_config
 from config.class_cfg import SceneEnum, VisualizeEnum, SchemeType, SimulateType
 import config.config3D.scene_config3D.scene_jit3D as scene_cfg
 from utils import set_attribute_from_cfg, filterUpCase
-from Grid import collocatedGridData, MacGridData, GRIDTYPE
+from Grid import GRIDTYPE
 
 FILTER_TYPE = 'm_'
 set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, _if_print=False)

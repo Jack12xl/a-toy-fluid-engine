@@ -66,9 +66,9 @@ class mpmCFG(FluidCFG):
     @quality.setter
     def quality(self, q: int):
         self._quality = q
-        self.n_particle = 9000 * q ** 2
-        self.n_grid = 128 * q
-        self.dt = 1e-4 / q
+        self.n_particle = self.cfg.n_particle if hasattr(self.cfg, 'n_particle') else 9000 * q ** 2
+        self.n_grid = self.cfg.n_grid if hasattr(self.cfg, 'n_grid') else 128 * q
+        self.dt = self.cfg.dt if hasattr(self.cfg, 'dt') else 1e-4 / q
 
     @property
     def E(self):

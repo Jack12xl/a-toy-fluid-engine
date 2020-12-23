@@ -15,7 +15,9 @@ def parse_args():
     if args.cfg == "Jello-Fall-2D":
         import config.config2D.Jello_Fall2D
         cfg = config.config2D.Jello_Fall2D
-
+    elif args.cfg == "Jello-Fall-3D":
+        import config.config3D.Jello_Fall3D
+        cfg = config.config3D.Jello_Fall3D
     return mpmCFG(cfg)
 
 
@@ -47,7 +49,16 @@ if __name__ == '__main__':
             scheme.step()
 
         colors = np.array([0xED553B, 0x068587, 0xEEEEF0], dtype=np.uint32)
-        gui.circles(scheme.Layout.p_x.to_numpy(), radius=1.5, color=colors[scheme.Layout.p_material_id.to_numpy()])
+        np_x = scheme.Layout.p_x.to_numpy()
+        if m_cfg.dim == 2:
+            screen_pos = np_x
+        elif m_cfg.dim == 3:
+            screen_x = ((np_x[:, 0] + np_x[:, 2]) / 2 ** 0.5) - 0.2
+            screen_y = (np_x[:, 1])
+            screen_pos = np.stack([screen_x, screen_y], axis=-1)
+
+        gui.circles(screen_pos, radius=1.5, color=colors[scheme.Layout.p_material_id.to_numpy()])
+
         gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
 
     ti.kernel_profiler_print()
