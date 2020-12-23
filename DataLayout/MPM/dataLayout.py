@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
-from config.CFG_wrapper import mpmCFG, DLYmethod
+from config.CFG_wrapper import mpmCFG, DLYmethod, MaType
 from utils import Int, Float, Matrix, Vector
 from Grid import CellGrid
 
@@ -134,7 +134,8 @@ class mpmLayout(metaclass=ABCMeta):
             # print("fx", fx)
             # Here we adopt quadratic kernels
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
-            dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+            # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+            p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
 
             mu, la = self.cfg.mu_0, self.cfg.lambda_0
 
@@ -149,9 +150,15 @@ class mpmLayout(metaclass=ABCMeta):
                 J *= new_sig
 
             # Kirchoff Stress
-            kirchoff = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+            force = ti.Matrix.zero(Float, self.dim, self.dim)
+            # kirchoff = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+
+            if self.p_material_id[P] != MaType.sand:
+                force = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
 
             # for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
+            force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx**2)
+            affine = force + self.cfg.p_mass * self.p_C[P]
             for offset in ti.static(ti.grouped(self.stencil_range3())):
                 # print("P2G: ", offset)
                 dpos = g_m.getW(offset.cast(Float) - fx)
@@ -160,20 +167,22 @@ class mpmLayout(metaclass=ABCMeta):
                 for d in ti.static(range(self.dim)):
                     weight *= w[offset[d]][d]
 
-                dweight = ts.vecND(self.dim, self.cfg.inv_dx)
-                for d1 in ti.static(range(self.dim)):
-                    for d2 in ti.static(range(self.dim)):
-                        if d1 == d2:
-                            dweight[d1] *= dw[offset[d2]][d2]
-                        else:
-                            dweight[d1] *= w[offset[d2]][d2]
+                # dweight = ts.vecND(self.dim, self.cfg.inv_dx)
+                # for d1 in ti.static(range(self.dim)):
+                #     for d2 in ti.static(range(self.dim)):
+                #         if d1 == d2:
+                #             dweight[d1] *= dw[offset[d2]][d2]
+                #         else:
+                #             dweight[d1] *= w[offset[d2]][d2]
 
-                force = - self.cfg.p_vol * kirchoff @ dweight
+                # force = - self.cfg.p_vol * kirchoff @ dweight
                 # TODO ? AFFINE
-                g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)  # momentum transfer
+                # g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)  # momentum transfer
+                # TODO Got lots of simultaneous atomic here
+                g_v[base + offset] += weight * (self.cfg.p_mass * self.p_v[P] + affine @ dpos)
                 g_m[base + offset] += weight * self.cfg.p_mass
 
-                g_v[base + offset] += dt * force
+                # g_v[base + offset] += dt * force
 
     @ti.kernel
     def G_Normalize_plus_Gravity(self, dt: Float):
@@ -215,7 +224,7 @@ class mpmLayout(metaclass=ABCMeta):
             w = [
                 0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
             ]
-            dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+            # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
 
             new_v = ti.Vector.zero(Float, self.dim)
             new_C = ti.Matrix.zero(Float, self.dim, self.dim)
@@ -230,21 +239,21 @@ class mpmLayout(metaclass=ABCMeta):
                 for d in ti.static(range(self.dim)):
                     weight *= w[offset[d]][d]
 
-                dweight = ts.vecND(self.dim, self.cfg.inv_dx)
-                for d1 in ti.static(range(self.dim)):
-                    for d2 in ti.static(range(self.dim)):
-                        if d1 == d2:
-                            dweight[d1] *= dw[offset[d2]][d2]
-                        else:
-                            dweight[d1] *= w[offset[d2]][d2]
+                # dweight = ts.vecND(self.dim, self.cfg.inv_dx)
+                # for d1 in ti.static(range(self.dim)):
+                #     for d2 in ti.static(range(self.dim)):
+                #         if d1 == d2:
+                #             dweight[d1] *= dw[offset[d2]][d2]
+                #         else:
+                #             dweight[d1] *= w[offset[d2]][d2]
                 new_v += weight * v
                 # TODO ? what the hell
                 new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
-                new_F += v.outer_product(dweight)
+                # new_F += v.outer_product(dweight)
             # Semi-Implicit
             p_v[P], p_C[P] = new_v, new_C
             p_x[P] += dt * p_v[P]  # advection
-            p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
+            # p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
 
     @ti.kernel
     def init_cube(self):

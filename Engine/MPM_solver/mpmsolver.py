@@ -75,7 +75,7 @@ class MPMSolver(metaclass=ABCMeta):
         :return:
         """
         # TODO
-        self.materialize()
+        self.Layout.init_cube()
 
         self.curFrame = 0
 
