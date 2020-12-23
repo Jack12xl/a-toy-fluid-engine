@@ -111,6 +111,66 @@ class mpmLayout(metaclass=ABCMeta):
     def stencil_range3(self):
         return ti.ndrange(*((3,) * self.dim))
 
+    @ti.func
+    def elasticP2Gpp(self, P, dt):
+        """
+        P2G pre-process for elastic
+        :param P:
+        :param dt:
+        :return:
+        """
+        p_Jp = ti.static(self.p_Jp)
+        p_F = ti.static(self.p_F)
+
+        h = self.cfg.elastic_h
+        mu, la = h * self.cfg.mu_0, h * self.cfg.lambda_0
+
+        U, sig, V = ti.svd(p_F[P])
+        J = 1.0
+
+        for d in ti.static(range(self.dim)):
+            new_sig = sig[d, d]
+            p_Jp[P] *= sig[d, d] / new_sig
+            sig[d, d] = new_sig
+            J *= new_sig
+
+        force = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+        force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2)
+
+        return force
+
+    @ti.func
+    def liquidP2Gpp(self, P, dt):
+        """
+
+        :param P:
+        :param dt:
+        :return:
+        """
+        p_Jp = ti.static(self.p_Jp)
+        p_F = ti.static(self.p_F)
+
+        h = self.cfg.elastic_h
+        mu, la = 0, h * self.cfg.lambda_0
+
+        U, sig, V = ti.svd(p_F[P])
+        J = 1.0
+
+        for d in ti.static(range(self.dim)):
+            new_sig = sig[d, d]
+            p_Jp[P] *= sig[d, d] / new_sig
+            sig[d, d] = new_sig
+            J *= new_sig
+
+        new_F = ti.Matrix.identity(Float, self.dim)
+        new_F[0, 0] = J
+        p_F[P] = new_F
+
+        force = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+        force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2)
+
+        return force
+
     @ti.kernel
     def P2G(self, dt: Float):
         """
@@ -135,8 +195,12 @@ class mpmLayout(metaclass=ABCMeta):
             # Here we adopt quadratic kernels
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
             # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+
+            # affine would do this in P2G.. why
             p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
 
+            # hardening coefficient
+            h = ti.exp(10 * (1.0 - p_Jp[P]))
             mu, la = self.cfg.mu_0, self.cfg.lambda_0
 
             U, sig, V = ti.svd(p_F[P])

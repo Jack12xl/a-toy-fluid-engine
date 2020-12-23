@@ -59,6 +59,9 @@ class mpmCFG(FluidCFG):
         self.E = cfg.E  # Young's modules
         self.nu = cfg.nu  # Poisson's ratio
 
+        self.elastic_h = cfg.elastic_h if hasattr(cfg, "elastic_h") else 0.3
+
+
     @property
     def quality(self):
         return self._quality
