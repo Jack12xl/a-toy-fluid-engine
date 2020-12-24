@@ -9,8 +9,8 @@ layout_method = DLYmethod.AoS
 
 quality = 1
 
-dt = 1e-4 / quality
-n_particle = 18000 * quality ** 2
+dt = 2e-4  # frame dt
+n_particle = 9000 * quality ** 2
 
 n_grid = 128 * quality
 dx = 1.0 / n_grid
@@ -24,7 +24,7 @@ g_padding = [3, 3, 3]
 
 E, nu = 1e6, 0.2
 
-ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
+ti.init(arch=ti.gpu, debug=False, kernel_profiler=True, device_memory_GB=3.0)
 
 profile_name = "MPM{}D-P-{}-G-{}-dt-{}".format(dim, n_particle, 'x'.join(map(str, res)), dt)
 bool_save = False

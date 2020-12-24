@@ -57,8 +57,18 @@ class MPMSolver(metaclass=ABCMeta):
         :return:
         """
         # TODO change dt
-        for _ in range(int(2e-3 // self.cfg.dt)):
-            self.substep(self.cfg.dt)
+        T = 0.0
+        sub_dt = self.cfg.substep_dt
+
+        # while T < self.cfg.dt:
+        #     if T + sub_dt > self.cfg.dt:
+        #         sub_dt = self.cfg.dt - T
+        #
+        #     self.substep(sub_dt)
+
+        for _ in range(int(self.cfg.dt // self.cfg.substep_dt)):
+            self.substep(self.cfg.substep_dt)
+
         if print_stat:
             ti.kernel_profiler_print()
             try:
