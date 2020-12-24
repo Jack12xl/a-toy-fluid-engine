@@ -151,7 +151,7 @@ class mpmLayout(metaclass=ABCMeta):
         p_F = ti.static(self.p_F)
         # hardening coefficient
         h = self.cfg.elastic_h
-        mu, la = 0, h * self.cfg.lambda_0
+        mu, la = 0.0, h * self.cfg.lambda_0
 
         U, sig, V = ti.svd(p_F[P])
         J = 1.0
@@ -170,6 +170,39 @@ class mpmLayout(metaclass=ABCMeta):
         force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2)
 
         return force
+
+    @ti.func
+    def snowP2Gpp(self, P, dt):
+        """
+
+        :param P:
+        :param dt:
+        :return:
+        """
+        p_Jp = ti.static(self.p_Jp)
+        p_F = ti.static(self.p_F)
+
+        h = ti.exp(10 * (1.0 - p_Jp[P]))
+        mu, la = h * self.cfg.mu_0, h * self.cfg.lambda_0
+
+        U, sig, V = ti.svd(p_F[P])
+        J = 1.0
+
+        for d in ti.static(range(self.dim)):
+            new_sig = min(max(sig[d, d], 1 - 2.5e-2),
+                          1 + 4.5e-3)  # Plasticity
+            p_Jp[P] *= sig[d, d] / new_sig
+
+            sig[d, d] = new_sig
+            J *= new_sig
+
+        p_F[P] = U @ sig @ V.transpose()
+
+        force = self.kirchoff_FCR(p_F[P], U @ V.transpose(), J, mu, la)
+        force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2)
+
+        return force
+
 
     @ti.kernel
     def P2G(self, dt: Float):
@@ -200,10 +233,13 @@ class mpmLayout(metaclass=ABCMeta):
             p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
 
             force = ti.Matrix.zero(Float, self.dim, self.dim)
+            # want to decrease branching
             if self.p_material_id[P] == MaType.elastic:
                 force = self.elasticP2Gpp(P, dt)
             elif self.p_material_id[P] == MaType.liquid:
                 force = self.liquidP2Gpp(P, dt)
+            elif self.p_material_id[P] == MaType.snow:
+                force = self.snowP2Gpp(P, dt)
 
             affine = force + self.cfg.p_mass * self.p_C[P]
             for offset in ti.static(ti.grouped(self.stencil_range3())):
@@ -306,7 +342,7 @@ class mpmLayout(metaclass=ABCMeta):
     def init_cube(self):
         # TODO evolve this
         self.n_particles[None] = self.cfg.n_particle
-        group_size = self.n_particles[None] // 2
+        group_size = self.n_particles[None] // 3
         for P in self.p_x:
             self.p_x[P] = ts.randND(self.dim) * 0.2 + 0.05 + 0.32 * (P // group_size)
             self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
