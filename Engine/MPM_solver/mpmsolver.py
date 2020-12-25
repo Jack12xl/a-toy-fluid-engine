@@ -27,7 +27,7 @@ class MPMSolver(metaclass=ABCMeta):
     def materialize(self):
         # initial the ti.field
         self.Layout.materialize()
-        self.Layout.init_cube()
+        # self.Layout.init_cube()
 
     def substep(self, dt: Float):
         # self.print_property(34)
@@ -70,13 +70,13 @@ class MPMSolver(metaclass=ABCMeta):
         for _ in range(int(self.cfg.dt // sub_dt)):
             self.substep(sub_dt)
 
-        if print_stat:
-            ti.kernel_profiler_print()
-            try:
-                ti.memory_profiler_print()
-            except:
-                pass
-            print(f'num particles={self.Layout.n_max_particle[None]}')
+        # if print_stat:
+        #     ti.kernel_profiler_print()
+        #     try:
+        #         ti.memory_profiler_print()
+        #     except:
+        #         pass
+        #     print(f'num particles={self.Layout.n_max_particle[None]}')
         self.curFrame += 1
         # print("frame {}".format(self.curFrame))
 

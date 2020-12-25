@@ -9,6 +9,7 @@ layout_method = DLYmethod.AoS
 
 quality = 2
 
+max_n_particle = 9000 * quality ** 2
 # dt = 1e-4 / quality
 dt = 4e-3
 

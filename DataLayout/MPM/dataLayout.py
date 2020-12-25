@@ -19,7 +19,7 @@ class mpmLayout(metaclass=ABCMeta):
         self.dim = cfg.dim
         # current particle number
         self.n_particle = ti.field(dtype=Int, shape=())
-        self.n_max_particle = ti.field(dtype=Int, shape=())
+        self.n_max_particle = cfg.max_n_particle
 
         self.gravity = ts.vecND(self.dim, 0.0)
         # TODO
@@ -64,7 +64,7 @@ class mpmLayout(metaclass=ABCMeta):
         self.source_velocity = ti.Vector.field(self.dim, dtype=Float, shape=())
 
     def materialize(self):
-        self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
+        self._particle = ti.root.dense(ti.i, self.n_max_particle)
         _indices = ti.ij if self.dim == 2 else ti.ijk
         if ti.static(self.cfg.layout_method) == DLYmethod.SoA:
             self._particle.place(self.p_x)
@@ -404,21 +404,22 @@ class mpmLayout(metaclass=ABCMeta):
             p_x[P] += dt * p_v[P]  # advection
             # p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
 
-    @ti.kernel
-    def init_cube(self):
-        # TODO evolve this
-        self.n_max_particle[None] = self.cfg.n_particle
-        group_size = self.n_max_particle[None] // 4
-        for P in self.p_x:
-            self.p_x[P] = ts.randND(self.dim) * 0.2 + 0.05 + 0.32 * (P // group_size)
-            self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
-            # self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
-            #                ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
-            self.p_material_id[P] = P // group_size # 1: fluid 0: jelly 2: snow
-            self.p_v[P] = ts.vecND(self.dim, 0.0)
-            self.p_F[P] = ti.Matrix.identity(Float, self.dim)
-            self.p_Jp[P] = 1
-            self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+    # @ti.kernel
+    # def init_cube(self):
+    #     # TODO evolve this
+    #     raise DeprecationWarning
+    #     self.n_max_particle[None] = self.cfg.n_particle
+    #     group_size = self.n_max_particle[None] // 4
+    #     for P in self.p_x:
+    #         self.p_x[P] = ts.randND(self.dim) * 0.2 + 0.05 + 0.32 * (P // group_size)
+    #         self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
+    #         # self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
+    #         #                ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
+    #         self.p_material_id[P] = P // group_size # 1: fluid 0: jelly 2: snow
+    #         self.p_v[P] = ts.vecND(self.dim, 0.0)
+    #         self.p_F[P] = ti.Matrix.identity(Float, self.dim)
+    #         self.p_Jp[P] = 1
+    #         self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
     @ti.kernel
     def seed(self, n_p: Int, mat: Int, color: Int):
@@ -444,7 +445,7 @@ class mpmLayout(metaclass=ABCMeta):
                  velocity: Vector,
                  color=0xFFFFFF,
                  ):
-        assert(self.n_particle[None] + n_p <= self.n_max_particle[None])
+        assert(self.n_particle[None] + n_p <= self.n_max_particle)
 
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
