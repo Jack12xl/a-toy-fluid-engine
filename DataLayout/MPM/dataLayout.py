@@ -285,7 +285,7 @@ class mpmLayout(metaclass=ABCMeta):
         p_F = ti.static(self.p_F)
         p_Jp = ti.static(self.p_Jp)
 
-        for P in p_x:
+        for P in range(self.n_particle[None]):
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
 
@@ -366,7 +366,7 @@ class mpmLayout(metaclass=ABCMeta):
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
 
-        for P in p_x:
+        for P in range(self.n_particle[None]):
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
 
@@ -452,6 +452,6 @@ class mpmLayout(metaclass=ABCMeta):
 
         self.source_velocity[None] = velocity
 
-        self.seed(n_p, mat, color)
+        self.seed(n_p, mat, int(color))
 
         self.n_particle[None] += n_p

@@ -86,8 +86,8 @@ class MPMSolver(metaclass=ABCMeta):
         :return:
         """
         # TODO
-        self.Layout.init_cube()
-
+        # self.Layout.init_cube()
+        self.Layout.n_particle[None] = 0
         self.curFrame = 0
 
     # def add_cube(self,
