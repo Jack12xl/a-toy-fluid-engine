@@ -76,7 +76,7 @@ class MPMSolver(metaclass=ABCMeta):
                 ti.memory_profiler_print()
             except:
                 pass
-            print(f'num particles={self.Layout.n_particles[None]}')
+            print(f'num particles={self.Layout.n_max_particle[None]}')
         self.curFrame += 1
         # print("frame {}".format(self.curFrame))
 

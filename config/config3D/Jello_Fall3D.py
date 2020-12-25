@@ -7,9 +7,9 @@ CFL = None
 
 layout_method = DLYmethod.AoS
 
-quality = 1
+quality = 4
 
-dt = 2e-4  # frame dt
+dt = 4e-3  # frame dt
 n_particle = 9000 * quality ** 2
 
 n_grid = 128 * quality

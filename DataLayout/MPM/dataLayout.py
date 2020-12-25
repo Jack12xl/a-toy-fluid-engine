@@ -17,7 +17,9 @@ class mpmLayout(metaclass=ABCMeta):
         self.cfg = cfg
 
         self.dim = cfg.dim
-        self.n_particles = ti.field(dtype=Int, shape=())
+        # current particle number
+        self.n_particle = ti.field(dtype=Int, shape=())
+        self.n_max_particle = ti.field(dtype=Int, shape=())
 
         self.gravity = ts.vecND(self.dim, 0.0)
         # TODO
@@ -56,6 +58,10 @@ class mpmLayout(metaclass=ABCMeta):
 
         self._particle = None
         self._grid = None
+
+        # helper field for adding particles
+        self.source_bound = ti.Vector.field(self.dim, dtype=Float, shape=2)
+        self.source_velocity = ti.Vector.field(self.dim, dtype=Float, shape=())
 
     def materialize(self):
         self._particle = ti.root.dense(ti.i, self.cfg.n_particle)
@@ -214,8 +220,8 @@ class mpmLayout(metaclass=ABCMeta):
         p_Jp = ti.static(self.p_Jp)
         p_F = ti.static(self.p_F)
 
-        h = ti.exp(10 * (1.0 - p_Jp[P]))
-        mu, la = h * self.cfg.mu_0, h * self.cfg.lambda_0
+        # h = ti.exp(10 * (1.0 - p_Jp[P]))
+        # mu, la = h * self.cfg.mu_0, h * self.cfg.lambda_0
         # TODO ?
         U, sig, V = ti.svd(p_F[P])
         # TODO ?
@@ -282,9 +288,7 @@ class mpmLayout(metaclass=ABCMeta):
         for P in p_x:
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
             fx = g_m.getG(p_x[P]) - base.cast(Float)
-            # print("P2G base: {}, fx: {}".format(base, fx))
-            # print("base:", base)
-            # print("fx", fx)
+
             # Here we adopt quadratic kernels
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
             # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
@@ -403,8 +407,8 @@ class mpmLayout(metaclass=ABCMeta):
     @ti.kernel
     def init_cube(self):
         # TODO evolve this
-        self.n_particles[None] = self.cfg.n_particle
-        group_size = self.n_particles[None] // 4
+        self.n_max_particle[None] = self.cfg.n_particle
+        group_size = self.n_max_particle[None] // 4
         for P in self.p_x:
             self.p_x[P] = ts.randND(self.dim) * 0.2 + 0.05 + 0.32 * (P // group_size)
             self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
@@ -415,3 +419,38 @@ class mpmLayout(metaclass=ABCMeta):
             self.p_F[P] = ti.Matrix.identity(Float, self.dim)
             self.p_Jp[P] = 1
             self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+
+    @ti.kernel
+    def seed(self, n_p: Int, mat: Int, color: Int):
+        for P in range(self.n_particle[None],
+                       self.n_particle[None] + n_p):
+            self.p_material_id[P] = mat
+            x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
+            self.seed_particle(P, x, mat, color, self.source_velocity[None])
+
+    @ti.func
+    def seed_particle(self, P, x, mat, color, velocity):
+        self.p_x[P] = x
+        self.p_v[P] = velocity
+        self.p_F[P] = ti.Matrix.identity(Float, self.dim)
+        self.p_color[P] = color
+        self.p_material_id[P] = mat
+
+    def add_cube(self,
+                 l_b: Vector,
+                 cube_size: Vector,
+                 mat: MaType,
+                 n_p: Int,
+                 velocity: Vector,
+                 color=0xFFFFFF,
+                 ):
+        assert(self.n_particle[None] + n_p <= self.n_max_particle[None])
+
+        self.source_bound[0] = l_b
+        self.source_bound[1] = cube_size
+
+        self.source_velocity[None] = velocity
+
+        self.seed(n_p, mat, color)
+
+        self.n_particle[None] += n_p
