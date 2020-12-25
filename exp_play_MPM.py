@@ -56,11 +56,11 @@ if __name__ == '__main__':
                                velocity=ts.vecND(dim, 0.0),
                                color=colors[MaType.sand]
                                )
-
+        #
         scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.7),
                                cube_size=ts.vecND(dim, 0.15),
                                mat=MaType.snow,
-                               n_p=m_cfg.max_n_particle // 4,
+                               n_p=m_cfg.max_n_particle // 5,
                                velocity=ts.vecND(dim, 0.0),
                                color=colors[MaType.snow]
                                )
