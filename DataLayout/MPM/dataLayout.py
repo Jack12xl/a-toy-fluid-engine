@@ -203,6 +203,65 @@ class mpmLayout(metaclass=ABCMeta):
 
         return force
 
+    @ti.func
+    def sandP2Gpp(self, P, dt):
+        """
+
+        :param P:
+        :param dt:
+        :return:
+        """
+        p_Jp = ti.static(self.p_Jp)
+        p_F = ti.static(self.p_F)
+
+        h = ti.exp(10 * (1.0 - p_Jp[P]))
+        mu, la = h * self.cfg.mu_0, h * self.cfg.lambda_0
+        # TODO ?
+        U, sig, V = ti.svd(p_F[P])
+        J = 1.0
+        # TODO what the hell is this
+        sig = self.sand_projection(sig, P)
+        p_F[P] = U @ sig @ V.transpose()
+        log_sig_sum = 0.0
+        center = ti.Matrix.zero(Float, self.dim, self.dim)
+
+        for d in ti.static(range(self.dim)):
+            log_sig_sum += ti.log(sig[d, d])
+            center[d, d] = 2.0 * self.cfg.mu_0 * ti.log(sig[d, d]) * (1 / sig[d, d])
+
+        for d in ti.static(range(self.dim)):
+            center[d, d] += self.cfg.lambda_0 * log_sig_sum * (1 / sig[d, d])
+
+        force = U @ center @ V.transpose() @ p_F[P].transpose()
+        force *= (-dt * self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2)
+
+        return force
+
+    @ti.func
+    def sand_projection(self, sigma, P):
+        sigma_out = ti.Matrix.zero(Float, self.dim, self.dim)
+        epsilon = ts.vecND(self.dim, 0.0)
+
+        for d in ti.static(range(self.dim)):
+            epsilon[d] = ti.log(max(abs(sigma[d, d]), 1e-4))
+            sigma_out[d, d] = 1
+
+        tr = epsilon.sum() + self.p_Jp[P]
+        epsilon_hat = epsilon - tr / self.dim
+        epsilon_hat_norm = epsilon_hat.norm() + 1e-20
+
+        if tr >= 0.0:
+            self.p_Jp[P] = tr
+        else:
+            self.p_Jp[P] = 0.0
+            delta_gamma = epsilon_hat_norm + (
+                    self.dim * self.cfg.lambda_0 +
+                    2 * self.cfg.mu_0) / (2 * self.cfg.mu_0) * tr * self.cfg.alpha
+            for d in ti.static(range(self.dim)):
+                sigma_out[d, d] = ti.exp(epsilon[d] - max(0, delta_gamma) /
+                                         epsilon_hat_norm * epsilon_hat[d])
+
+        return sigma_out
 
     @ti.kernel
     def P2G(self, dt: Float):
@@ -240,6 +299,8 @@ class mpmLayout(metaclass=ABCMeta):
                 force = self.liquidP2Gpp(P, dt)
             elif self.p_material_id[P] == MaType.snow:
                 force = self.snowP2Gpp(P, dt)
+            elif self.p_material_id[P] == MaType.sand:
+                force = self.sandP2Gpp(P, dt)
 
             affine = force + self.cfg.p_mass * self.p_C[P]
             for offset in ti.static(ti.grouped(self.stencil_range3())):
@@ -342,13 +403,13 @@ class mpmLayout(metaclass=ABCMeta):
     def init_cube(self):
         # TODO evolve this
         self.n_particles[None] = self.cfg.n_particle
-        group_size = self.n_particles[None] // 3
+        group_size = self.n_particles[None] // 1
         for P in self.p_x:
             self.p_x[P] = ts.randND(self.dim) * 0.2 + 0.05 + 0.32 * (P // group_size)
             self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
             # self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
             #                ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
-            self.p_material_id[P] = P // group_size # 1: fluid 0: jelly 2: snow
+            self.p_material_id[P] = 3 # 1: fluid 0: jelly 2: snow
             self.p_v[P] = ts.vecND(self.dim, 0.0)
             self.p_F[P] = ti.Matrix.identity(Float, self.dim)
             self.p_Jp[P] = 1

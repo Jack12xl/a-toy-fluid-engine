@@ -48,7 +48,7 @@ if __name__ == '__main__':
         if not paused:
             scheme.step()
 
-        colors = np.array([0xED553B, 0x068587, 0xEEEEF0], dtype=np.uint32)
+        colors = np.array([0xED553B, 0x068587, 0xEEEEF0, 0xFFFF00], dtype=np.uint32)
         np_x = scheme.Layout.p_x.to_numpy()
         if m_cfg.dim == 2:
             screen_pos = np_x

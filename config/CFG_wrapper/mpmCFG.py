@@ -1,6 +1,6 @@
 from .fluidCFG import FluidCFG
 from enum import IntEnum
-
+import math
 
 class DLYmethod(IntEnum):
     """
@@ -60,6 +60,10 @@ class mpmCFG(FluidCFG):
         self.nu = cfg.nu  # Poisson's ratio
 
         self.elastic_h = cfg.elastic_h if hasattr(cfg, "elastic_h") else 0.3
+        # Sand parameters
+        friction_angle = math.radians(45)
+        sin_phi = math.sin(friction_angle)
+        self.alpha = math.sqrt(2 / 3) * 2 * sin_phi / (3 - sin_phi)
 
 
     @property
