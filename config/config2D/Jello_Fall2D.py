@@ -13,7 +13,7 @@ max_n_particle = 9000 * quality ** 2
 # dt = 1e-4 / quality
 dt = 4e-3
 
-n_grid = 64 * quality
+n_grid = 128 * quality
 dx = 1.0 / n_grid
 res = [n_grid, n_grid]
 screen_res = [512, 512]

@@ -33,34 +33,34 @@ if __name__ == '__main__':
 
 
     def init_fall_cube():
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.05),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.liquid,
-                               n_p=m_cfg.max_n_particle // 4,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.liquid]
-                               )
+        # scheme.Layout.add_cube(l_b=ts.vec(0.05, 0.4),
+        #                        cube_size=ts.vecND(dim, 0.15),
+        #                        mat=MaType.liquid,
+        #                        n_p=m_cfg.max_n_particle // 4,
+        #                        velocity=ts.vecND(dim, 0.0),
+        #                        color=colors[MaType.liquid]
+        #                        )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.3),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.elastic,
-                               n_p=m_cfg.max_n_particle // 4,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.elastic]
-                               )
+        # scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.3),
+        #                        cube_size=ts.vecND(dim, 0.15),
+        #                        mat=MaType.elastic,
+        #                        n_p=m_cfg.max_n_particle // 4,
+        #                        velocity=ts.vecND(dim, 0.0),
+        #                        color=colors[MaType.elastic]
+        #                        )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.5),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.sand,
-                               n_p=m_cfg.max_n_particle // 4,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.sand]
-                               )
-        #
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.7),
+        # scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.5),
+        #                        cube_size=ts.vecND(dim, 0.15),
+        #                        mat=MaType.sand,
+        #                        n_p=m_cfg.max_n_particle // 4,
+        #                        velocity=ts.vecND(dim, 0.0),
+        #                        color=colors[MaType.sand]
+        #                        )
+
+        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.4),
                                cube_size=ts.vecND(dim, 0.15),
                                mat=MaType.snow,
-                               n_p=m_cfg.max_n_particle // 5,
+                               n_p=m_cfg.max_n_particle // 1,
                                velocity=ts.vecND(dim, 0.0),
                                color=colors[MaType.snow]
                                )
