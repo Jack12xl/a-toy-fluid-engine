@@ -42,6 +42,8 @@ class mpmCFG(FluidCFG):
         self.n_grid = None
         self.quality = cfg.quality
 
+        self.substep_dt = cfg.substep_dt if hasattr(cfg, "substep_dt") else 2e-2 / self.n_grid
+
         self.p_vol = cfg.p_vol
         self.p_rho = cfg.p_rho
 
