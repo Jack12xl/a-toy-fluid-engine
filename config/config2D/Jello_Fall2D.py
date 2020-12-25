@@ -9,7 +9,8 @@ layout_method = DLYmethod.AoS
 
 quality = 2
 
-dt = 1e-4 / quality
+# dt = 1e-4 / quality
+dt = 4e-3
 
 n_grid = 64 * quality
 dx = 1.0 / n_grid

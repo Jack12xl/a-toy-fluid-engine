@@ -66,8 +66,9 @@ class MPMSolver(metaclass=ABCMeta):
         #
         #     self.substep(sub_dt)
 
-        for _ in range(int(self.cfg.dt // self.cfg.substep_dt)):
-            self.substep(self.cfg.substep_dt)
+        # print(self.cfg.dt // sub_dt)
+        for _ in range(int(self.cfg.dt // sub_dt)):
+            self.substep(sub_dt)
 
         if print_stat:
             ti.kernel_profiler_print()
