@@ -87,9 +87,21 @@ if __name__ == '__main__':
         if m_cfg.dim == 2:
             screen_pos = np_x
         elif m_cfg.dim == 3:
-            screen_x = ((np_x[:, 0] + np_x[:, 2]) / 2 ** 0.5) - 0.2
-            screen_y = (np_x[:, 1])
-            screen_pos = np.stack([screen_x, screen_y], axis=-1)
+            # screen_x = ((np_x[:, 0] + np_x[:, 2]) / 2 ** 0.5) - 0.2
+            # screen_y = (np_x[:, 1])
+            # screen_pos = np.stack([screen_x, screen_y], axis=-1)
+            np_x -= 0.5
+
+            phi, theta = np.radians(28), np.radians(32)
+            x, y, z = np_x[:, 0], np_x[:, 1], np_x[:, 2]
+
+            c, s = np.cos(phi), np.sin(phi)
+            C, S = np.cos(theta), np.sin(theta)
+
+            x, z = x * c + z * s, z * c - x * s
+            u, v = x, y * C + z * S
+
+            screen_pos = np.array([u, v]).swapaxes(0, 1) + 0.5
 
         gui.circles(screen_pos, radius=1.5, color=scheme.Layout.p_color.to_numpy())
 

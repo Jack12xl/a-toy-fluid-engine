@@ -27,5 +27,5 @@ E, nu = 1e3, 0.2
 
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
 
-profile_name = "MPM{}D-Q-{}-dt-{}".format(dim, quality, dt)
+profile_name = "MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
 bool_save = False

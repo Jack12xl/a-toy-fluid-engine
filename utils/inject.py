@@ -4,7 +4,9 @@ import functools
 import atexit
 import time
 
-print("[@archibate] Inject taichi with materialize inspector !")
+print("[Jack12] Inject taichi with materialize inspector !")
+
+
 def inject(module, name, enable=True):
     if not enable:
         return lambda x: x
@@ -44,8 +46,8 @@ def _(self, key=None, args=None, arg_features=None):
     if self.is_grad:
         grad_suffix = "_grad"
     kernel_name = "{}_c{}_{}{}".format(self.func.__name__,
-                                        self.kernel_counter, key[1],
-                                        grad_suffix)
+                                       self.kernel_counter, key[1],
+                                       grad_suffix)
     self._kname[key] = kernel_name
 
     @atexit.register
@@ -73,6 +75,5 @@ def _(self, *args, **kwargs):
 
     t0 = time.time()
     return callback
-
 
     print('Injected!')

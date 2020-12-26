@@ -42,7 +42,6 @@ class FluidCFG(metaclass=ABCMeta):
         self.ply_frequency = None
         self.bool_save = cfg.bool_save
 
-
     @SetterProperty
     def dt(self, dt):
         self.__dict__['dt'] = dt
@@ -68,10 +67,10 @@ class FluidCFG(metaclass=ABCMeta):
             print("Here we will save: ")
             for save_thing in self.save_what:
                 self.video_managers.append(ti.VideoManager(
-                        output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
-                        framerate=self.cfg.frame_rate,
-                        automatic_build=False
-                    )
+                    output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
+                    framerate=self.cfg.frame_rate,
+                    automatic_build=False
+                )
                 )
                 print(str(save_thing), end=" ")
             print("")
@@ -93,5 +92,3 @@ class FluidCFG(metaclass=ABCMeta):
             self.ply_frequency = self.cfg.ply_frequency
             print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
         print(">>>>>>")
-
-
