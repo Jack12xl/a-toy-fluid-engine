@@ -40,6 +40,7 @@ class FluidCFG(metaclass=ABCMeta):
         self.save_what = None
         self.PLYwriter = None
         self.ply_frequency = None
+        self.save_path = None
         self.bool_save = cfg.bool_save
 
     @SetterProperty
@@ -57,38 +58,4 @@ class FluidCFG(metaclass=ABCMeta):
         self.half_dx = 0.5 * dx
         self.half_inv_dx = 0.5 * self.inv_dx
 
-    @SetterProperty
-    def bool_save(self, save):
-        self.__dict__['bool_save'] = save
-        print(">>>>>>>>>>")
-        if save:
-            self.save_what = self.cfg.save_what
-            self.save_frame_length = self.cfg.save_frame_length
-            print("Here we will save: ")
-            for save_thing in self.save_what:
-                self.video_managers.append(ti.VideoManager(
-                    output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
-                    framerate=self.cfg.frame_rate,
-                    automatic_build=False
-                )
-                )
-                print(str(save_thing), end=" ")
-            print("")
-            print("for {} frame with {} Frame Per Second".format(self.save_frame_length, self.cfg.frame_rate))
-            print("When done, plz go to {} for results !".format(self.cfg.save_path))
 
-            self.bool_save_ply = self.cfg.bool_save_ply
-        else:
-            print("Won't save results to disk this time !")
-        print(">>>>>>>>>>")
-
-    @SetterProperty
-    def bool_save_ply(self, save):
-        self.__dict__['bool_save_ply'] = save
-        print(">>>>>>")
-        if save:
-            print("We will save ply every {} !".format(self.ply_frequency))
-            self.PLYwriter = plyWriter(self)
-            self.ply_frequency = self.cfg.ply_frequency
-            print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
-        print(">>>>>>")

@@ -1,4 +1,5 @@
 import taichi as ti
+import os
 from config.CFG_wrapper import DLYmethod
 
 # Hello MPM
@@ -28,4 +29,7 @@ E, nu = 1e3, 0.2
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
 
 profile_name = "MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
-bool_save = False
+bool_save = True
+save_frame_length = 192
+save_root = './tmp_result'
+save_path = os.path.join(save_root, profile_name)

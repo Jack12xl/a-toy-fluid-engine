@@ -104,7 +104,14 @@ if __name__ == '__main__':
             screen_pos = np.array([u, v]).swapaxes(0, 1) + 0.5
 
         gui.circles(screen_pos, radius=1.5, color=scheme.Layout.p_color.to_numpy())
-
-        gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
+        if not m_cfg.cfg.bool_save:
+            gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
+        else:
+            if scheme.curFrame < m_cfg.save_frame_length:
+                import os
+                os.makedirs(m_cfg.save_path, exist_ok=True)
+                gui.show(os.path.join(m_cfg.save_path, f'{scheme.curFrame:06d}.png'))
+            else:
+                break
 
     ti.kernel_profiler_print()

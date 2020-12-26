@@ -1,6 +1,10 @@
 from .fluidCFG import FluidCFG
 from enum import IntEnum
 import math
+from utils import SetterProperty, plyWriter
+import taichi as ti
+import os
+
 
 class DLYmethod(IntEnum):
     """
@@ -33,7 +37,6 @@ class mpmCFG(FluidCFG):
                     contains the config for each each simulated scene
         """
         super(mpmCFG, self).__init__(cfg)
-
         # self.n_particle = None
         # max 128 MB particles
         self.max_n_particle = cfg.max_n_particle if hasattr(cfg, 'max_n_particle') else 2 ** 27
@@ -67,7 +70,6 @@ class mpmCFG(FluidCFG):
         sin_phi = math.sin(friction_angle)
         self.alpha = math.sqrt(2 / 3) * 2 * sin_phi / (3 - sin_phi)
 
-
     @property
     def quality(self):
         return self._quality
@@ -98,3 +100,41 @@ class mpmCFG(FluidCFG):
         self._nu = _nu
         self.mu_0 = self.E / (2 * (1 + _nu))
         self.lambda_0 = self.E * _nu / ((1 + _nu) * (1 - 2 * _nu))
+
+    @SetterProperty
+    def bool_save(self, save):
+        self.__dict__['bool_save'] = save
+        print(">>>>>>>>>>")
+        if save:
+            # self.save_what = self.cfg.save_what
+            self.save_frame_length = self.cfg.save_frame_length
+            self.save_path = self.cfg.save_path
+            print("Here we will simply save the particle ")
+            # for save_thing in self.save_what:
+            #     self.video_managers.append(ti.VideoManager(
+            #         output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
+            #         framerate=self.cfg.frame_rate,
+            #         automatic_build=False
+            #     )
+            #     )
+            #     print(str(save_thing), end=" ")
+            print("")
+            # print("for {} frame with {} Frame Per Second".format(self.save_frame_length, self.cfg.frame_rate))
+            print("We will save {} frame".format(self.save_frame_length))
+            print("When done, plz go to {} for results !".format(self.cfg.save_path))
+
+            # self.bool_save_ply = self.cfg.bool_save_ply
+        else:
+            print("Won't save results to disk this time !")
+        print(">>>>>>>>>>")
+
+    # @SetterProperty
+    # def bool_save_ply(self, save):
+    #     self.__dict__['bool_save_ply'] = save
+    #     print(">>>>>>")
+    #     if save:
+    #         print("We will save ply every {} !".format(self.ply_frequency))
+    #         self.PLYwriter = plyWriter(self)
+    #         self.ply_frequency = self.cfg.ply_frequency
+    #         print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
+    #     print(">>>>>>")
