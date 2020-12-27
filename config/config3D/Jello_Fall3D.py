@@ -6,7 +6,7 @@ import os
 dim = 3
 CFL = None
 
-layout_method = DLYmethod.AoS
+layout_method = DLYmethod.AoS_0
 
 quality = 2
 
@@ -28,7 +28,7 @@ E, nu = 1e6, 0.2
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=False, device_memory_GB=4.0)
 
 profile_name = "MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
-bool_save = True
+bool_save = False
 save_frame_length = 192
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name)

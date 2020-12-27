@@ -12,7 +12,8 @@ class DLYmethod(IntEnum):
     The way we set the memory structure of particle, grid ....
     """
     SoA = 0
-    AoS = 1  # inspired by Taichi Elements
+    AoS_0 = 1  # support metal
+    AoS_1 = 2  # inspired by Taichi Elements
 
 
 class MaType(IntEnum):

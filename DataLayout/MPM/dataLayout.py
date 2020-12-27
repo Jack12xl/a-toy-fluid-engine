@@ -79,7 +79,7 @@ class mpmLayout(metaclass=ABCMeta):
 
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
-        elif ti.static(self.cfg.layout_method) == DLYmethod.AoS:
+        elif ti.static(self.cfg.layout_method) == DLYmethod.AoS_0:
 
             self._particle.place(self.p_x,
                                  self.p_v,
@@ -92,7 +92,30 @@ class mpmLayout(metaclass=ABCMeta):
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
             # TODO finish the setup
-        pass
+        elif ti.static(self.cfg.layout_method) == DLYmethod.AoS_1:
+            # TODO damn! why even slower (11 FPS -> 7 FPS)
+            self._particle.place(self.p_x,
+                                 self.p_v,
+                                 self.p_C,
+                                 self.p_F,
+                                 self.p_material_id,
+                                 self.p_color,
+                                 self.p_Jp)
+            # self.grid_size = 4096
+            # grid_block_size = 128
+            # # TODO
+            # self.grid = ti.root.pointer(_indices, self.grid_size / grid_block_size)
+            #
+            # self.leaf_block_size = 64 / 2 ** self.dim
+            # # TODO CUDA block ?
+            # block = self.grid.pointer(_indices, grid_block_size // self.leaf_block_size)
+            block_size = 128
+            self.grid = ti.root.pointer(_indices, self.cfg.res[0] // block_size)
+
+            self.block = self.grid.dense(_indices, block_size)
+
+            self.block.place(self.g_v.field)
+            self.block.place(self.g_m.field)
 
     # @ti.kernel
     def G2zero(self):
@@ -293,7 +316,7 @@ class mpmLayout(metaclass=ABCMeta):
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
             # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
 
-            # affine would do this in P2G.. why
+            # TODO affine would do this in P2G.. why
             p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
 
             force = ti.Matrix.zero(Float, self.dim, self.dim)
@@ -414,7 +437,7 @@ class mpmLayout(metaclass=ABCMeta):
             self.p_x[P][0] = ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size)
             # self.p_x[P] = [ti.random() * 0.2 + 0.3 + 0.10 * (P // group_size),
             #                ti.random() * 0.2 + 0.05 + 0.32 * (P // group_size)]
-            self.p_material_id[P] = P // group_size # 1: fluid 0: jelly 2: snow
+            self.p_material_id[P] = P // group_size  # 1: fluid 0: jelly 2: snow
             self.p_v[P] = ts.vecND(self.dim, 0.0)
             self.p_F[P] = ti.Matrix.identity(Float, self.dim)
             self.p_Jp[P] = 1
@@ -446,7 +469,7 @@ class mpmLayout(metaclass=ABCMeta):
                  velocity: Vector,
                  color=0xFFFFFF,
                  ):
-        assert(self.n_particle[None] + n_p <= self.max_n_particle)
+        assert (self.n_particle[None] + n_p <= self.max_n_particle)
 
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size

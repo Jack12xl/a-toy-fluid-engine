@@ -60,6 +60,7 @@ class MPMSolver(metaclass=ABCMeta):
         T = 0.0
         sub_dt = self.cfg.substep_dt
 
+        # #this way is not friendly for Taichi compilation(takes too long)
         # while T < self.cfg.dt:
         #     if T + sub_dt > self.cfg.dt:
         #         sub_dt = self.cfg.dt - T
@@ -67,7 +68,9 @@ class MPMSolver(metaclass=ABCMeta):
         #     self.substep(sub_dt)
 
         # print(self.cfg.dt // sub_dt)
-        for _ in range(int(self.cfg.dt // sub_dt)):
+        n_substep = int(self.cfg.dt // sub_dt) + 1
+        sub_dt = self.cfg.dt / n_substep
+        for _ in range(n_substep):
             self.substep(sub_dt)
 
         # if print_stat:
