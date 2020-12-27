@@ -300,6 +300,10 @@ class mpmLayout(metaclass=ABCMeta):
         :param dt:
         :return:
         """
+        ti.block_dim(256)
+        ti.block_local(*self.g_v.field.entries)
+        ti.block_local(self.g_m.field)
+
         p_C = ti.static(self.p_C)
         p_v = ti.static(self.p_v)
         p_x = ti.static(self.p_x)
@@ -382,6 +386,9 @@ class mpmLayout(metaclass=ABCMeta):
 
     @ti.kernel
     def G2P(self, dt: Float):
+        ti.block_dim(256)
+        ti.block_local(*self.g_v.field.entries)
+
         p_C = ti.static(self.p_C)
         p_v = ti.static(self.p_v)
         p_x = ti.static(self.p_x)
