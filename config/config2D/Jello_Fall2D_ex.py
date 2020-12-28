@@ -11,6 +11,7 @@ layout_method = DLYmethod.AoS_Dynamic
 quality = 2
 
 max_n_particle = 2 ** 27
+p_chunk_size = 2 ** 19
 # dt = 1e-4 / quality
 dt = 4e-3
 
@@ -28,7 +29,7 @@ E, nu = 1e3, 0.2
 
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
 
-profile_name = "MPM{}D-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
+profile_name = "MPM{}D-G-{}-dt-{}".format(dim, 'x'.join(map(str, res)), dt)
 bool_save = False
 save_frame_length = 192
 save_root = './tmp_result'

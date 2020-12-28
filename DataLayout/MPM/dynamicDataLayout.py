@@ -73,7 +73,10 @@ class mpmDynamicLayout(mpmLayout):
         :return:
         """
         # TODO what's this...
+        ti.block_dim(256)
         ti.no_activate(self._particle)
+        # ti.block_local(*self.g_v.field.entries)
+        # ti.block_local(self.g_m.field)
         for I in ti.grouped(self.pid):
             P = self.pid[I]
             self.P2G_func(dt, P)
@@ -85,7 +88,11 @@ class mpmDynamicLayout(mpmLayout):
         :param dt:
         :return:
         """
-        ti.no_activate(self._particle)
+        # ti.no_activate(self._particle)
+        ti.block_dim(256)
+
+        # ti.block_local(*self.g_v.field.entries)
+        # ti.block_local(self.g_m.field)
         for I in ti.grouped(self.pid):
             P = self.pid[I]
             self.G2P_func(dt, P)
@@ -127,4 +134,5 @@ class mpmDynamicLayout(mpmLayout):
                                                n_p,
                                                velocity,
                                                color)
+        return n_p
 

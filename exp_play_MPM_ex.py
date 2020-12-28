@@ -30,40 +30,44 @@ if __name__ == '__main__':
     scheme = MPMSolver(m_cfg)
     dim = m_cfg.dim
     scheme.materialize()
+
+
     # scheme.Layout.init_cube()
 
     def init_fall_cube():
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.05),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.liquid,
-                               density=2**m_cfg.dim,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.liquid]
-                               )
+        n_p = 0
+        n_p += scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.05),
+                                      cube_size=ts.vecND(dim, 0.15),
+                                      mat=MaType.liquid,
+                                      density=2 ** m_cfg.dim,
+                                      velocity=ts.vecND(dim, 0.0),
+                                      color=colors[MaType.liquid]
+                                      )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.3),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.elastic,
-                               density=2**m_cfg.dim,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.elastic]
-                               )
+        n_p += scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.3),
+                                      cube_size=ts.vecND(dim, 0.15),
+                                      mat=MaType.elastic,
+                                      density=2 ** m_cfg.dim,
+                                      velocity=ts.vecND(dim, 0.0),
+                                      color=colors[MaType.elastic]
+                                      )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.5),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.sand,
-                               density=2**m_cfg.dim,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.sand]
-                               )
+        n_p += scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.5),
+                                      cube_size=ts.vecND(dim, 0.15),
+                                      mat=MaType.sand,
+                                      density=2 ** m_cfg.dim,
+                                      velocity=ts.vecND(dim, 0.0),
+                                      color=colors[MaType.sand]
+                                      )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.7),
-                               cube_size=ts.vecND(dim, 0.15),
-                               mat=MaType.snow,
-                               density=2**m_cfg.dim,
-                               velocity=ts.vecND(dim, 0.0),
-                               color=colors[MaType.snow]
-                               )
+        n_p += scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.7),
+                                      cube_size=ts.vecND(dim, 0.15),
+                                      mat=MaType.snow,
+                                      density=2 ** m_cfg.dim,
+                                      velocity=ts.vecND(dim, 0.0),
+                                      color=colors[MaType.snow]
+                                      )
+        print(f'Add {n_p} particles ')
 
 
     init_fall_cube()
@@ -109,6 +113,7 @@ if __name__ == '__main__':
         else:
             if scheme.curFrame < m_cfg.save_frame_length:
                 import os
+
                 os.makedirs(m_cfg.save_path, exist_ok=True)
                 gui.show(os.path.join(m_cfg.save_path, f'{scheme.curFrame:06d}.png'))
             else:

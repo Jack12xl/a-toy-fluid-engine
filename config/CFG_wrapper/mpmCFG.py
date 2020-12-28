@@ -42,7 +42,7 @@ class mpmCFG(FluidCFG):
         # self.n_particle = None
         # max 128 MB particles
         self.max_n_particle = cfg.max_n_particle if hasattr(cfg, 'max_n_particle') else 2 ** 27
-        self.p_chunk_size = cfg.p_chunk_size if hasattr(cfg, 'p_chunk_size') else 2 ** 20
+        self.p_chunk_size = cfg.p_chunk_size if hasattr(cfg, 'p_chunk_size') else 2 ** 19
 
         self.n_grid = None
         self.quality = cfg.quality
