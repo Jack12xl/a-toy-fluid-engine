@@ -110,9 +110,9 @@ class mpmLayout(metaclass=ABCMeta):
             # # TODO CUDA block ?
             # block = self.grid.pointer(_indices, grid_block_size // self.leaf_block_size)
             block_size = 128
-            self.grid = ti.root.pointer(_indices, self.cfg.res[0] // block_size)
+            self._grid = ti.root.pointer(_indices, self.cfg.res[0] // block_size)
 
-            self.block = self.grid.dense(_indices, block_size)
+            self.block = self._grid.dense(_indices, block_size)
 
             self.block.place(self.g_v.field)
             self.block.place(self.g_m.field)
@@ -293,17 +293,14 @@ class mpmLayout(metaclass=ABCMeta):
 
         return sigma_out
 
-    @ti.kernel
-    def P2G(self, dt: Float):
+    @ti.func
+    def P2G_func(self, dt, P):
         """
-        Particle to Grid
+        To decrease code redundancy
         :param dt:
+        :param P: particle index
         :return:
         """
-        ti.block_dim(256)
-        ti.block_local(*self.g_v.field.entries)
-        ti.block_local(self.g_m.field)
-
         p_C = ti.static(self.p_C)
         p_v = ti.static(self.p_v)
         p_x = ti.static(self.p_x)
@@ -312,53 +309,66 @@ class mpmLayout(metaclass=ABCMeta):
         p_F = ti.static(self.p_F)
         p_Jp = ti.static(self.p_Jp)
 
+        base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
+        fx = g_m.getG(p_x[P]) - base.cast(Float)
+
+        # Here we adopt quadratic kernels
+        w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
+        # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+
+        # TODO affine would do this in P2G.. why
+        p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
+
+        force = ti.Matrix.zero(Float, self.dim, self.dim)
+        # want to decrease branching
+        if self.p_material_id[P] == MaType.elastic:
+            force = self.elasticP2Gpp(P, dt)
+        elif self.p_material_id[P] == MaType.liquid:
+            force = self.liquidP2Gpp(P, dt)
+        elif self.p_material_id[P] == MaType.snow:
+            force = self.snowP2Gpp(P, dt)
+        elif self.p_material_id[P] == MaType.sand:
+            force = self.sandP2Gpp(P, dt)
+
+        affine = force + self.cfg.p_mass * p_C[P]
+        for offset in ti.static(ti.grouped(self.stencil_range3())):
+            # print("P2G: ", offset)
+            dpos = g_m.getW(offset.cast(Float) - fx)
+
+            weight = 1.0
+            for d in ti.static(range(self.dim)):
+                weight *= w[offset[d]][d]
+
+            # dweight = ts.vecND(self.dim, self.cfg.inv_dx)
+            # for d1 in ti.static(range(self.dim)):
+            #     for d2 in ti.static(range(self.dim)):
+            #         if d1 == d2:
+            #             dweight[d1] *= dw[offset[d2]][d2]
+            #         else:
+            #             dweight[d1] *= w[offset[d2]][d2]
+
+            # force = - self.cfg.p_vol * kirchoff @ dweight
+            # TODO ? AFFINE
+            # g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)  # momentum transfer
+            # TODO Got lots of simultaneous atomic here
+            g_v[base + offset] += weight * (self.cfg.p_mass * self.p_v[P] + affine @ dpos)
+            g_m[base + offset] += weight * self.cfg.p_mass
+
+            # g_v[base + offset] += dt * force
+
+    @ti.kernel
+    def P2G(self, dt: Float):
+        """
+        Particle to Grid
+        :param dt:
+        :return:
+        """
+        # ti.block_dim(256)
+        # ti.block_local(*self.g_v.field.entries)
+        # ti.block_local(self.g_m.field)
+
         for P in range(self.n_particle[None]):
-            base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
-            fx = g_m.getG(p_x[P]) - base.cast(Float)
-
-            # Here we adopt quadratic kernels
-            w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
-            # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
-
-            # TODO affine would do this in P2G.. why
-            p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
-
-            force = ti.Matrix.zero(Float, self.dim, self.dim)
-            # want to decrease branching
-            if self.p_material_id[P] == MaType.elastic:
-                force = self.elasticP2Gpp(P, dt)
-            elif self.p_material_id[P] == MaType.liquid:
-                force = self.liquidP2Gpp(P, dt)
-            elif self.p_material_id[P] == MaType.snow:
-                force = self.snowP2Gpp(P, dt)
-            elif self.p_material_id[P] == MaType.sand:
-                force = self.sandP2Gpp(P, dt)
-
-            affine = force + self.cfg.p_mass * p_C[P]
-            for offset in ti.static(ti.grouped(self.stencil_range3())):
-                # print("P2G: ", offset)
-                dpos = g_m.getW(offset.cast(Float) - fx)
-
-                weight = 1.0
-                for d in ti.static(range(self.dim)):
-                    weight *= w[offset[d]][d]
-
-                # dweight = ts.vecND(self.dim, self.cfg.inv_dx)
-                # for d1 in ti.static(range(self.dim)):
-                #     for d2 in ti.static(range(self.dim)):
-                #         if d1 == d2:
-                #             dweight[d1] *= dw[offset[d2]][d2]
-                #         else:
-                #             dweight[d1] *= w[offset[d2]][d2]
-
-                # force = - self.cfg.p_vol * kirchoff @ dweight
-                # TODO ? AFFINE
-                # g_v[base + offset] += self.cfg.p_mass * weight * (p_v[P] + p_C[P] @ dpos)  # momentum transfer
-                # TODO Got lots of simultaneous atomic here
-                g_v[base + offset] += weight * (self.cfg.p_mass * self.p_v[P] + affine @ dpos)
-                g_m[base + offset] += weight * self.cfg.p_mass
-
-                # g_v[base + offset] += dt * force
+            self.P2G_func(dt, P)
 
     @ti.kernel
     def G_Normalize_plus_Gravity(self, dt: Float):
@@ -384,11 +394,8 @@ class mpmLayout(metaclass=ABCMeta):
                 if I[d] > self.cfg.res[d] - self.cfg.g_padding[d] and g_v[I][d] > 0.0:
                     g_v[I][d] = 0.0
 
-    @ti.kernel
-    def G2P(self, dt: Float):
-        ti.block_dim(256)
-        ti.block_local(*self.g_v.field.entries)
-
+    @ti.func
+    def G2P_func(self, dt, P):
         p_C = ti.static(self.p_C)
         p_v = ti.static(self.p_v)
         p_x = ti.static(self.p_x)
@@ -396,43 +403,50 @@ class mpmLayout(metaclass=ABCMeta):
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
 
+        base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
+        fx = g_m.getG(p_x[P]) - base.cast(Float)
+
+        w = [
+            0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
+        ]
+        # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
+
+        new_v = ti.Vector.zero(Float, self.dim)
+        new_C = ti.Matrix.zero(Float, self.dim, self.dim)
+        # new_F = ti.Matrix.zero(Float, self.dim, self.dim)
+
+        # for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
+        for offset in ti.static(ti.grouped(self.stencil_range3())):
+            dpos = offset.cast(Float) - fx
+            v = g_v[base + offset]
+
+            weight = 1.0
+            for d in ti.static(range(self.dim)):
+                weight *= w[offset[d]][d]
+
+            # dweight = ts.vecND(self.dim, self.cfg.inv_dx)
+            # for d1 in ti.static(range(self.dim)):
+            #     for d2 in ti.static(range(self.dim)):
+            #         if d1 == d2:
+            #             dweight[d1] *= dw[offset[d2]][d2]
+            #         else:
+            #             dweight[d1] *= w[offset[d2]][d2]
+            new_v += weight * v
+            # TODO ? what the hell
+            new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
+            # new_F += v.outer_product(dweight)
+        # Semi-Implicit
+        p_v[P], p_C[P] = new_v, new_C
+        p_x[P] += dt * p_v[P]  # advection
+        # p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
+
+    @ti.kernel
+    def G2P(self, dt: Float):
+        ti.block_dim(256)
+        ti.block_local(*self.g_v.field.entries)
+
         for P in range(self.n_particle[None]):
-            base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
-            fx = g_m.getG(p_x[P]) - base.cast(Float)
-
-            w = [
-                0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
-            ]
-            # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
-
-            new_v = ti.Vector.zero(Float, self.dim)
-            new_C = ti.Matrix.zero(Float, self.dim, self.dim)
-            # new_F = ti.Matrix.zero(Float, self.dim, self.dim)
-
-            # for offset in ti.static(ti.grouped(ti.ndrange(*self.stencil_range(l_b, r_u)))):
-            for offset in ti.static(ti.grouped(self.stencil_range3())):
-                dpos = offset.cast(Float) - fx
-                v = g_v[base + offset]
-
-                weight = 1.0
-                for d in ti.static(range(self.dim)):
-                    weight *= w[offset[d]][d]
-
-                # dweight = ts.vecND(self.dim, self.cfg.inv_dx)
-                # for d1 in ti.static(range(self.dim)):
-                #     for d2 in ti.static(range(self.dim)):
-                #         if d1 == d2:
-                #             dweight[d1] *= dw[offset[d2]][d2]
-                #         else:
-                #             dweight[d1] *= w[offset[d2]][d2]
-                new_v += weight * v
-                # TODO ? what the hell
-                new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
-                # new_F += v.outer_product(dweight)
-            # Semi-Implicit
-            p_v[P], p_C[P] = new_v, new_C
-            p_x[P] += dt * p_v[P]  # advection
-            # p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
+            self.G2P_func(dt, P)
 
     @ti.kernel
     def init_cube(self):
@@ -467,6 +481,13 @@ class mpmLayout(metaclass=ABCMeta):
         self.p_material_id[P] = mat
         self.p_Jp[P] = 1
         self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+
+    def substep_init(self):
+        """
+        leave this as empty on purpose
+        :return:
+        """
+        pass
 
     def add_cube(self,
                  l_b: Vector,

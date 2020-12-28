@@ -2,9 +2,9 @@ import taichi as ti
 import taichi_glsl as ts
 import numpy as np
 from abc import ABCMeta, abstractmethod
-from config.CFG_wrapper import mpmCFG, MaType
+from config.CFG_wrapper import mpmCFG, MaType, DLYmethod
 from utils import Vector, Float
-from DataLayout.MPM import mpmLayout
+from DataLayout.MPM import mpmLayout, mpmDynamicLayout
 
 """
 ref : 
@@ -20,7 +20,10 @@ class MPMSolver(metaclass=ABCMeta):
 
         self.dim = cfg.dim
 
-        self.Layout = mpmLayout(cfg)
+        if self.cfg.layout_method < int(DLYmethod.AoS_Dynamic):
+            self.Layout = mpmLayout(cfg)
+        else:
+            self.Layout = mpmDynamicLayout(cfg)
         self.curFrame = 0
         pass
 
@@ -30,6 +33,7 @@ class MPMSolver(metaclass=ABCMeta):
         # self.Layout.init_cube()
 
     def substep(self, dt: Float):
+
         # self.print_property(34)
         self.Layout.G2zero()
         # self.print_property(35)
@@ -92,30 +96,3 @@ class MPMSolver(metaclass=ABCMeta):
         # self.Layout.init_cube()
         self.Layout.n_particle[None] = 0
         self.curFrame = 0
-
-    # def add_cube(self,
-    #              l_b: Vector,
-    #              cube_size: Vector,
-    #              mat: MaType,
-    #              color=0xFFFFFF,
-    #              sample_density=None,
-    #              velocity=None):
-    #     if sample_density is None:
-    #         sample_density = 2 ** self.dim
-    #
-    #     vol = 1
-    #     for d in range(self.dim):
-    #         vol *= cube_size[d]
-    #     num_new_particles = int(sample_density * vol / self.cfg.dx ** self.dim + 1)
-    #     assert self.Layout.n_particles[
-    #                None] + num_new_particles <= self.cfg.max_n_particle
-    #
-    #     self.Layout.source_bound[0] = l_b
-    #     self.Layout.source_bound[1] = cube_size
-    #
-    #     if velocity is None:
-    #         self.Layout.source_velocity[None] = ts.vecND(self.dim, 0.0)
-    #     else:
-    #         self.Layout.source_velocity[None] = velocity
-    #
-    #     self.Layout.n_particles[None] += num_new_particles

@@ -14,6 +14,7 @@ class DLYmethod(IntEnum):
     SoA = 0
     AoS_0 = 1  # support metal
     AoS_1 = 2  # inspired by Taichi Elements
+    AoS_Dynamic = 3  # copied from Taichi Elements....
 
 
 class MaType(IntEnum):

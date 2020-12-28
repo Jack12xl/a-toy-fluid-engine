@@ -1,6 +1,6 @@
 import taichi as ti
 import taichi_glsl as ts
-from config.CFG_wrapper import mpmCFG, DLYmethod
+from config.CFG_wrapper import mpmCFG, DLYmethod, MaType
 from utils import Int, Float, Matrix, Vector
 from Grid import CellGrid
 from .dataLayout import mpmLayout
@@ -15,27 +15,116 @@ class mpmDynamicLayout(mpmLayout):
 
     def __init__(self, cfg: mpmCFG):
         super(mpmDynamicLayout, self).__init__(cfg)
-
-        self.max_n_particle = self.cfg.max_n_particle
+        print("Use dynamic layout !")
+        self.pid = ti.field(Int)
         self.p_chunk_size = self.cfg.p_chunk_size
-
+        # TODO why...
+        self.grid_size = 4096
 
     def materialize(self):
         # TODO
         self._particle = ti.root.dynamic(ti.i, self.max_n_particle, self.p_chunk_size)
+        _indices = ti.ij if self.dim == 2 else ti.ijk
+        # offset : map to the whole grid center
+        self.offset = ts.vecND(self.dim, -self.grid_size // 2)
+        # particle
+        self._particle.place(self.p_x,
+                             self.p_v,
+                             self.p_C,
+                             self.p_F,
+                             self.p_material_id,
+                             self.p_color,
+                             self.p_Jp)
+        # grid
+        grid_block_size = 128
+        self.leaf_block_size = int(64 / 2 ** self.dim)
+
+        self._grid = ti.root.pointer(_indices, self.grid_size // grid_block_size)
+        block = self._grid.pointer(_indices,
+                                   grid_block_size // self.leaf_block_size)
+
+        def block_component(c):
+            block.dense(_indices, self.leaf_block_size).place(c, offset=self.offset)
+        # assign
+        block_component(self.g_m.field)
+        for v in self.g_v.field.entries:
+            block_component(v)
+
+        # TODO what's this...
+        block.dynamic(ti.indices(self.dim),
+                      1024 * 1024,
+                      chunk_size=self.leaf_block_size ** self.dim * 8).place(
+            self.pid, offset=tuple(self.offset) + (0,))
 
     @ti.kernel
-    def seed(self, n_p: Int, mat: Int, color: Int):
-        for P in range(self.n_max_particle[None],
-                       self.n_max_particle[None] + n_p):
-            self.p_material_id[P] = mat
-            x = self.source_bound[0] + ts.randND(self.dim)
-            self.seed_particle(P, x, mat, color, self.source_velocity[None])
+    def build_pid(self):
+        ti.block_dim(64)
+        for P in self.p_x:
+            # TODO check this
+            base = int(ti.floor(self.g_m.getG(self.p_x[P])))
+            ti.append(self.pid.parent(), base - self.offset,
+                      P)
 
-    @ti.func
-    def seed_particle(self, P, x, mat, color, velocity):
-        self.p_x[P] = x
-        self.p_v[P] = velocity
-        self.p_F[P] = ti.Matrix.identity(Float, self.dim)
-        self.p_color[P] = color
-        self.p_material_id[P] = mat
+    @ti.kernel
+    def P2G(self, dt: Float):
+        """
+        Dynamic way of P2G
+        :param dt:
+        :return:
+        """
+        # TODO what's this...
+        ti.no_activate(self._particle)
+        for I in ti.grouped(self.pid):
+            P = self.pid[I]
+            self.P2G_func(dt, P)
+
+    @ti.kernel
+    def G2P(self, dt: Float):
+        """
+
+        :param dt:
+        :return:
+        """
+        ti.no_activate(self._particle)
+        for I in ti.grouped(self.pid):
+            P = self.pid[I]
+            self.G2P_func(dt, P)
+
+    def G2zero(self):
+        """
+        TODO what is this
+        :return:
+        """
+        self._grid.deactivate_all()
+        self.build_pid()
+
+    def add_cube(self,
+                 l_b: Vector,
+                 cube_size: Vector,
+                 mat: MaType,
+                 density: Int,
+                 velocity: Vector,
+                 color=0xFFFFFF,
+                 ):
+        """
+        Use density since there is no limit for particle number
+        :param l_b:
+        :param cube_size:
+        :param mat:
+        :param density:
+        :param velocity:
+        :param color:
+        :return:
+        """
+        vol = 1.0
+        for d in range(self.dim):
+            vol *= cube_size[d]
+
+        n_p = int(density * vol / self.cfg.dx ** self.dim + 1)
+        super(mpmDynamicLayout, self).add_cube(l_b,
+                                               cube_size,
+                                               mat,
+                                               n_p,
+                                               velocity,
+                                               color)
+
