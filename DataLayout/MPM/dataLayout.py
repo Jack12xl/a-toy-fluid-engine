@@ -479,7 +479,12 @@ class mpmLayout(metaclass=ABCMeta):
         self.p_F[P] = ti.Matrix.identity(Float, self.dim)
         self.p_color[P] = color
         self.p_material_id[P] = mat
-        self.p_Jp[P] = 1
+
+        if mat == MaType.sand:
+            self.p_Jp[P] = 0
+        else:
+            self.p_Jp[P] = 1
+
         self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
     def substep_init(self):
