@@ -66,12 +66,37 @@ if __name__ == '__main__':
                                )
 
 
+    def update_jet(total_frame_jet: int, n_jet_p: int):
+        """
+
+        :param total_frame_jet:
+        :param n_jet_p:
+        :return:
+        """
+        tmp_pos = ts.vecND(m_cfg.dim, 0.15)
+        tmp_pos[0] = 0.0
+
+        tmp_vel = ts.vecND(m_cfg.dim, 0.0)
+        tmp_vel[0] = 1.5
+        scheme.Layout.add_cube(l_b=tmp_pos,
+                               cube_size=ts.vecND(dim, 0.03),
+                               mat=MaType.liquid,
+                               n_p=n_jet_p // total_frame_jet,
+                               velocity=tmp_vel,
+                               color=colors[MaType.liquid]
+                               )
+
+
     init_fall_cube()
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
     paused = False
 
+    # jet_frame = 64
     while gui.running:
+        # if scheme.curFrame < jet_frame:
+        #     update_jet(jet_frame, m_cfg.max_n_particle // 4)
+
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
             if e.key == 'p':

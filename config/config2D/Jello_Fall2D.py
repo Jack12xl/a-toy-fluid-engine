@@ -10,11 +10,14 @@ layout_method = DLYmethod.AoS_0
 
 quality = 2
 
-max_n_particle = 9000 * quality ** 2
+max_n_particle = 18000 * quality ** 2
 # dt = 1e-4 / quality
 dt = 4e-3
 
+
 n_grid = 128 * quality
+substep_dt = 1e-2 / n_grid
+
 dx = 1.0 / n_grid
 res = [n_grid, n_grid]
 screen_res = [512, 512]
@@ -28,7 +31,9 @@ E, nu = 1e3, 0.2
 
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
 
-profile_name = "MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
+from datetime import datetime
+t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")
+profile_name = t + "-MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
 bool_save = False
 save_frame_length = 192
 save_root = './tmp_result'

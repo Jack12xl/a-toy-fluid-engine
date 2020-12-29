@@ -27,6 +27,15 @@ class MaType(IntEnum):
     sand = 3
 
 
+class BC(IntEnum):
+    """
+    Boundary Condition
+    """
+    sticky = 0
+    slip = 1
+    separate = 2
+
+
 class mpmCFG(FluidCFG):
     """
     Property for mpm-based simulation
@@ -57,6 +66,8 @@ class mpmCFG(FluidCFG):
         self.g_padding = cfg.g_padding
 
         self.layout_method = cfg.layout_method
+
+        self.bdryCdtn = cfg.bdryCdtn if hasattr(cfg, "bdryCdtn") else BC.sticky
 
         # Lame(not Lame... Well how to type that)
         self.mu_0 = None
