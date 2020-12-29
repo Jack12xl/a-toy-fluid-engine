@@ -487,12 +487,6 @@ class mpmLayout(metaclass=ABCMeta):
 
         self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
-    def substep_init(self):
-        """
-        leave this as empty on purpose
-        :return:
-        """
-        pass
 
     def add_cube(self,
                  l_b: Vector,

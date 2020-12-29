@@ -8,14 +8,14 @@ CFL = None
 
 layout_method = DLYmethod.AoS_Dynamic
 
-quality = 2
+quality = 1
 
-max_n_particle = 2 ** 27
+max_n_particle = 2 ** 21
 p_chunk_size = 2 ** 19
 # dt = 1e-4 / quality
 dt = 4e-3
 
-n_grid = 128 * quality
+n_grid = 64 * quality
 dx = 1.0 / n_grid
 res = [n_grid, n_grid]
 screen_res = [512, 512]

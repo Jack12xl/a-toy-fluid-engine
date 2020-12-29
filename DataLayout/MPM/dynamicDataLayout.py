@@ -16,6 +16,7 @@ class mpmDynamicLayout(mpmLayout):
     def __init__(self, cfg: mpmCFG):
         super(mpmDynamicLayout, self).__init__(cfg)
         print("Use dynamic layout !")
+        # pid -> pos
         self.pid = ti.field(Int)
         self.p_chunk_size = self.cfg.p_chunk_size
         # TODO why...
@@ -23,21 +24,15 @@ class mpmDynamicLayout(mpmLayout):
 
     def materialize(self):
         # TODO
-        self._particle = ti.root.dynamic(ti.i, self.max_n_particle, self.p_chunk_size)
+
         _indices = ti.ij if self.dim == 2 else ti.ijk
         # offset : map to the whole grid center
-        self.offset = ts.vecND(self.dim, -self.grid_size // 2)
-        # particle
-        self._particle.place(self.p_x,
-                             self.p_v,
-                             self.p_C,
-                             self.p_F,
-                             self.p_material_id,
-                             self.p_color,
-                             self.p_Jp)
+        self.offset = tuple(-self.grid_size // 2 for _ in range(self.dim))
+
+
         # grid
         grid_block_size = 128
-        self.leaf_block_size = int(64 / 2 ** self.dim)
+        self.leaf_block_size = 64 // 2 ** self.dim
 
         self._grid = ti.root.pointer(_indices, self.grid_size // grid_block_size)
         block = self._grid.pointer(_indices,
@@ -54,15 +49,25 @@ class mpmDynamicLayout(mpmLayout):
         block.dynamic(ti.indices(self.dim),
                       1024 * 1024,
                       chunk_size=self.leaf_block_size ** self.dim * 8).place(
-            self.pid, offset=tuple(self.offset) + (0,))
+            self.pid, offset=self.offset + (0, ))
+
+        self._particle = ti.root.dynamic(ti.i, self.max_n_particle, self.p_chunk_size)
+        # particle
+        self._particle.place(self.p_x,
+                             self.p_v,
+                             self.p_C,
+                             self.p_F,
+                             self.p_material_id,
+                             self.p_color,
+                             self.p_Jp)
 
     @ti.kernel
     def build_pid(self):
         ti.block_dim(64)
         for P in self.p_x:
             # TODO check this
-            base = int(ti.floor(self.g_m.getG(self.p_x[P])))
-            ti.append(self.pid.parent(), base - self.offset,
+            base = int(ti.floor(self.g_m.getG(self.p_x[P]) - 0.5))
+            ti.append(self.pid.parent(), base - ti.Vector(list(self.offset)),
                       P)
 
     @ti.kernel
@@ -73,8 +78,9 @@ class mpmDynamicLayout(mpmLayout):
         :return:
         """
         # TODO what's this...
-        ti.block_dim(256)
         ti.no_activate(self._particle)
+        ti.block_dim(256)
+
         # ti.block_local(*self.g_v.field.entries)
         # ti.block_local(self.g_m.field)
         for I in ti.grouped(self.pid):
