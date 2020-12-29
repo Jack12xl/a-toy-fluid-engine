@@ -1,7 +1,7 @@
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
-from config.CFG_wrapper import mpmCFG, DLYmethod, MaType
+from config.CFG_wrapper import mpmCFG, DLYmethod, MaType, BC
 from utils import Int, Float, Matrix, Vector
 from Grid import CellGrid
 
@@ -390,9 +390,28 @@ class mpmLayout(metaclass=ABCMeta):
             # TODO vectorize
             for d in ti.static(range(self.dim)):
                 if I[d] < self.cfg.g_padding[d] and g_v[I][d] < 0.0:
-                    g_v[I][d] = 0.0
+                    if ti.static(self.cfg.bdryCdtn) == BC.sticky:
+                        g_v[I][d] = 0.0
+                    elif ti.static(self.cfg.bdryCdtn) == BC.slip:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = 1.0
+                        g_v[I] -= n * n.dot(g_v[I])
+                    else:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = 1.0
+                        g_v[I] -= n * min(n.dot(g_v[I]), 0.0)
+
                 if I[d] > self.cfg.res[d] - self.cfg.g_padding[d] and g_v[I][d] > 0.0:
-                    g_v[I][d] = 0.0
+                    if self.cfg.bdryCdtn == BC.sticky:
+                        g_v[I][d] = 0.0
+                    elif ti.static(self.cfg.bdryCdtn) == BC.slip:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = -1.0
+                        g_v[I] -= n * n.dot(g_v[I])
+                    else:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = -1.0
+                        g_v[I] -= n * min(n.dot(g_v[I]), 0.0)
 
     @ti.func
     def G2P_func(self, dt, P):

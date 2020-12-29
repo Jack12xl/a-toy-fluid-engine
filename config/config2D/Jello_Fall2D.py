@@ -1,6 +1,6 @@
 import taichi as ti
 import os
-from config.CFG_wrapper import DLYmethod
+from config.CFG_wrapper import DLYmethod, BC
 
 # Hello MPM
 dim = 2
@@ -28,6 +28,8 @@ p_rho = 1
 g_padding = [3, 3]
 
 E, nu = 1e3, 0.2
+
+bdryCdtn = BC.separate
 
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
 
