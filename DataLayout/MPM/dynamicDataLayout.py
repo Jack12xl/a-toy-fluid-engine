@@ -27,8 +27,8 @@ class mpmDynamicLayout(mpmLayout):
 
         _indices = ti.ij if self.dim == 2 else ti.ijk
         # offset : map to the whole grid center
-        self.offset = tuple(-self.grid_size // 2 for _ in range(self.dim))
-
+        # self.offset = tuple(-self.grid_size // 2 for _ in range(self.dim))
+        self.offset = tuple(0 // 2 for _ in range(self.dim))
 
         # grid
         grid_block_size = 128
@@ -40,6 +40,13 @@ class mpmDynamicLayout(mpmLayout):
 
         def block_component(c):
             block.dense(_indices, self.leaf_block_size).place(c, offset=self.offset)
+
+        # def block_component(c):
+        #     new_grid = ti.root.pointer(_indices, self.grid_size // grid_block_size)
+        #     new_block = new_grid.pointer(_indices, grid_block_size // self.leaf_block_size)
+        #     new_block.dense(_indices, self.leaf_block_size).place(c, offset=self.offset)
+
+
         # assign
         block_component(self.g_m.field)
         for v in self.g_v.field.entries:
@@ -81,8 +88,8 @@ class mpmDynamicLayout(mpmLayout):
         ti.no_activate(self._particle)
         ti.block_dim(256)
 
-        # ti.block_local(*self.g_v.field.entries)
-        # ti.block_local(self.g_m.field)
+        ti.block_local(*self.g_v.field.entries)
+        ti.block_local(self.g_m.field)
         for I in ti.grouped(self.pid):
             P = self.pid[I]
             self.P2G_func(dt, P)
@@ -94,11 +101,11 @@ class mpmDynamicLayout(mpmLayout):
         :param dt:
         :return:
         """
-        # ti.no_activate(self._particle)
+
         ti.block_dim(256)
 
-        # ti.block_local(*self.g_v.field.entries)
-        # ti.block_local(self.g_m.field)
+        ti.block_local(*self.g_v.field.entries)
+        ti.no_activate(self._particle)
         for I in ti.grouped(self.pid):
             P = self.pid[I]
             self.G2P_func(dt, P)
