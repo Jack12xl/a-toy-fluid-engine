@@ -263,4 +263,77 @@ class DGridLayout(mpmLayout):
             elif g_w_m[I] > 0:
                 g_w_v[I] += dt * (self.gravity + g_w_f[I] / g_w_m[I])
 
+    @ti.kernel
+    def G_boundary_condition(self):
+        """
+        @16 8.1 Friction
+        boundary condition for both water and sand
+        Assume we only have the surrounding cube boundary, with v == 0
+        :return:
+        """
+        # water boundary
+        g_w_m = ti.static(self.g_w_m)
+        g_w_v = ti.static(self.g_w_v)
+        g_s_m = ti.static(self.g_m)
+        g_s_v = ti.static(self.g_v)
+
+        for I in ti.static(g_w_m):
+            # TODO Unbound
+            # TODO vectorize
+            for d in ti.static(range(self.dim)):
+                if I[d] < self.cfg.g_padding[d] and g_w_v[I][d] < 0.0:
+                    if ti.static(self.cfg.bdryCdtn) == BC.sticky:
+                        g_w_v[I][d] = 0.0
+                        g_s_v[I][d] = 0.0
+                    elif ti.static(self.cfg.bdryCdtn) == BC.slip:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = 1.0
+                        g_w_v[I] -= n * n.dot(g_w_v[I])
+                        g_s_v[I] = self.calFriction(n, g_s_v[I])
+                    else:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = 1.0
+                        g_w_v[I] -= n * min(n.dot(g_w_v[I]), 0.0)
+                        g_s_v[I] = self.calFriction(n, g_s_v[I])
+
+                if I[d] > self.cfg.res[d] - self.cfg.g_padding[d] and g_w_v[I][d] > 0.0:
+                    if self.cfg.bdryCdtn == BC.sticky:
+                        g_w_v[I][d] = 0.0
+                        g_s_v[I][d] = 0.0
+                    elif ti.static(self.cfg.bdryCdtn) == BC.slip:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = -1.0
+                        g_w_v[I] -= n * n.dot(g_w_v[I])
+                        g_s_v[I] = self.calFriction(n, g_s_v[I])
+                    else:
+                        n = ts.vecND(self.dim, 0.0)
+                        n[d] = -1.0
+                        g_w_v[I] -= n * min(n.dot(g_w_v[I]), 0.0)
+                        g_s_v[I] = self.calFriction(n, g_s_v[I])
+
+    @ti.func
+    def calFriction(self, normal, s_v):
+        """
+        Coulomb friction law
+        @16 8.1
+        :param normal:
+        :param s_v:
+        :param s:
+        :return:
+        """
+        s = s_v.dot(normal)
+        ret = s_v
+        if s <= 0:
+            v_normal = s * normal
+            # slip velocity
+            v_tangent = s_v - v_normal
+            vt = v_tangent.norm()
+            if vt > 1e-12:
+                threshold = -self.cfg.mu_b * s
+                if vt < threshold:
+                    ret = v_tangent - vt * v_tangent / vt
+                else:
+                    ret = v_tangent - threshold * v_tangent / vt
+
+        return ret
 
