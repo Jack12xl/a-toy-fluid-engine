@@ -27,13 +27,13 @@ if __name__ == '__main__':
     from Engine.MPM_solver import MPMSolver
 
     colors = np.array([0xED553B, 0x068587, 0xEEEEF0, 0xFFFF00], dtype=np.int32)
-    scheme = MPMSolver(m_cfg)
+    solver = MPMSolver(m_cfg)
     dim = m_cfg.dim
-    scheme.materialize()
+    solver.materialize()
     # scheme.Layout.init_cube()
 
     def init_fall_cube():
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.05),
+        solver.Layout.add_cube(l_b=ts.vecND(dim, 0.05),
                                cube_size=ts.vecND(dim, 0.15),
                                mat=MaType.liquid,
                                n_p=m_cfg.max_n_particle // 4,
@@ -41,7 +41,7 @@ if __name__ == '__main__':
                                color=colors[MaType.liquid]
                                )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.3),
+        solver.Layout.add_cube(l_b=ts.vecND(dim, 0.3),
                                cube_size=ts.vecND(dim, 0.15),
                                mat=MaType.elastic,
                                n_p=m_cfg.max_n_particle // 4,
@@ -49,7 +49,7 @@ if __name__ == '__main__':
                                color=colors[MaType.elastic]
                                )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.5),
+        solver.Layout.add_cube(l_b=ts.vecND(dim, 0.5),
                                cube_size=ts.vecND(dim, 0.15),
                                mat=MaType.sand,
                                n_p=m_cfg.max_n_particle // 4,
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                                color=colors[MaType.sand]
                                )
 
-        scheme.Layout.add_cube(l_b=ts.vecND(dim, 0.7),
+        solver.Layout.add_cube(l_b=ts.vecND(dim, 0.7),
                                cube_size=ts.vecND(dim, 0.15),
                                mat=MaType.snow,
                                n_p=m_cfg.max_n_particle // 4,
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
         tmp_vel = ts.vecND(m_cfg.dim, 0.0)
         tmp_vel[0] = 1.5
-        scheme.Layout.add_cube(l_b=tmp_pos,
+        solver.Layout.add_cube(l_b=tmp_pos,
                                cube_size=ts.vecND(dim, 0.03),
                                mat=MaType.liquid,
                                n_p=n_jet_p // total_frame_jet,
@@ -102,13 +102,13 @@ if __name__ == '__main__':
             if e.key == 'p':
                 paused = not paused
             elif e.key == 'r':
-                scheme.reset()
+                solver.reset()
                 init_fall_cube()
 
         if not paused:
-            scheme.step()
+            solver.step()
 
-        np_x = scheme.Layout.p_x.to_numpy()
+        np_x = solver.Layout.p_x.to_numpy()
         if m_cfg.dim == 2:
             screen_pos = np_x
         elif m_cfg.dim == 3:
@@ -128,24 +128,25 @@ if __name__ == '__main__':
 
             screen_pos = np.array([u, v]).swapaxes(0, 1) + 0.5
 
-        gui.circles(screen_pos, radius=1.5, color=scheme.Layout.p_color.to_numpy())
+        solver.Layout.update_liquid_color()
+        gui.circles(screen_pos, radius=1.5, color=solver.Layout.p_color.to_numpy())
         if not m_cfg.bool_save:
             gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
         else:
-            if scheme.curFrame <= m_cfg.save_frame_length:
+            if solver.curFrame <= m_cfg.save_frame_length:
                 import os
                 os.makedirs(m_cfg.save_path, exist_ok=True)
-                gui.show(os.path.join(m_cfg.save_path, f'{scheme.curFrame:06d}.png'))
+                gui.show(os.path.join(m_cfg.save_path, f'{solver.curFrame:06d}.png'))
 
             else:
                 break
 
         if m_cfg.bool_save_particle:
-            if scheme.curFrame < m_cfg.save_frame_length:
+            if solver.curFrame < m_cfg.save_frame_length:
                 import os
                 os.makedirs(m_cfg.particle_path, exist_ok=True)
-                file_name = os.path.join(m_cfg.particle_path, f'{scheme.curFrame:06d}.npz')
+                file_name = os.path.join(m_cfg.particle_path, f'{solver.curFrame:06d}.npz')
                 # print(file_name)
-                scheme.write_particles(file_name)
+                solver.write_particles(file_name)
 
     ti.kernel_profiler_print()

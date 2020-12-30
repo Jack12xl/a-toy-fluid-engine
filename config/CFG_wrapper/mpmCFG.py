@@ -125,14 +125,7 @@ class mpmCFG(FluidCFG):
             self.save_frame_length = self.cfg.save_frame_length
             self.save_path = self.cfg.save_path
             print("Here we will simply save the particle ")
-            # for save_thing in self.save_what:
-            #     self.video_managers.append(ti.VideoManager(
-            #         output_dir=os.path.join(self.cfg.save_path, str(save_thing)),
-            #         framerate=self.cfg.frame_rate,
-            #         automatic_build=False
-            #     )
-            #     )
-            #     print(str(save_thing), end=" ")
+
             print("")
             # print("for {} frame with {} Frame Per Second".format(self.save_frame_length, self.cfg.frame_rate))
             print("We will save {} frame".format(self.save_frame_length))

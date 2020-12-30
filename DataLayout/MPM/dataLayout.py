@@ -317,8 +317,8 @@ class mpmLayout(metaclass=ABCMeta):
         w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
         # dw = [fx - 1.5, -2.0 * (fx - 1), fx - 0.5]
 
-        # TODO affine would do this in P2G.. why
-        p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
+        # # TODO affine would do this in P2G.. why
+        # p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * p_C[P]) @ p_F[P]
 
         force = ti.Matrix.zero(Float, self.dim, self.dim)
         # want to decrease branching
@@ -422,6 +422,7 @@ class mpmLayout(metaclass=ABCMeta):
         g_m = ti.static(self.g_m)
         g_v = ti.static(self.g_v)
         p_F = ti.static(self.p_F)
+        p_Jp = ti.static(self.p_Jp)
 
         base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
         fx = g_m.getG(p_x[P]) - base.cast(Float)
@@ -456,6 +457,12 @@ class mpmLayout(metaclass=ABCMeta):
             new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
             # new_F += v.outer_product(dweight)
         # Semi-Implicit
+        # if self.p_material_id[P] == MaType.liquid:
+        #     p_Jp[P] = (1 + dt * new_C.trace()) * p_Jp[P]
+        # else:
+        #     p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * new_C) @ p_F[P]
+        p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * new_C) @ p_F[P]
+
         p_v[P], p_C[P] = new_v, new_C
         p_x[P] += dt * p_v[P]  # advection
         # p_F[P] = (ti.Matrix.identity(Float, self.dim) + (dt * new_F)) @ p_F[P]  # updateF (explicitMPM way)
@@ -563,3 +570,17 @@ class mpmLayout(metaclass=ABCMeta):
                             c=particles['color'],
                             m=particles['material']
                             )
+
+    # ref: MPM sand
+    @ti.func
+    def color_lerp(self, r1, g1, b1, r2, g2, b2, t):
+        return int((r1 * (1 - t) + r2 * t) * 0x100) * 0x10000 + int((g1 * (1 - t) + g2 * t) * 0x100) * 0x100 + int(
+            (b1 * (1 - t) + b2 * t) * 0x100)
+
+    @ti.kernel
+    def update_liquid_color(self):
+        for P in range(self.n_particle[None]):
+            if self.p_material_id[P] == MaType.liquid:
+                self.p_color[P] = self.color_lerp(0.2, 0.231, 0.792, 0.867, 0.886, 0.886, self.p_v[P].norm() / 5.0)
+
+
