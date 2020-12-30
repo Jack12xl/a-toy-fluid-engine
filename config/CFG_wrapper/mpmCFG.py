@@ -128,7 +128,7 @@ class mpmCFG(FluidCFG):
             # self.save_what = self.cfg.save_what
             self.save_frame_length = self.cfg.save_frame_length
             self.save_path = self.cfg.save_path
-            print("Here we will simply save the particle ")
+            print("Here we will simply save the screen to disk ")
 
             print("")
             # print("for {} frame with {} Frame Per Second".format(self.save_frame_length, self.cfg.frame_rate))

@@ -518,7 +518,7 @@ class mpmLayout(metaclass=ABCMeta):
 
         if mat == MaType.sand:
             self.p_Jp[P] = 0
-            # ref @16 render
+            # ref @16 Drucker-Prager Elastoplasticity render
             r = ts.rand()
             if r <= 0.85:
                 self.p_color[P] = self.cfg.sand_yellow
