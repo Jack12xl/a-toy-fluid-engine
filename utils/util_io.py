@@ -57,3 +57,10 @@ class MouseDataGen(object):
             self.prev_mouse = None
             self.prev_color = None
         return mouse_data
+
+
+# @ti.kernel
+# def copy_dynamic_nd(self, np_x: ti.ext_arr(), input_x: ti.template()):
+#     for i in self.x:
+#         for j in ti.static(range(self.dim)):
+#             np_x[i, j] = input_x[i][j]

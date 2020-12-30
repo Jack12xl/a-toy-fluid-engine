@@ -67,7 +67,7 @@ class mpmCFG(FluidCFG):
 
         self.layout_method = cfg.layout_method
 
-        self.bdryCdtn = cfg.bdryCdtn if hasattr(cfg, "bdryCdtn") else BC.sticky
+        self.bdryCdtn = cfg.bdryCdtn if hasattr(cfg, "bdryCdtn") else BC.slip
 
         # Lame(not Lame... Well how to type that)
         self.mu_0 = None
@@ -82,6 +82,8 @@ class mpmCFG(FluidCFG):
         friction_angle = math.radians(45)
         sin_phi = math.sin(friction_angle)
         self.alpha = math.sqrt(2 / 3) * 2 * sin_phi / (3 - sin_phi)
+
+        self.bool_save_particle = cfg.bool_save_particle
 
     @property
     def quality(self):
@@ -140,6 +142,25 @@ class mpmCFG(FluidCFG):
         else:
             print("Won't save results to disk this time !")
         print(">>>>>>>>>>")
+
+    @SetterProperty
+    def bool_save_particle(self, save):
+        self.__dict__['bool_save_particle'] = save
+        print(">>>>>>>>>>")
+        if save:
+            self.particle_step = self.cfg.particle_step
+            self.particle_path = self.cfg.particle_path
+            print("Here we will save the particle to npz")
+
+            print("")
+            print("We will save {} frame with step size {}".format(self.save_frame_length, self.particle_step))
+            print("When done, plz go to {} for results !".format(self.particle_path))
+
+            # self.bool_save_ply = self.cfg.bool_save_ply
+        else:
+            print("Won't save particle to disk this time !")
+        print(">>>>>>>>>>")
+
 
     # @SetterProperty
     # def bool_save_ply(self, save):

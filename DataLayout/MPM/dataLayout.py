@@ -1,3 +1,4 @@
+import numpy as np
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
@@ -363,7 +364,7 @@ class mpmLayout(metaclass=ABCMeta):
         :param dt:
         :return:
         """
-        # ti.block_dim(256)
+        ti.block_dim(32)
         # ti.block_local(*self.g_v.field.entries)
         # ti.block_local(self.g_m.field)
 
@@ -506,7 +507,6 @@ class mpmLayout(metaclass=ABCMeta):
 
         self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
-
     def add_cube(self,
                  l_b: Vector,
                  cube_size: Vector,
@@ -525,3 +525,41 @@ class mpmLayout(metaclass=ABCMeta):
         self.seed(n_p, mat, int(color))
 
         self.n_particle[None] += n_p
+
+    # ref: Taichi elements
+    def particle_info(self):
+        np_x = np.ndarray((self.n_particle[None], self.dim), dtype=np.float32)
+        self.copy_dynamic_nd(np_x, self.p_x)
+        np_v = np.ndarray((self.n_particle[None], self.dim), dtype=np.float32)
+        self.copy_dynamic_nd(np_v, self.p_v)
+        np_material = np.ndarray((self.n_particle[None],), dtype=np.int32)
+        self.copy_dynamic(np_material, self.p_material_id)
+        np_color = np.ndarray((self.n_particle[None],), dtype=np.int32)
+        self.copy_dynamic(np_color, self.p_color)
+        return {
+            'position': np_x,
+            'velocity': np_v,
+            'material': np_material,
+            'color': np_color
+        }
+
+    @ti.kernel
+    def copy_dynamic_nd(self, np_x: ti.ext_arr(), input_x: ti.template()):
+        for i in range(self.n_particle[None]):
+            for j in ti.static(range(self.dim)):
+                np_x[i, j] = input_x[i][j]
+
+    @ti.kernel
+    def copy_dynamic(self, np_x: ti.ext_arr(), input_x: ti.template()):
+        for i in range(self.n_particle[None]):
+            np_x[i] = input_x[i]
+
+    def dump(self, fn: str, particles: dict):
+        np.savez_compressed(fn,
+                            # t=np.random.rand(3, 5)
+                            # path=self.cfg.profile_name,
+                            x=particles['position'],
+                            v=particles['velocity'],
+                            c=particles['color'],
+                            m=particles['material']
+                            )

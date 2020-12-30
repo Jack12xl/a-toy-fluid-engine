@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import mpmCFG, MaType, DLYmethod
 from utils import Vector, Float
 from DataLayout.MPM import mpmLayout, mpmDynamicLayout
+import multiprocessing as mp
 
 """
 ref : 
@@ -25,7 +26,7 @@ class MPMSolver(metaclass=ABCMeta):
         else:
             self.Layout = mpmDynamicLayout(cfg)
         self.curFrame = 0
-        pass
+        self.writers = []
 
     def materialize(self):
         # initial the ti.field
@@ -47,7 +48,7 @@ class MPMSolver(metaclass=ABCMeta):
         # self.print_property(43)
 
     @ti.kernel
-    def print_property(self, prefix: ti.template(), v:ti.template()):
+    def print_property(self, prefix: ti.template(), v: ti.template()):
         p_x = ti.static(self.Layout.p_x)
         for P in p_x:
             print(prefix, v[P])
@@ -96,3 +97,12 @@ class MPMSolver(metaclass=ABCMeta):
         # self.Layout.init_cube()
         self.Layout.n_particle[None] = 0
         self.curFrame = 0
+
+    def write_particles(self, fn: str):
+        ps = self.Layout.particle_info()
+
+        # p = mp.Process(target=self.Layout.dump, args=(fn, ps))
+        # p.start()
+        #
+        # self.writers.append(p)
+        self.Layout.dump(fn, ps)

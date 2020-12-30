@@ -29,14 +29,18 @@ g_padding = [3, 3]
 
 E, nu = 1e3, 0.2
 
-bdryCdtn = BC.separate
+bdryCdtn = BC.slip
 
 ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
 
 from datetime import datetime
 t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")
-profile_name = t + "-MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
+profile_name = t + "-slip-MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
 bool_save = False
 save_frame_length = 192
 save_root = './tmp_result'
-save_path = os.path.join(save_root, profile_name)
+save_path = os.path.join(save_root, profile_name, 'simple')
+
+bool_save_particle = False
+particle_step = 1
+particle_path = os.path.join(save_root, profile_name, 'particle')

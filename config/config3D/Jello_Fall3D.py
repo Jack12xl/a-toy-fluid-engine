@@ -33,4 +33,8 @@ profile_name = t + "-MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.joi
 bool_save = True
 save_frame_length = 192
 save_root = './tmp_result'
-save_path = os.path.join(save_root, profile_name)
+save_path = os.path.join(save_root, profile_name, "False-render")
+
+bool_save_particle = True
+particle_step = 1
+particle_path = os.path.join(save_root, profile_name, 'particle')

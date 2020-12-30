@@ -129,14 +129,23 @@ if __name__ == '__main__':
             screen_pos = np.array([u, v]).swapaxes(0, 1) + 0.5
 
         gui.circles(screen_pos, radius=1.5, color=scheme.Layout.p_color.to_numpy())
-        if not m_cfg.cfg.bool_save:
+        if not m_cfg.bool_save:
             gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
         else:
-            if scheme.curFrame < m_cfg.save_frame_length:
+            if scheme.curFrame <= m_cfg.save_frame_length:
                 import os
                 os.makedirs(m_cfg.save_path, exist_ok=True)
                 gui.show(os.path.join(m_cfg.save_path, f'{scheme.curFrame:06d}.png'))
+
             else:
                 break
+
+        if m_cfg.bool_save_particle:
+            if scheme.curFrame < m_cfg.save_frame_length:
+                import os
+                os.makedirs(m_cfg.particle_path, exist_ok=True)
+                file_name = os.path.join(m_cfg.particle_path, f'{scheme.curFrame:06d}.npz')
+                # print(file_name)
+                scheme.write_particles(file_name)
 
     ti.kernel_profiler_print()
