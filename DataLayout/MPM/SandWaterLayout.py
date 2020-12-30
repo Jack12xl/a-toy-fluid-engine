@@ -26,6 +26,13 @@ class DGridLayout(mpmLayout):
         # except Jp(belongs to water)
 
         # sand part
+        # particle
+        self.p_phi = ti.field(dtype=Float)
+        self.c_C0 = ti.field(dtype=Float)
+        self.vc_s = ti.field(dtype=Float)
+        self.alpha_s = ti.field(dtype=Float)
+        self.q_s = ti.field(dtype=Float)
+
         self.g_f = CellGrid(
             ti.field(dtype=Float),
             self.dim,
@@ -316,7 +323,7 @@ class DGridLayout(mpmLayout):
         """
         Coulomb friction law
         @16 8.1
-        TODO still different
+        TODO still different from origin paper...
         :param normal:
         :param s_v:
         :param s:
@@ -337,4 +344,59 @@ class DGridLayout(mpmLayout):
                     ret = v_tangent - threshold * v_tangent / vt
 
         return ret
+
+    @ti.kernel
+    def G2P(self, dt: Float):
+        """
+
+        :param dt:
+        :return:
+        """
+        # water
+        p_w_C = ti.static(self.p_w_C)
+        p_w_x = ti.static(self.p_w_x)
+        p_w_v = ti.static(self.p_w_v)
+        p_w_Jp = ti.static(self.p_Jp)
+        g_w_m = ti.static(self.g_w_m)
+        g_w_v = ti.static(self.g_w_v)
+
+
+        for P in range(self.n_w_particle[None]):
+            base = ti.floor(g_w_m.getG(P - 0.5 * g_w_m.dx)).cast(Int)
+            # TODO boundary
+            fx = g_w_m.getG(p_w_x[P]) - base.cast(Float)
+
+            w = [
+                0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
+            ]
+
+            new_v = ti.Vector.zero(Float, self.dim)
+            new_C = ti.Matrix.zero(Float, self.dim, self.dim)
+
+            for offset in ti.static(ti.grouped(self.stencil_range3())):
+                dpos = offset.cast(Float) - fx
+                v = g_w_v[base +offset]
+
+                weight = 1.0
+                for d in ti.static(range(self.dim)):
+                    weight *= w[offset[d]][d]
+
+                new_v += weight * v
+                new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
+            p_w_Jp[P] = (1.0 + dt * new_C.trace()) * p_w_Jp[P]
+            p_w_v[P], p_w_C[P] = new_v, new_C
+
+        #sand
+        g_s_m = ti.static(self.g_m)
+        p_s_v = ti.static(self.p_v)
+        p_s_x = ti.static(self.p_x)
+
+        for P in ti.static(self.n_particle[None]):
+            base = ti.floor(g_s_m.getG(p_s_x[P] - 0.5 * g_s_m.dx)).cast(Int)
+            fx = g_s_m.getG(p_s_x[P]) - base.cast(Float)
+
+            new_v = ti.Vector.zero(Float, self.dim)
+            new_C = ti.Matrix.zero(Float, self.dim, self.dim)
+
+
 
