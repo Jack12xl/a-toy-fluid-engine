@@ -20,9 +20,11 @@ class TwoGridmpmCFG(mpmCFG):
         # w_K: bulk modules of water
         # gamma: more stiffness penalizes incompressibility
         self.w_k, self.w_gamma = 50, 3
+        # n: sand porosity k_hat: permeability
         self.n, self.k_hat = 0.4, 0.2
 
         # coefficient of friction
         self.mu_b = 0.75
 
         self.a, self.b, self.c0, self.sC = -3.0, 0, 1e-2, 0.15
+

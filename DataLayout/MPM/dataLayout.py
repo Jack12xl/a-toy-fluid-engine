@@ -382,6 +382,15 @@ class mpmLayout(metaclass=ABCMeta):
                 g_v[I] = 1 / g_m[I] * g_v[I]  # Momentum to velocity
                 g_v[I] += dt * self.gravity
 
+    def G_momentum_exchange(self, dt: Float):
+        """
+        We do not consider the momentum change here
+        Left blank on purpose
+        :param dt:
+        :return:
+        """
+        pass
+
     @ti.kernel
     def G_boundary_condition(self):
         g_m = ti.static(self.g_m)

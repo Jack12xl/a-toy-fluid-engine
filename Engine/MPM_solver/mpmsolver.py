@@ -41,6 +41,9 @@ class MPMSolver(metaclass=ABCMeta):
         self.Layout.P2G(dt)
         # self.print_property(37)
         self.Layout.G_Normalize_plus_Gravity(dt)
+
+        self.Layout.G_momentum_exchange(dt)
+
         # self.print_property(39)
         self.Layout.G_boundary_condition()
         # self.print_property(41)

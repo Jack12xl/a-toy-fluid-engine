@@ -177,7 +177,7 @@ class DGridLayout(mpmLayout):
             fx = g_w_m.getG(p_w_x[P]) - base.cast(Float)
 
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
-
+            # Prof.Jiang said he agreed with this...
             stress = self.cfg.w_k * (1.0 - 1.0 / p_w_Jp[P] ** self.cfg.w_gamma)
             # TODO ? also why not dt
             stress *= (- self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2) * p_w_Jp[P]
@@ -194,3 +194,73 @@ class DGridLayout(mpmLayout):
                 g_w_v[base + offset] += weight * (self.cfg.p_mass * p_w_v[P] + affine @ dpos)
                 g_w_m[base + offset] += weight * self.cfg.p_mass
                 g_w_f[base + offset] += weight * stress * dpos
+
+    @ti.kernel
+    def G_Normalize_plus_Gravity(self, dt: Float):
+        g_s_m = ti.static(self.g_m)
+        g_s_v = ti.static(self.g_v)
+
+        g_w_m = ti.static(self.g_w_m)
+        g_w_v = ti.static(self.g_w_v)
+
+        for I in ti.grouped(g_s_m):
+            # assume the double grid size is the same
+            if g_s_m[I] > 0:
+                g_s_v[I] /= g_s_m[I]
+            if g_w_m[I] > 0:
+                g_w_v[I] /= g_w_m[I]
+
+    @ti.kernel
+    def G_momentum_exchange(self, dt: Float):
+        """
+        @17 (13), 4.1,
+        Different from @17
+        we do not solve newton iteration here
+        for simplicity
+        :return:
+        """
+        g_s_m = ti.static(self.g_m)
+        g_s_v = ti.static(self.g_v)
+        g_s_f = ti.static(self.g_f)
+
+        g_w_m = ti.static(self.g_w_m)
+        g_w_v = ti.static(self.g_w_v)
+        g_w_f = ti.static(self.g_w_f)
+
+        cE = self.cfg.n ** 2 * self.cfg.p_rho * 9.8 / self.cfg.k_hat
+
+        for I in ti.grouped(g_s_m):
+            if g_s_m[I] > 0 and g_w_m[I] > 0:
+                sm, wm = g_s_m[I], g_w_m[I]
+                # TODO different from @17 (20) (21)
+                d = cE * sm * wm
+                # TODO @17 (21.5)
+                M = ti.Matrix([[sm, 0.0], [0.0, wm]])
+                # TODO still different from (20) (21)
+                D = ti.Matrix([-d, d], [d, -d])
+                V = ti.Matrix.rows([g_s_v[I], g_w_v[I]])
+                # @17 (22
+                G = ti.Matrix.rows([self.gravity, self.gravity])
+                F = ti.Matrix.rows([g_s_f[I], g_w_f[I]])
+                # directly solve Ax = B by inverse hahaha
+                # Niubi.jpg
+                A = M + dt * D
+                B = M @ V + dt * (M @ G + F)
+                # Get X_n_1
+                X = A.inverse() @ B
+
+                new_v = ts.vecND(self.dim, 0.0)
+                for d in range(self.dim):
+                    new_v[d] = X[0, d]
+                g_s_v[I] = new_v
+
+                for d in range(self.dim):
+                    new_v[d] = X[1, d]
+                g_w_v[I] = new_v
+
+            elif g_s_m[I] > 0:
+                g_s_v[I] += dt * (self.gravity + g_s_f[I] / g_s_m[I])
+            elif g_w_m[I] > 0:
+                g_w_v[I] += dt * (self.gravity + g_w_f[I] / g_w_m[I])
+
+
