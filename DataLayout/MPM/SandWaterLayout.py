@@ -316,6 +316,7 @@ class DGridLayout(mpmLayout):
         """
         Coulomb friction law
         @16 8.1
+        TODO still different
         :param normal:
         :param s_v:
         :param s:

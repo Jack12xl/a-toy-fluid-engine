@@ -518,6 +518,14 @@ class mpmLayout(metaclass=ABCMeta):
 
         if mat == MaType.sand:
             self.p_Jp[P] = 0
+            # ref @16 render
+            r = ts.rand()
+            if r <= 0.85:
+                self.p_color[P] = self.cfg.sand_yellow
+            elif r <= 0.95:
+                self.p_color[P] = self.cfg.sand_brown
+            else:
+                self.p_color[P] = self.cfg.sand_white
         else:
             self.p_Jp[P] = 1
 

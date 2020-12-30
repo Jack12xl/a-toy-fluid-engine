@@ -79,6 +79,10 @@ class mpmCFG(FluidCFG):
 
         self.elastic_h = cfg.elastic_h if hasattr(cfg, "elastic_h") else 0.3
         # Sand parameters
+        self.sand_yellow = 0xE1A95F
+        self.sand_brown = 0x6B541E
+        self.sand_white = 0xFFFFFF
+
         friction_angle = math.radians(45)
         sin_phi = math.sin(friction_angle)
         self.alpha = math.sqrt(2 / 3) * 2 * sin_phi / (3 - sin_phi)
