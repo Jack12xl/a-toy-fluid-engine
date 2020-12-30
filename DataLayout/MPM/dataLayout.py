@@ -66,7 +66,7 @@ class mpmLayout(metaclass=ABCMeta):
 
     def materialize(self):
         self._particle = ti.root.dense(ti.i, self.max_n_particle)
-        _indices = ti.ij if self.dim == 2 else ti.ijk
+        self._indices = ti.ij if self.dim == 2 else ti.ijk
         if ti.static(self.cfg.layout_method) == DLYmethod.SoA:
             self._particle.place(self.p_x)
             self._particle.place(self.p_v)
@@ -76,7 +76,7 @@ class mpmLayout(metaclass=ABCMeta):
             self._particle.place(self.p_color)
             self._particle.place(self.p_Jp)
 
-            self._grid = ti.root.dense(_indices, self.cfg.res)
+            self._grid = ti.root.dense(self._indices, self.cfg.res)
 
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
@@ -89,7 +89,7 @@ class mpmLayout(metaclass=ABCMeta):
                                  self.p_material_id,
                                  self.p_color,
                                  self.p_Jp)
-            self._grid = ti.root.dense(_indices, self.cfg.res)
+            self._grid = ti.root.dense(self._indices, self.cfg.res)
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
             # TODO finish the setup
@@ -111,9 +111,9 @@ class mpmLayout(metaclass=ABCMeta):
             # # TODO CUDA block ?
             # block = self.grid.pointer(_indices, grid_block_size // self.leaf_block_size)
             block_size = 128
-            self._grid = ti.root.pointer(_indices, self.cfg.res[0] // block_size)
+            self._grid = ti.root.pointer(self._indices, self.cfg.res[0] // block_size)
 
-            self.block = self._grid.dense(_indices, block_size)
+            self.block = self._grid.dense(self._indices, block_size)
 
             self.block.place(self.g_v.field)
             self.block.place(self.g_m.field)

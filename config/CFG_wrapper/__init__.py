@@ -9,3 +9,6 @@
 from .fluidCFG import FluidCFG
 from .eulerCFG import EulerCFG
 from .mpmCFG import *
+from .doubleGrid_mpmCFG import *
+
+

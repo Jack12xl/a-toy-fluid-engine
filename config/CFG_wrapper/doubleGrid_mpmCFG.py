@@ -14,8 +14,8 @@ class TwoGridmpmCFG(mpmCFG):
 
     def __init__(self, cfg):
         super(TwoGridmpmCFG, self).__init__(cfg)
-
-        self.max_n_s_particle = cfg.max_n_s_particle if hasattr(cfg, "max_n_s_particle") else self.max_n_particle // 2
+        # while max_n_particle stands for sand
+        self.max_n_w_particle = cfg.max_n_w_particle if hasattr(cfg, "max_n_w_particle") else self.max_n_particle
 
         # w_K: bulk modules of water
         # gamma: more stiffness penalizes incompressibility

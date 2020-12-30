@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     from Engine.MPM_solver import MPMSolver
 
-    colors = np.array([0xED553B, 0x068587, 0xEEEEF0, 0xFFFF00], dtype=np.int32)
+    colors = np.array([0xED553B, 0x068587, 0xEEEEF0, 0x8a6844], dtype=np.int32)
     solver = MPMSolver(m_cfg)
     dim = m_cfg.dim
     solver.materialize()
