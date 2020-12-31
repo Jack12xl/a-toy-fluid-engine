@@ -5,23 +5,23 @@ import numpy as np
 from math import radians
 import taichi as ti
 import taichi_glsl as ts
-from config.CFG_wrapper import TwoGridmpmCFG, DLYmethod, MaType, BC
+from config.CFG_wrapper import TwinGridmpmCFG, DLYmethod, MaType, BC
 from utils import Int, Float, Matrix, Vector
 from Grid import CellGrid
 from .dataLayout import mpmLayout
 
 
 @ti.data_oriented
-class DGridLayout(mpmLayout):
+class TwinGridLayout(mpmLayout):
     """
     Featured double grid
     Especially designed for coupling of Sand 
     and water
     """
 
-    def __init__(self, cfg: TwoGridmpmCFG):
+    def __init__(self, cfg: TwinGridmpmCFG):
         # We assign super class property belong to sand
-        super(DGridLayout, self).__init__(cfg)
+        super(TwinGridLayout, self).__init__(cfg)
         self.cfg = cfg
         # except Jp(belongs to water)
 
@@ -75,7 +75,7 @@ class DGridLayout(mpmLayout):
         )
 
     def materialize(self):
-        super(DGridLayout, self).materialize()
+        super(TwinGridLayout, self).materialize()
         self._particle.place(self.p_phi,
                              self.c_C0,
                              self.vc_s,
@@ -88,7 +88,6 @@ class DGridLayout(mpmLayout):
         self._w_particle.place(self.p_w_x,
                                self.p_w_v,
                                self.p_w_C,
-                               self.p_w_Jp,
                                self.p_w_color)
 
         self._w_grid = ti.root.dense(self._indices, self.cfg.res)
@@ -97,7 +96,7 @@ class DGridLayout(mpmLayout):
         self._w_grid.place(self.g_w_f.field)
 
     def G2zero(self):
-        super(DGridLayout, self).G2zero()
+        super(TwinGridLayout, self).G2zero()
         self.g_f.fill(ts.vecND(self.dim, 0.0))
 
         self.g_w_m.fill(0.0)
@@ -524,7 +523,9 @@ class DGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        self.seed(n_p, MaType.sand, color)
+        self.seed(n_p, MaType.sand, int(color))
+
+        self.n_particle[None] += n_p
 
     def add_liquid_cube(self,
                         l_b: Vector,
@@ -537,7 +538,9 @@ class DGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        self.seed(n_p, MaType.liquid, color)
+        self.seed(n_p, MaType.liquid, int(color))
+
+        self.n_w_particle[None] += n_p
 
     @ti.kernel
     def seed(self, n_p: Int, mat: Int, color: Int):
@@ -545,7 +548,7 @@ class DGridLayout(mpmLayout):
         if mat == MaType.sand:
             cur_n_p = self.n_particle[None]
         else:  # water
-            cur_n_p = self.max_n_w_particle[None]
+            cur_n_p = self.n_w_particle[None]
 
         for P in range(cur_n_p,
                        cur_n_p + n_p):
@@ -576,3 +579,8 @@ class DGridLayout(mpmLayout):
                 self.p_w_color[P] = self.cfg.sand_brown
             else:
                 self.p_w_color[P] = self.cfg.sand_white
+
+    @ti.kernel
+    def update_liquid_color(self):
+        for P in range(self.n_w_particle[None]):
+            self.p_w_color[P] = self.color_lerp(0.2, 0.231, 0.792, 0.867, 0.886, 0.886, self.p_w_v[P].norm() / 5.0)

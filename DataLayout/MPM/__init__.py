@@ -1,3 +1,3 @@
 from .dataLayout import mpmLayout
 from .dynamicDataLayout import mpmDynamicLayout
-from .SandWaterLayout import DGridLayout
+from .SandWaterLayout import TwinGridLayout

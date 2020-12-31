@@ -80,7 +80,7 @@ class mpmLayout(metaclass=ABCMeta):
 
             self._grid.place(self.g_v.field)
             self._grid.place(self.g_m.field)
-        elif ti.static(self.cfg.layout_method) == DLYmethod.AoS_0:
+        elif ti.static(self.cfg.layout_method) == DLYmethod.AoS_0 or DLYmethod.AoS_TwinGrid:
 
             self._particle.place(self.p_x,
                                  self.p_v,

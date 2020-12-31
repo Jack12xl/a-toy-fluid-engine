@@ -7,13 +7,13 @@ import os
 from .mpmCFG import DLYmethod, MaType, BC, mpmCFG
 
 
-class TwoGridmpmCFG(mpmCFG):
+class TwinGridmpmCFG(mpmCFG):
     """
     Property for two grid MPM
     """
 
     def __init__(self, cfg):
-        super(TwoGridmpmCFG, self).__init__(cfg)
+        super(TwinGridmpmCFG, self).__init__(cfg)
         # while max_n_particle stands for sand
         self.max_n_w_particle = cfg.max_n_w_particle if hasattr(cfg, "max_n_w_particle") else self.max_n_particle
 

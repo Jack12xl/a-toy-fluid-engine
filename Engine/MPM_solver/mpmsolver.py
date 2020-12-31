@@ -4,7 +4,7 @@ import numpy as np
 from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import mpmCFG, MaType, DLYmethod
 from utils import Vector, Float
-from DataLayout.MPM import mpmLayout, mpmDynamicLayout
+from DataLayout.MPM import mpmLayout, mpmDynamicLayout, TwinGridLayout
 import multiprocessing as mp
 
 """
@@ -21,8 +21,10 @@ class MPMSolver(metaclass=ABCMeta):
 
         self.dim = cfg.dim
 
-        if self.cfg.layout_method < int(DLYmethod.AoS_Dynamic):
+        if self.cfg.layout_method <= int(DLYmethod.AoS_1):
             self.Layout = mpmLayout(cfg)
+        elif self.cfg.layout_method <= int(DLYmethod.AoS_TwinGrid):
+            self.Layout = TwinGridLayout(cfg)
         else:
             self.Layout = mpmDynamicLayout(cfg)
         self.curFrame = 0
