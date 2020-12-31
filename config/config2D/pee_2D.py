@@ -31,7 +31,7 @@ E, nu = 3.537e5, 0.3
 
 bdryCdtn = BC.slip
 
-ti.init(arch=ti.gpu, debug=False, kernel_profiler=True)
+ti.init(arch=ti.gpu, debug=True, kernel_profiler=True)
 
 from datetime import datetime
 t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")

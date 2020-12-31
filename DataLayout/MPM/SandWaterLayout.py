@@ -97,11 +97,14 @@ class TwinGridLayout(mpmLayout):
 
     def G2zero(self):
         super(TwinGridLayout, self).G2zero()
-        self.g_f.fill(ts.vecND(self.dim, 0.0))
+        self.g_f.fill(0.0)
+        self.g_w_f.fill(0.0)
 
         self.g_w_m.fill(0.0)
-        self.g_v.fill(ts.vecND(self.dim, 0.0))
-        self.g_w_f.fill(ts.vecND(self.dim, 0.0))
+        # self.g_m.fill(0.0)
+
+        self.g_w_v.fill(ts.vecND(self.dim, 0.0))
+        # self.g_v.fill(ts.vecND(self.dim, 0.0))
 
     @ti.func
     def h_s(self, z):
@@ -154,13 +157,13 @@ class TwinGridLayout(mpmLayout):
             U, sig, V = ti.svd(p_F[P])
             inv_sig = sig.inverse()
 
-            epsilon = ti.Matrix(Float, self.dim, self.dim)
+            epsilon = ti.Matrix.zero(Float, self.dim, self.dim)
             for d in ti.static(range(self.dim)):
                 epsilon[d, d] = ti.log(sig[d, d])
 
             # @16 (26)
             # Venant-kirchoff
-            FCR = 2.0 * self.cfg.mu_0 * inv_sig @ epsilon + self.cfg.lambda_0 * epsilon.trace() @ inv_sig
+            FCR = 2.0 * self.cfg.mu_0 * inv_sig @ epsilon + self.cfg.lambda_0 * epsilon.trace() * inv_sig
             stress = U @ FCR @ V.transpose()
             # TODO where is stress
             affine = self.cfg.p_mass * p_C[P]
@@ -523,7 +526,8 @@ class TwinGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        self.seed(n_p, MaType.sand, int(color))
+        mat = MaType.sand
+        self.seed(n_p, mat, int(color))
 
         self.n_particle[None] += n_p
 
@@ -538,12 +542,16 @@ class TwinGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        self.seed(n_p, MaType.liquid, int(color))
+        mat = MaType.liquid
+        self.seed(n_p, mat, int(color))
 
         self.n_w_particle[None] += n_p
 
     @ti.kernel
-    def seed(self, n_p: Int, mat: Int, color: Int):
+    def seed(self,
+             n_p: Int,
+             mat: Int,
+             color: Int):
         cur_n_p = 0
         if mat == MaType.sand:
             cur_n_p = self.n_particle[None]
@@ -555,8 +563,10 @@ class TwinGridLayout(mpmLayout):
             x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
             self.seed_particle(P, x, mat, color, self.source_velocity[None])
 
+
     @ti.func
     def seed_particle(self, P, x, mat, color, velocity):
+        # self.p_material_id[P] = mat
         if mat == MaType.sand:
             self.p_x[P] = x
             self.p_v[P] = velocity
@@ -567,6 +577,7 @@ class TwinGridLayout(mpmLayout):
             self.alpha_s[P] = 0.267765
 
             self.p_color[P] = color
+            self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
         else:
             self.p_w_x[P] = x
             self.p_w_v[P] = velocity
@@ -579,6 +590,8 @@ class TwinGridLayout(mpmLayout):
                 self.p_w_color[P] = self.cfg.sand_brown
             else:
                 self.p_w_color[P] = self.cfg.sand_white
+
+            self.p_w_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
     @ti.kernel
     def update_liquid_color(self):

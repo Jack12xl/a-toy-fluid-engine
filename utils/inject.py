@@ -4,6 +4,7 @@ import functools
 import atexit
 import time
 
+# print("Dont inject")
 print("[Jack12] Inject taichi with materialize inspector !")
 
 
