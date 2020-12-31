@@ -51,7 +51,6 @@ class MPMSolver(metaclass=ABCMeta):
         # self.print_property(41)
         self.Layout.G2P(dt)
         # self.print_property(43)
-        print("substep")
 
     @ti.kernel
     def print_property(self, prefix: ti.template(), v: ti.template()):
