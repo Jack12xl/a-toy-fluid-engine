@@ -33,6 +33,8 @@ class TwinGridLayout(mpmLayout):
         self.vc_s = ti.field(dtype=Float)
         self.alpha_s = ti.field(dtype=Float)
         self.q_s = ti.field(dtype=Float)
+        # the color to show
+        self.p_s_color = ti.field(dtype=Int)
 
         self.g_f = CellGrid(
             ti.Vector.field(self.dim, dtype=Float),
@@ -77,6 +79,7 @@ class TwinGridLayout(mpmLayout):
     def materialize(self):
         super(TwinGridLayout, self).materialize()
         self._particle.place(self.p_phi,
+                             self.p_s_color,
                              self.c_C0,
                              self.vc_s,
                              self.alpha_s,
@@ -153,7 +156,15 @@ class TwinGridLayout(mpmLayout):
 
         for P in range(self.n_particle[None]):
             base = ti.floor(g_m.getG(p_x[P] - 0.5 * g_m.dx)).cast(Int)
-            # TODO boundary condiiton
+
+            bool_continue = False
+            for d in ti.static(range(self.dim)):
+                if base[d] < 0 or base[d] > self.cfg.res[d] - 1 - 3:
+                    bool_continue = True
+
+            if bool_continue:
+                continue
+
             fx = g_m.getG(p_x[P]) - base.cast(Float)
 
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
@@ -277,6 +288,7 @@ class TwinGridLayout(mpmLayout):
                 F = ti.Matrix.rows([g_s_f[I], g_w_f[I]])
                 # directly solve Ax = B by inverse hahaha
                 # Bu kui shi ni.jpg
+                # TODO this is not quite right
                 A = M + dt * D
                 B = M @ V + dt * (M @ G + F)
                 # Get X_n_1
@@ -304,6 +316,7 @@ class TwinGridLayout(mpmLayout):
         :return:
         """
         self.G_liquid_boundary_condition()
+        self.G_sand_boundary_condition()
 
     @ti.kernel
     def G_liquid_boundary_condition(self):
@@ -314,8 +327,6 @@ class TwinGridLayout(mpmLayout):
         # water boundary
         g_w_m = ti.static(self.g_w_m)
         g_w_v = ti.static(self.g_w_v)
-        g_s_m = ti.static(self.g_m)
-        g_s_v = ti.static(self.g_v)
 
         for I in ti.static(g_w_m):
             # TODO Unbound
@@ -324,32 +335,28 @@ class TwinGridLayout(mpmLayout):
                 if I[d] < self.cfg.g_padding[d] and g_w_v[I][d] < 0.0:
                     if ti.static(self.cfg.bdryCdtn) == BC.sticky:
                         g_w_v[I][d] = 0.0
-                        g_s_v[I][d] = 0.0
+                        # g_s_v[I][d] = 0.0
                     elif ti.static(self.cfg.bdryCdtn) == BC.slip:
                         n = ts.vecND(self.dim, 0.0)
                         n[d] = 1.0
                         g_w_v[I] -= n * n.dot(g_w_v[I])
-                        g_s_v[I] = self.calFriction(n, g_s_v[I])
+
                     else:
                         n = ts.vecND(self.dim, 0.0)
                         n[d] = 1.0
                         g_w_v[I] -= n * min(n.dot(g_w_v[I]), 0.0)
-                        g_s_v[I] = self.calFriction(n, g_s_v[I])
 
                 if I[d] > self.cfg.res[d] - self.cfg.g_padding[d] and g_w_v[I][d] > 0.0:
                     if self.cfg.bdryCdtn == BC.sticky:
                         g_w_v[I][d] = 0.0
-                        g_s_v[I][d] = 0.0
                     elif ti.static(self.cfg.bdryCdtn) == BC.slip:
                         n = ts.vecND(self.dim, 0.0)
                         n[d] = -1.0
                         g_w_v[I] -= n * n.dot(g_w_v[I])
-                        g_s_v[I] = self.calFriction(n, g_s_v[I])
                     else:
                         n = ts.vecND(self.dim, 0.0)
                         n[d] = -1.0
                         g_w_v[I] -= n * min(n.dot(g_w_v[I]), 0.0)
-                        g_s_v[I] = self.calFriction(n, g_s_v[I])
 
     @ti.kernel
     def G_sand_boundary_condition(self):
@@ -361,8 +368,16 @@ class TwinGridLayout(mpmLayout):
         g_s_v = ti.static(self.g_v)
 
         for I in ti.static(g_s_m):
-            for d in ti.static(range(self.dim)):
-                pass
+            if g_s_m[I] > 0.0:
+                n = ts.vecND(self.dim, 0.0)
+                for d in ti.static(range(self.dim)):
+                    if I[d] < self.cfg.g_padding[d] and g_s_v[I][d] < 0.0:
+                        n[d] = 1.0
+                    elif I[d] > self.cfg.res[d] - self.cfg.g_padding[d] and g_s_v[I][d] > 0.0:
+                        n[d] = -1.0
+
+                n = n.normalized(1e-6)
+                g_s_v[I] = self.calFriction(n, g_s_v[I])
 
     @ti.func
     def calFriction(self, normal, s_v):
@@ -382,6 +397,7 @@ class TwinGridLayout(mpmLayout):
             # slip velocity
             v_tangent = s_v - v_normal
             vt = v_tangent.norm()
+            # static friction force
             if vt > 1e-12:
                 threshold = -self.cfg.mu_b * s
                 if vt < threshold:
@@ -523,6 +539,15 @@ class TwinGridLayout(mpmLayout):
 
         for P in range(self.n_particle[None]):
             base = ti.floor(g_s_m.getG(p_s_x[P] - 0.5 * g_s_m.dx)).cast(Int)
+
+            bool_continue = False
+            for d in ti.static(range(self.dim)):
+                if base[d] < 0 or base[d] > self.cfg.res[d] - 1 - 3:
+                    bool_continue = True
+
+            if bool_continue:
+                continue
+
             fx = g_s_m.getG(p_s_x[P]) - base.cast(Float)
 
             new_v = ti.Vector.zero(Float, self.dim)
@@ -554,7 +579,7 @@ class TwinGridLayout(mpmLayout):
             U, sig, V = ti.svd(p_s_F[P])
             epsilon_hat = ti.Matrix.identity(Float, self.dim)
             for d in ti.static(range(self.dim)):
-                epsilon_hat[d, d] = sig[d, d]
+                epsilon_hat[d, d] = ti.log(max(abs(sig[d, d]), 1e-4))
 
             new_sig, dq = self.sand_projection(epsilon_hat, P)
             self.hardening(dq, P)
@@ -594,7 +619,6 @@ class TwinGridLayout(mpmLayout):
         self.seed_liquid(n_p, int(color))
 
         self.n_w_particle[None] += n_p
-        print("now we have {} water ps".format(self.n_w_particle[None]))
 
     @ti.kernel
     def seed_sand(self,
@@ -644,3 +668,44 @@ class TwinGridLayout(mpmLayout):
     def update_liquid_color(self):
         for P in range(self.n_w_particle[None]):
             self.p_w_color[P] = self.color_lerp(0.2, 0.231, 0.792, 0.867, 0.886, 0.886, self.p_w_v[P].norm() / 5.0)
+
+    @ti.func
+    def int2RGB(self, hex):
+        b = hex % 256
+        g = int(((hex - b) / 256) % 256)  # always an integer
+        r = int(((hex - b) / 256 ** 2) - g / 256)  # ditto
+        ret = ti.Vector([r, g, b]) / 255
+        return ret
+
+    @ti.kernel
+    def update_sand_color(self):
+        for P in range(self.n_particle[None]):
+            cur_c = self.int2RGB(self.p_color[P])
+            self.p_s_color[P] = self.color_lerp(cur_c[0], cur_c[1], cur_c[2], 0.3, 0.331, 0.792, self.p_phi[P])
+
+    def particle_info(self):
+        np_s_x = np.ndarray((self.n_particle[None], self.dim), dtype=np.float32)
+        np_w_x = np.ndarray((self.n_w_particle[None], self.dim), dtype=np.float32)
+        self.copy_dynamic_nd(np_s_x, self.p_x)
+        self.copy_dynamic_nd(np_w_x, self.p_w_x)
+
+        np_x = np.stack((np_s_x, np_w_x), axis=0)
+        print(f"np_x shape {np_x.shape}")
+
+        np_s_color = np.ndarray((self.n_particle[None],), dtype=np.int32)
+        np_w_color = np.ndarray((self.n_w_particle[None],), dtype=np.int32)
+        self.copy_dynamic(np_s_color, self.p_s_color)
+        self.copy_dynamic(np_w_color, self.p_w_color)
+
+        np_color = np.stack((np_s_color, np_w_color), axis=0)
+
+        return {
+            'position': np_x,
+            'color': np_color
+        }
+
+    def dump(self, fn: str, particles: dict):
+        np.savez_compressed(fn,
+                            x=particles['position'],
+                            c=particles['color'],
+                            )

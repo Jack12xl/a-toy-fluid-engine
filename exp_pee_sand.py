@@ -16,10 +16,9 @@ def parse_args():
         import config.config2D.pee_2D
         cfg = config.config2D.pee_2D
     elif args.cfg == "pee3D":
-        import config.config3D.Jello_Fall3D
-        cfg = config.config3D.Jello_Fall3D
+        import config.config3D.pee3D
+        cfg = config.config3D.pee3D
     return TwinGridmpmCFG(cfg)
-
 
 
 if __name__ == '__main__':
@@ -34,26 +33,32 @@ if __name__ == '__main__':
 
 
     def init_fall_cube():
-        v_w = ts.vecND(dim, 0.0)
-        v_w[0] = 3.0
+        # v_w = ts.vecND(dim, 0.0)
+        # # v_w[0] = 3.0
+        #
+        # x_w = ts.vecND(dim, 0.0)
+        # x_w[0] = 0.1
+        # x_w[1] = 0.1
+        # solver.Layout.add_liquid_cube(l_b=x_w,
+        #                               cube_size=ts.vecND(dim, 0.15),
+        #                               n_p=m_cfg.max_n_w_particle // 4,
+        #                               velocity=v_w,
+        #                               color=colors[MaType.liquid]
+        #                               )
+        sand_pos = ts.vecND(dim, 0.0)
+        sand_pos[0] = 0.05
+        if dim == 3:
+            sand_pos[2] = 0.5
 
-        x_w = ts.vecND(dim, 0.0)
-        x_w[0] = 0.1
-        x_w[1] = 0.1
-        solver.Layout.add_liquid_cube(l_b=x_w,
-                                      cube_size=ts.vecND(dim, 0.15),
-                                      n_p=m_cfg.max_n_w_particle // 4,
-                                      velocity=v_w,
-                                      color=colors[MaType.liquid]
-                                      )
-        sand_pos = ts.vecND(dim, 0.2)
-        sand_pos[0] = 0.6
-        # solver.Layout.add_sand_cube(l_b=sand_pos,
-        #                             cube_size=ts.vecND(dim, 0.15),
-        #                             n_p=m_cfg.max_n_particle // 4,
-        #                             velocity=ts.vecND(dim, 0.0),
-        #                             color=colors[MaType.sand]
-        #                             )
+        sand_size = ts.vecND(dim, 0.3)
+        sand_size[1] = 0.7
+
+        solver.Layout.add_sand_cube(l_b=sand_pos,
+                                    cube_size=sand_size,
+                                    n_p=m_cfg.max_n_particle // 2,
+                                    velocity=ts.vecND(dim, 0.0),
+                                    color=colors[MaType.sand]
+                                    )
 
 
     def update_jet(total_frame_jet: int, n_jet_p: int):
@@ -63,13 +68,14 @@ if __name__ == '__main__':
         :param n_jet_p:
         :return:
         """
-        tmp_pos = ts.vecND(m_cfg.dim, 0.15)
-        tmp_pos[0] = 0.0
+        tmp_pos = ts.vecND(m_cfg.dim, 0.8)
+        if m_cfg.dim == 3:
+            tmp_pos[2] = 0.6
 
         tmp_vel = ts.vecND(m_cfg.dim, 0.0)
-        tmp_vel[0] = 1.5
+        tmp_vel[0] = -1.5
         solver.Layout.add_liquid_cube(l_b=tmp_pos,
-                                      cube_size=ts.vecND(dim, 0.03),
+                                      cube_size=ts.vecND(dim, 0.05),
                                       n_p=n_jet_p // total_frame_jet,
                                       velocity=tmp_vel,
                                       color=colors[MaType.liquid]
@@ -98,15 +104,16 @@ if __name__ == '__main__':
             screen_pos = np.array([u, v]).swapaxes(0, 1) + 0.5
             return screen_pos
 
+
     init_fall_cube()
 
     gui = ti.GUI(m_cfg.profile_name, tuple(m_cfg.screen_res), fast_gui=False)
     paused = False
 
-    # jet_frame = 64
+    jet_frame = 253
     while gui.running:
-        # if scheme.curFrame < jet_frame:
-        #     update_jet(jet_frame, m_cfg.max_n_particle // 4)
+        if solver.curFrame < jet_frame:
+            update_jet(jet_frame, m_cfg.max_n_w_particle // 2)
 
         if gui.get_event(ti.GUI.PRESS):
             e = gui.event
@@ -123,8 +130,11 @@ if __name__ == '__main__':
         w_x = solver.Layout.p_w_x.to_numpy()
 
         solver.Layout.update_liquid_color()
-        gui.circles(T(s_x), radius=1.5, color=solver.Layout.p_color.to_numpy())
+        solver.Layout.update_sand_color()
+
         gui.circles(T(w_x), radius=1.5, color=solver.Layout.p_w_color.to_numpy())
+        gui.circles(T(s_x), radius=1.5, color=solver.Layout.p_s_color.to_numpy())
+
 
         if not m_cfg.bool_save:
             gui.show()  # Change to gui.show(f'{frame:06d}.png') to write images to disk
