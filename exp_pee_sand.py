@@ -13,8 +13,8 @@ def parse_args():
     cfg = None
 
     if args.cfg == "pee2D":
-        import config.config2D.pee_2D
-        cfg = config.config2D.pee_2D
+        import config.config2D.pee2D
+        cfg = config.config2D.pee2D
     elif args.cfg == "pee3D":
         import config.config3D.pee3D
         cfg = config.config3D.pee3D

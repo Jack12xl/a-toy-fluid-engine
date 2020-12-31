@@ -689,15 +689,14 @@ class TwinGridLayout(mpmLayout):
         self.copy_dynamic_nd(np_s_x, self.p_x)
         self.copy_dynamic_nd(np_w_x, self.p_w_x)
 
-        np_x = np.stack((np_s_x, np_w_x), axis=0)
-        print(f"np_x shape {np_x.shape}")
+        np_x = np.concatenate((np_s_x, np_w_x), axis=0)
 
         np_s_color = np.ndarray((self.n_particle[None],), dtype=np.int32)
         np_w_color = np.ndarray((self.n_w_particle[None],), dtype=np.int32)
         self.copy_dynamic(np_s_color, self.p_s_color)
         self.copy_dynamic(np_w_color, self.p_w_color)
 
-        np_color = np.stack((np_s_color, np_w_color), axis=0)
+        np_color = np.concatenate((np_s_color, np_w_color), axis=0)
 
         return {
             'position': np_x,

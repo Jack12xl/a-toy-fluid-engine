@@ -8,7 +8,7 @@ CFL = None
 
 layout_method = DLYmethod.AoS_TwinGrid
 
-quality = 2
+quality = 3
 
 max_n_particle = 32768 * quality ** 2
 # dt = 1e-4 / quality
@@ -37,7 +37,7 @@ from datetime import datetime
 t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")
 profile_name = t + "-pee-MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
 bool_save = True
-save_frame_length = 256
+save_frame_length = 384
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name, 'simple')
 
