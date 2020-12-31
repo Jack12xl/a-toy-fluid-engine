@@ -2,6 +2,7 @@
 # Paper ref @17: Multi-species simulation of porous sand and water mixtures
 # Paper ref @16:
 import numpy as np
+from math import radians
 import taichi as ti
 import taichi_glsl as ts
 from abc import ABCMeta, abstractmethod
@@ -27,8 +28,9 @@ class DGridLayout(mpmLayout):
 
         # sand part
         # particle
-        self.p_phi = ti.field(dtype=Float)
-        self.c_C0 = ti.field(dtype=Float)
+        self.p_phi = ti.field(dtype=Float)  # water saturation
+        self.c_C0 = ti.field(dtype=Float)  # sand cohesion
+        # volume correction scalar, which tracks changes of volume gained during extension
         self.vc_s = ti.field(dtype=Float)
         self.alpha_s = ti.field(dtype=Float)
         self.q_s = ti.field(dtype=Float)
@@ -74,6 +76,12 @@ class DGridLayout(mpmLayout):
 
     def materialize(self):
         super(DGridLayout, self).materialize()
+        self._particle.place(self.p_phi,
+                             self.c_C0,
+                             self.vc_s,
+                             self.alpha_s,
+                             self.q_s)
+
         self._grid.place(self.g_f.field)
 
         self._w_particle = ti.root.dense(ti.i, self.max_n_w_particle)
@@ -345,6 +353,71 @@ class DGridLayout(mpmLayout):
 
         return ret
 
+    @ti.func
+    def sand_projection(self, epsilon, P):
+        """
+        Drucker-Prager projection
+        :param epsilon:
+        :param P:
+        :return:
+        """
+        # TODO where did this volume correction come from
+        e = epsilon + self.vc_s[P] / self.dim * ti.Matrix.identity(Float, self.dim)
+        # Cohesion
+        e += self.c_C0[P] * (1.0 - self.p_phi[P]) / (self.dim * self.alpha_s[P]) * ti.Matrix.identity(Float, self.dim)
+        ehat = e - e.trace() / self.dim * ti.Matrix.identity(Float, self.dim)
+
+        Fnorm = 0.0
+        for d in ti.static(range(self.dim)):
+            Fnorm += ehat[d, d] ** 2
+        Fnorm = ti.sqrt(Fnorm)
+        # @16 (27) amout of plastic deformation
+        d_gamma = Fnorm + (self.dim * self.cfg.lambda_0 / (2.0 * self.cfg.mu_0) + 1.0) * e.trace() * self.alpha_s[P]
+
+        ret_e = ti.Matrix.zero(Float, self.dim, self.dim)
+        # TODO what's q...
+        ret_q = 0.0
+        # TODO different from @16 (27)
+        if Fnorm <= 0 or e.trace() > 0.0:  # Case II
+            ret_e = ti.Matrix.zero(Float, self.dim, self.dim)
+            # @16 7.3 Hardening
+            for d in ti.static(range(self.dim)):
+                ret_q += e[d, d] ** 2
+            ret_q = ti.sqrt(ret_q)
+        elif d_gamma <= 0:  # Case I
+            ret_e = epsilon
+            ret_q = 0.0
+        else:  # Case III
+            # @16 (28)
+            ret_e = e - d_gamma * ehat / Fnorm
+            ret_q = d_gamma
+
+        ret_sig = ti.Matrix.zero(Float, self.dim, self.dim)
+        for d in ti.static(range(self.dim)):
+            ret_sig[d, d] = ti.exp(ret_e[d, d])
+
+        return ret_sig, ret_q
+
+    @ti.func
+    def hardening(self, dq, P):
+        """
+        @16 7.3
+        We adopt the hardening model of Mast et al[2014]
+        plastic deformation can increase the friction between sand particles
+        :param P:
+        :param dq: delta hardening state
+        :return:
+        """
+        # (29)
+        q_n_1 = self.q_s[P]
+        q_n_1 += dq
+        # (30) friction angle
+        phi = radians(self.cfg.h0 + (self.cfg.h1 * q_n_1 - self.cfg.h3) * ti.exp(-self.cfg.h2 * q_n_1))
+        sin_phi = ti.sin(phi)
+
+        self.q_s[P] = q_n_1
+        self.alpha_s[P] = ti.sqrt(2.0 / 3.0) * (2 * sin_phi) / (3 - sin_phi)
+
     @ti.kernel
     def G2P(self, dt: Float):
         """
@@ -360,7 +433,6 @@ class DGridLayout(mpmLayout):
         g_w_m = ti.static(self.g_w_m)
         g_w_v = ti.static(self.g_w_v)
 
-
         for P in range(self.n_w_particle[None]):
             base = ti.floor(g_w_m.getG(P - 0.5 * g_w_m.dx)).cast(Int)
             # TODO boundary
@@ -375,7 +447,7 @@ class DGridLayout(mpmLayout):
 
             for offset in ti.static(ti.grouped(self.stencil_range3())):
                 dpos = offset.cast(Float) - fx
-                v = g_w_v[base +offset]
+                v = g_w_v[base + offset]
 
                 weight = 1.0
                 for d in ti.static(range(self.dim)):
@@ -383,13 +455,18 @@ class DGridLayout(mpmLayout):
 
                 new_v += weight * v
                 new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
+            # @17 4.3.1 update F^{S}
             p_w_Jp[P] = (1.0 + dt * new_C.trace()) * p_w_Jp[P]
             p_w_v[P], p_w_C[P] = new_v, new_C
 
-        #sand
+        # sand
         g_s_m = ti.static(self.g_m)
+        g_s_v = ti.static(self.g_v)
         p_s_v = ti.static(self.p_v)
         p_s_x = ti.static(self.p_x)
+        p_s_phi = ti.static(self.p_phi)
+        p_s_F = ti.static(self.p_F)
+        p_s_C = ti.static(self.p_C)
 
         for P in ti.static(self.n_particle[None]):
             base = ti.floor(g_s_m.getG(p_s_x[P] - 0.5 * g_s_m.dx)).cast(Int)
@@ -398,5 +475,40 @@ class DGridLayout(mpmLayout):
             new_v = ti.Vector.zero(Float, self.dim)
             new_C = ti.Matrix.zero(Float, self.dim, self.dim)
 
+            w = [
+                0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1.0) ** 2, 0.5 * (fx - 0.5) ** 2
+            ]
+            # @17 4.3.3
+            p_s_phi[P] = 0.0  # clear it for weight sum
+            for offset in ti.static(ti.grouped(self.stencil_range3())):
+                dpos = offset.cast(Float) - fx
+                v = g_s_v[base + offset]
 
+                weight = 1.0
+                for d in ti.static(range(self.dim)):
+                    weight *= w[offset[d]][d]
+
+                new_v += weight * v
+                new_C += 4 * self.cfg.inv_dx * weight * v.outer_product(dpos)
+                if g_s_m[base + offset] > 0 and g_w_m[base + offset] > 0:
+                    # @17 4.3.3 (24) Saturation based cohesion
+                    p_s_phi[P] += weight * 1.0
+
+            p_s_F[P] = (ti.Matrix.identity(Float, self.dim) + dt * new_C) @ p_s_F[P]
+            p_s_v[P], p_s_C[P] = new_v, new_C
+            p_s_x[P] += dt * p_s_v[P]
+            # (27.5)
+            U, sig, V = ti.svd(p_s_F[P])
+            epsilon_hat = ti.Matrix.identity(Float, self.dim, self.dim)
+            for d in range(self.dim):
+                epsilon_hat[d, d] = sig[d, d]
+
+            new_sig, dq = self.sand_projection(epsilon_hat, P)
+            self.hardening(dq, P)
+
+            # @16 (27 ~ 28)
+            new_F = U @ new_sig @ V.transpose()
+            # @17 (26)
+            self.vc_s[P] += -ti.log(new_F.determinant()) + ti.log(p_s_F[P].determinant())
+            p_s_F[P] = new_F
 

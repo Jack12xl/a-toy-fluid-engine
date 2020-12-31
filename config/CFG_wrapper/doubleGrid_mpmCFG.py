@@ -28,3 +28,5 @@ class TwoGridmpmCFG(mpmCFG):
 
         self.a, self.b, self.c0, self.sC = -3.0, 0, 1e-2, 0.15
 
+        # Hardening parameters @16 7.3
+        self.h0, self.h1, self.h2, self.h3 = 35, 9, 0.2, 10

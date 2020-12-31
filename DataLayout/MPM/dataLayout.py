@@ -470,7 +470,7 @@ class mpmLayout(metaclass=ABCMeta):
         #     p_Jp[P] = (1 + dt * new_C.trace()) * p_Jp[P]
         # else:
         #     p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * new_C) @ p_F[P]
-        p_F[P] = (ti.Matrix.identity(Int, self.dim) + dt * new_C) @ p_F[P]
+        p_F[P] = (ti.Matrix.identity(Float, self.dim) + dt * new_C) @ p_F[P]
 
         p_v[P], p_C[P] = new_v, new_C
         p_x[P] += dt * p_v[P]  # advection
