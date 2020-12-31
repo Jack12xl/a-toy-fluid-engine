@@ -31,13 +31,14 @@ if __name__ == '__main__':
     dim = m_cfg.dim
     solver.materialize()
 
+
     def init_fall_cube():
         solver.Layout.add_liquid_cube(l_b=ts.vecND(dim, 0.05),
-                                     cube_size=ts.vecND(dim, 0.15),
-                                     n_p=m_cfg.max_n_w_particle // 4,
-                                     velocity=ts.vecND(dim, 0.0),
-                                     color=colors[MaType.liquid]
-                                     )
+                                      cube_size=ts.vecND(dim, 0.15),
+                                      n_p=m_cfg.max_n_w_particle // 4,
+                                      velocity=ts.vecND(dim, 0.0),
+                                      color=colors[MaType.liquid]
+                                      )
 
         solver.Layout.add_sand_cube(l_b=ts.vecND(dim, 0.5),
                                     cube_size=ts.vecND(dim, 0.15),
@@ -60,11 +61,11 @@ if __name__ == '__main__':
         tmp_vel = ts.vecND(m_cfg.dim, 0.0)
         tmp_vel[0] = 1.5
         solver.Layout.add_liquid_cube(l_b=tmp_pos,
-                               cube_size=ts.vecND(dim, 0.03),
-                               n_p=n_jet_p // total_frame_jet,
-                               velocity=tmp_vel,
-                               color=colors[MaType.liquid]
-                               )
+                                      cube_size=ts.vecND(dim, 0.03),
+                                      n_p=n_jet_p // total_frame_jet,
+                                      velocity=tmp_vel,
+                                      color=colors[MaType.liquid]
+                                      )
 
 
     init_fall_cube()

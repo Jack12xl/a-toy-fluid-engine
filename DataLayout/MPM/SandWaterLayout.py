@@ -35,7 +35,7 @@ class TwinGridLayout(mpmLayout):
         self.q_s = ti.field(dtype=Float)
 
         self.g_f = CellGrid(
-            ti.field(dtype=Float),
+            ti.Vector.field(self.dim, dtype=Float),
             self.dim,
             dx=ts.vecND(self.dim, self.cfg.dx),
             o=ts.vecND(self.dim, 0.0)
@@ -68,7 +68,7 @@ class TwinGridLayout(mpmLayout):
         )
 
         self.g_w_f = CellGrid(
-            ti.field(dtype=Float),
+            ti.Vector.field(self.dim, dtype=Float),
             self.dim,
             dx=ts.vecND(self.dim, self.cfg.dx),
             o=ts.vecND(self.dim, 0.0)
@@ -164,10 +164,11 @@ class TwinGridLayout(mpmLayout):
             # @16 (26)
             # Venant-kirchoff
             FCR = 2.0 * self.cfg.mu_0 * inv_sig @ epsilon + self.cfg.lambda_0 * epsilon.trace() * inv_sig
+            # energy density
             stress = U @ FCR @ V.transpose()
+            stress = (-self.cfg.p_vol * 4 * self.cfg.inv_dx ** 2) * stress @ p_F[P].transpose()
             # TODO where is stress
             affine = self.cfg.p_mass * p_C[P]
-
             for offset in ti.static(ti.grouped(self.stencil_range3())):
                 dpos = g_m.getW(offset.cast(Float) - fx)
 
@@ -176,7 +177,7 @@ class TwinGridLayout(mpmLayout):
                     weight *= w[offset[d]][d]
                 # @17 (15)
                 # TODO ? why mass is in
-                g_v[base + offset] += weight * (self.cfg.p_mass * p_v[P] + affine * dpos)
+                g_v[base + offset] += weight * (self.cfg.p_mass * p_v[P] + affine @ dpos)
                 g_m[base + offset] += weight * self.cfg.p_mass
                 # TODO where did this come from
                 g_f[base + offset] += weight * stress @ dpos
@@ -191,7 +192,7 @@ class TwinGridLayout(mpmLayout):
         g_w_f = ti.static(self.g_w_f)
 
         for P in range(self.n_w_particle[None]):
-            base = ti.floor(g_w_m(p_w_x[P] - 0.5 * g_w_m.dx)).cast(Int)
+            base = ti.floor(g_w_m.getG(p_w_x[P] - 0.5 * g_w_m.dx)).cast(Int)
             fx = g_w_m.getG(p_w_x[P]) - base.cast(Float)
 
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
@@ -526,8 +527,7 @@ class TwinGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        mat = MaType.sand
-        self.seed(n_p, mat, int(color))
+        self.seed_liquid(n_p, int(color))
 
         self.n_particle[None] += n_p
 
@@ -542,8 +542,7 @@ class TwinGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        mat = MaType.liquid
-        self.seed(n_p, mat, int(color))
+        self.seed_sand(n_p, int(color))
 
         self.n_w_particle[None] += n_p
 
@@ -561,37 +560,86 @@ class TwinGridLayout(mpmLayout):
         for P in range(cur_n_p,
                        cur_n_p + n_p):
             x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
-            self.seed_particle(P, x, mat, color, self.source_velocity[None])
+            if mat == MaType.sand:
+                self.seed_sand_particle(P, x, color, self.source_velocity[None])
+            else:
+                self.seed_liquid_particle(P, x, color, self.source_velocity[None])
 
+    @ti.kernel
+    def seed_sand(self,
+                  n_p: Int,
+                  color: Int):
+        for P in range(self.n_particle[None],
+                       self.n_particle[None] + n_p):
+            x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
+            self.seed_sand_particle(P, x, color, self.source_velocity[None])
+
+    @ti.kernel
+    def seed_liquid(self,
+                    n_p: Int,
+                    color: Int):
+        for P in range(self.n_w_particle[None],
+                       self.n_w_particle[None] + n_p):
+            x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
+            self.seed_liquid_particle(P, x, color, self.source_velocity[None])
 
     @ti.func
-    def seed_particle(self, P, x, mat, color, velocity):
-        # self.p_material_id[P] = mat
-        if mat == MaType.sand:
-            self.p_x[P] = x
-            self.p_v[P] = velocity
-            self.p_F[P] = ti.Matrix.identity(Float, self.dim)
+    def seed_sand_particle(self, P, x, color, velocity):
+        self.p_x[P] = x
+        self.p_v[P] = velocity
+        self.p_F[P] = ti.Matrix.identity(Float, self.dim)
 
-            # what the hell...
-            self.c_C0[P] = -0.01
-            self.alpha_s[P] = 0.267765
+        # what the hell...
+        self.c_C0[P] = -0.01
+        self.alpha_s[P] = 0.267765
 
-            self.p_color[P] = color
-            self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+        self.p_color[P] = color
+        self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+
+    @ti.func
+    def seed_liquid_particle(self, P, x, color, velocity):
+        self.p_w_x[P] = x
+        self.p_w_v[P] = velocity
+        self.p_Jp[P] = 1.0
+
+        r = ts.rand()
+        if r <= 0.85:
+            self.p_w_color[P] = self.cfg.sand_yellow
+        elif r <= 0.95:
+            self.p_w_color[P] = self.cfg.sand_brown
         else:
-            self.p_w_x[P] = x
-            self.p_w_v[P] = velocity
-            self.p_Jp[P] = 1.0
+            self.p_w_color[P] = self.cfg.sand_white
 
-            r = ts.rand()
-            if r <= 0.85:
-                self.p_w_color[P] = self.cfg.sand_yellow
-            elif r <= 0.95:
-                self.p_w_color[P] = self.cfg.sand_brown
-            else:
-                self.p_w_color[P] = self.cfg.sand_white
+        self.p_w_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
-            self.p_w_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+    # @ti.func
+    # def seed_particle(self, P, x, mat, color, velocity):
+    #     # self.p_material_id[P] = mat
+    #     if mat == MaType.sand:
+    #         self.p_x[P] = x
+    #         self.p_v[P] = velocity
+    #         self.p_F[P] = ti.Matrix.identity(Float, self.dim)
+    #
+    #         # what the hell...
+    #         self.c_C0[P] = -0.01
+    #         self.alpha_s[P] = 0.267765
+    #
+    #         self.p_color[P] = color
+    #         self.p_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
+    #     else:
+    #         self.p_w_x[P] = x
+    #         self.p_w_v[P] = velocity
+    #         self.p_Jp[P] = 1.0
+    #
+    #         r = ts.rand()
+    #         if r <= 0.85:
+    #             self.p_w_color[P] = self.cfg.sand_yellow
+    #         elif r <= 0.95:
+    #             self.p_w_color[P] = self.cfg.sand_brown
+    #         else:
+    #             self.p_w_color[P] = self.cfg.sand_white
+    #
+    #         self.p_w_C[P] = ti.Matrix.zero(Float, self.dim, self.dim)
 
     @ti.kernel
     def update_liquid_color(self):
