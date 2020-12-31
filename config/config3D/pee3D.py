@@ -36,11 +36,11 @@ ti.init(arch=ti.gpu, debug=False, kernel_profiler=False, device_memory_GB=6.0)
 from datetime import datetime
 t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")
 profile_name = t + "-pee-MPM{}D-P-{}-G-{}-dt-{}".format(dim, max_n_particle, 'x'.join(map(str, res)), dt)
-bool_save = True
+bool_save = False
 save_frame_length = 384
 save_root = './tmp_result'
 save_path = os.path.join(save_root, profile_name, 'simple')
 
-bool_save_particle = True
+bool_save_particle = False
 particle_step = 1
 particle_path = os.path.join(save_root, profile_name, 'particle')
