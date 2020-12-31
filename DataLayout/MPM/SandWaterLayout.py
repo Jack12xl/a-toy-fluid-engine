@@ -131,8 +131,12 @@ class TwinGridLayout(mpmLayout):
         """
         pass
 
-    @ti.kernel
     def P2G(self, dt: Float):
+        self.P2G_sand(dt)
+        self.P2G_liquid(dt)
+
+    @ti.kernel
+    def P2G_sand(self, dt: Float):
         """
         For Sand and water
         :param dt:
@@ -182,6 +186,13 @@ class TwinGridLayout(mpmLayout):
                 # TODO where did this come from
                 g_f[base + offset] += weight * stress @ dpos
 
+    @ti.kernel
+    def P2G_liquid(self, dt: Float):
+        """
+
+        :param dt:
+        :return:
+        """
         # water
         p_w_x = ti.static(self.p_w_x)
         p_w_v = ti.static(self.p_w_v)
@@ -194,6 +205,8 @@ class TwinGridLayout(mpmLayout):
         for P in range(self.n_w_particle[None]):
             base = ti.floor(g_w_m.getG(p_w_x[P] - 0.5 * g_w_m.dx)).cast(Int)
             fx = g_w_m.getG(p_w_x[P]) - base.cast(Float)
+            # print("P", P, "base:", base, "fx: ", fx)
+            # ti.sync()
 
             w = [0.5 * (1.5 - fx) ** 2, 0.75 - (fx - 1) ** 2, 0.5 * (fx - 0.5) ** 2]
             # Prof.Jiang said he agreed with this...
@@ -246,34 +259,35 @@ class TwinGridLayout(mpmLayout):
         g_w_v = ti.static(self.g_w_v)
         g_w_f = ti.static(self.g_w_f)
 
-        cE = self.cfg.n ** 2 * self.cfg.p_rho * 9.8 / self.cfg.k_hat
+        cE = self.cfg.n ** 2 * self.cfg.p_rho * self.gravity[1] / self.cfg.k_hat
 
         for I in ti.grouped(g_s_m):
             if g_s_m[I] > 0 and g_w_m[I] > 0:
                 sm, wm = g_s_m[I], g_w_m[I]
+                sv, wv = g_s_v[I], g_w_v[I]
                 # TODO different from @17 (20) (21)
-                d = cE * sm * wm
+                d_ij = cE * sm * wm
                 # TODO @17 (21.5)
                 M = ti.Matrix([[sm, 0.0], [0.0, wm]])
                 # TODO still different from (20) (21)
-                D = ti.Matrix([-d, d], [d, -d])
-                V = ti.Matrix.rows([g_s_v[I], g_w_v[I]])
+                D = ti.Matrix([[-d_ij, d_ij], [d_ij, -d_ij]])
+                V = ti.Matrix.rows([sv, wv])
                 # @17 (22
                 G = ti.Matrix.rows([self.gravity, self.gravity])
                 F = ti.Matrix.rows([g_s_f[I], g_w_f[I]])
                 # directly solve Ax = B by inverse hahaha
-                # Niubi.jpg
+                # Bu kui shi ni.jpg
                 A = M + dt * D
                 B = M @ V + dt * (M @ G + F)
                 # Get X_n_1
                 X = A.inverse() @ B
 
                 new_v = ts.vecND(self.dim, 0.0)
-                for d in range(self.dim):
+                for d in ti.static(range(self.dim)):
                     new_v[d] = X[0, d]
                 g_s_v[I] = new_v
 
-                for d in range(self.dim):
+                for d in ti.static(range(self.dim)):
                     new_v[d] = X[1, d]
                 g_w_v[I] = new_v
 
@@ -472,7 +486,7 @@ class TwinGridLayout(mpmLayout):
         p_s_F = ti.static(self.p_F)
         p_s_C = ti.static(self.p_C)
 
-        for P in ti.static(self.n_particle[None]):
+        for P in range(self.n_particle[None]):
             base = ti.floor(g_s_m.getG(p_s_x[P] - 0.5 * g_s_m.dx)).cast(Int)
             fx = g_s_m.getG(p_s_x[P]) - base.cast(Float)
 
@@ -527,7 +541,7 @@ class TwinGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        self.seed_liquid(n_p, int(color))
+        self.seed_sand(n_p, int(color))
 
         self.n_particle[None] += n_p
 
@@ -542,28 +556,29 @@ class TwinGridLayout(mpmLayout):
         self.source_bound[0] = l_b
         self.source_bound[1] = cube_size
         self.source_velocity[None] = velocity
-        self.seed_sand(n_p, int(color))
+        self.seed_liquid(n_p, int(color))
 
         self.n_w_particle[None] += n_p
+        print("now we have {} water ps".format(self.n_w_particle[None]))
 
-    @ti.kernel
-    def seed(self,
-             n_p: Int,
-             mat: Int,
-             color: Int):
-        cur_n_p = 0
-        if mat == MaType.sand:
-            cur_n_p = self.n_particle[None]
-        else:  # water
-            cur_n_p = self.n_w_particle[None]
-
-        for P in range(cur_n_p,
-                       cur_n_p + n_p):
-            x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
-            if mat == MaType.sand:
-                self.seed_sand_particle(P, x, color, self.source_velocity[None])
-            else:
-                self.seed_liquid_particle(P, x, color, self.source_velocity[None])
+    # @ti.kernel
+    # def seed(self,
+    #          n_p: Int,
+    #          mat: Int,
+    #          color: Int):
+    #     cur_n_p = 0
+    #     if mat == MaType.sand:
+    #         cur_n_p = self.n_particle[None]
+    #     else:  # water
+    #         cur_n_p = self.n_w_particle[None]
+    #
+    #     for P in range(cur_n_p,
+    #                    cur_n_p + n_p):
+    #         x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
+    #         if mat == MaType.sand:
+    #             self.seed_sand_particle(P, x, color, self.source_velocity[None])
+    #         else:
+    #             self.seed_liquid_particle(P, x, color, self.source_velocity[None])
 
     @ti.kernel
     def seed_sand(self,

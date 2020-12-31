@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
 
     def init_fall_cube():
-        solver.Layout.add_liquid_cube(l_b=ts.vecND(dim, 0.05),
+        solver.Layout.add_liquid_cube(l_b=ts.vecND(dim, 0.3),
                                       cube_size=ts.vecND(dim, 0.15),
                                       n_p=m_cfg.max_n_w_particle // 4,
                                       velocity=ts.vecND(dim, 0.0),
