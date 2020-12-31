@@ -487,6 +487,7 @@ class mpmLayout(metaclass=ABCMeta):
     @ti.kernel
     def init_cube(self):
         # TODO evolve this
+        raise DeprecationWarning
         self.max_n_particle = self.cfg.max_n_particle
         group_size = self.max_n_particle[None] // 4
         for P in self.p_x:

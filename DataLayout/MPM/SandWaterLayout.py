@@ -5,7 +5,6 @@ import numpy as np
 from math import radians
 import taichi as ti
 import taichi_glsl as ts
-from abc import ABCMeta, abstractmethod
 from config.CFG_wrapper import TwoGridmpmCFG, DLYmethod, MaType, BC
 from utils import Int, Float, Matrix, Vector
 from Grid import CellGrid
@@ -49,6 +48,7 @@ class DGridLayout(mpmLayout):
         self.p_w_x = ti.Vector.field(self.dim, dtype=Float)
         self.p_w_v = ti.Vector.field(self.dim, dtype=Float)
         self.p_w_C = ti.Matrix.field(self.dim, self.dim, dtype=Float)
+        self.p_w_color = ti.field(dtype=Int)
         # self.p_w_Jp = ti.field(dtype=Float)
 
         # Grid
@@ -88,7 +88,8 @@ class DGridLayout(mpmLayout):
         self._w_particle.place(self.p_w_x,
                                self.p_w_v,
                                self.p_w_C,
-                               self.p_w_Jp)
+                               self.p_w_Jp,
+                               self.p_w_color)
 
         self._w_grid = ti.root.dense(self._indices, self.cfg.res)
         self._w_grid.place(self.g_w_v.field)
@@ -512,3 +513,66 @@ class DGridLayout(mpmLayout):
             self.vc_s[P] += -ti.log(new_F.determinant()) + ti.log(p_s_F[P].determinant())
             p_s_F[P] = new_F
 
+    def add_sand_cube(self,
+                      l_b: Vector,
+                      cube_size: Vector,
+                      n_p: Int,
+                      velocity: Vector,
+                      color=0xFFFFFF,
+                      ):
+        assert self.n_particle[None] + n_p <= self.max_n_particle
+        self.source_bound[0] = l_b
+        self.source_bound[1] = cube_size
+        self.source_velocity[None] = velocity
+        self.seed(n_p, MaType.sand, color)
+
+    def add_liquid_cube(self,
+                        l_b: Vector,
+                        cube_size: Vector,
+                        n_p: Int,
+                        velocity: Vector,
+                        color=0xFFFFFF,
+                        ):
+        assert self.n_w_particle[None] + n_p <= self.max_n_w_particle
+        self.source_bound[0] = l_b
+        self.source_bound[1] = cube_size
+        self.source_velocity[None] = velocity
+        self.seed(n_p, MaType.liquid, color)
+
+    @ti.kernel
+    def seed(self, n_p: Int, mat: Int, color: Int):
+        cur_n_p = 0
+        if mat == MaType.sand:
+            cur_n_p = self.n_particle[None]
+        else:  # water
+            cur_n_p = self.max_n_w_particle[None]
+
+        for P in range(cur_n_p,
+                       cur_n_p + n_p):
+            x = self.source_bound[0] + ts.randND(self.dim) * self.source_bound[1]
+            self.seed_particle(P, x, mat, color, self.source_velocity[None])
+
+    @ti.func
+    def seed_particle(self, P, x, mat, color, velocity):
+        if mat == MaType.sand:
+            self.p_x[P] = x
+            self.p_v[P] = velocity
+            self.p_F[P] = ti.Matrix.identity(Float, self.dim)
+
+            # what the hell...
+            self.c_C0[P] = -0.01
+            self.alpha_s[P] = 0.267765
+
+            self.p_color[P] = color
+        else:
+            self.p_w_x[P] = x
+            self.p_w_v[P] = velocity
+            self.p_Jp[P] = 1.0
+
+            r = ts.rand()
+            if r <= 0.85:
+                self.p_w_color[P] = self.cfg.sand_yellow
+            elif r <= 0.95:
+                self.p_w_color[P] = self.cfg.sand_brown
+            else:
+                self.p_w_color[P] = self.cfg.sand_white
