@@ -6,9 +6,15 @@ import time
 
 # print("Dont inject")
 print("[Jack12] Inject taichi with materialize inspector !")
+_cbs = []
+
+@atexit.register
+def _exit_callback():
+    for func in _cbs:
+        func()
 
 
-def inject(module, name, enable=True):
+def _inject(module, name, enable=True):
     if not enable:
         return lambda x: x
 
@@ -33,7 +39,7 @@ def inject(module, name, enable=True):
     return decorator
 
 
-@inject(ti.Kernel, 'materialize')
+@_inject(ti.Kernel, 'materialize')
 def _(self, key=None, args=None, arg_features=None):
     self._key = key
 
@@ -46,23 +52,23 @@ def _(self, key=None, args=None, arg_features=None):
     grad_suffix = ""
     if self.is_grad:
         grad_suffix = "_grad"
-    kernel_name = "{}_c{}_{}{}".format(self.func.__name__,
-                                       self.kernel_counter, key[1],
-                                       grad_suffix)
-    self._kname[key] = kernel_name
+    name = "{}_c{}_{}{}".format(self.func.__qualname__,
+                                        self.kernel_counter, key[1],
+                                        grad_suffix)
+    self._kname[key] = name
 
-    @atexit.register
-    def show_profile():
-        if self._profile.get(kernel_name):
-            x = sorted(self._profile[kernel_name])
+    @_cbs.append
+    def callback():
+        if self._profile.get(name):
+            x = sorted(self._profile[name])
             if len(x) % 2 == 0:
                 dt = (x[len(x) // 2] + x[len(x) // 2 - 1]) / 2
             else:
                 dt = x[len(x) // 2]
-            print(f'[{max(x):8.05f} {dt:8.05f} {len(x):4d}] {kernel_name}')
+            print(f'[{max(x):8.05f} {dt:8.05f} {len(x):4d}] {name}')
 
 
-@inject(ti.Kernel, '__call__')
+@_inject(ti.Kernel, '__call__')
 def _(self, *args, **kwargs):
     def callback(ret):
         t1 = time.time()
@@ -77,4 +83,19 @@ def _(self, *args, **kwargs):
     t0 = time.time()
     return callback
 
-    print('Injected!')
+
+print('[Tinject] Taichi JIT injected!')
+
+__all__ = []
+
+
+if __name__ == '__main__':
+    @ti.data_oriented
+    class ODOP:
+        @ti.kernel
+        def func(self):
+            print(233)
+
+    c = ODOP()
+    c.func()
+    exit(1)
