@@ -18,8 +18,11 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 set_attribute_from_cfg(config.config2D.basic_config2D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 
+r = 512
+screen_res = [r, r]
+res = [r, r]
 #
-v_grid_type = GRIDTYPE.FACE_GRID
+v_grid_type = GRIDTYPE.CELL_GRID
 
 SceneType = SceneEnum.Jet
 VisualType = VisualizeEnum.Density
@@ -31,16 +34,17 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Engine
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.Advection_Reflection
 
 CFL = None
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
-projection_solver = JacobiProjectionSolver
+
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
@@ -55,6 +59,7 @@ ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 # init should put before init ti.field
 
 from geometry import RigidBodyCollider, Ball
+
 Colliders = []
 # Colliders.append(RigidBodyCollider(Ball(
 #     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
@@ -82,7 +87,7 @@ Emitters = []
 Emitters.append(SquareEmitter(
     t=Transform2(
         translation=ti.Vector([res[0] // 2, res[0] // 10]),
-        localscale=10.0,
+        localscale=res[0] // 32,
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
@@ -90,7 +95,7 @@ Emitters.append(SquareEmitter(
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
-    )
+)
 )
 # Emitters.append(ForceEmitter(
 #     sys.modules[__name__],
@@ -116,8 +121,10 @@ Emitters.append(SquareEmitter(
 #     )
 # )
 
+from datetime import datetime
 
-profile_name = '2D' + '-'\
+t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")
+profile_name = t + '-Euler2D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
                + str(v_grid_type) + '-' \
                + str(run_scheme) + '-' \
@@ -133,17 +140,21 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,
-    VisualizeEnum.Vorticity,
-    VisualizeEnum.Divergence,
+    # VisualizeEnum.Vorticity,
+    # VisualizeEnum.Divergence,
 ]
 
-save_frame_length = 360
+save_frame_length = 320
 save_root = './tmp_result'
 frame_rate = int(1.0 / dt)
 save_path = os.path.join(save_root, profile_name)
 
 bool_save_ply = False
+
+bool_save_grid = True
+grid_save_frequency = 1
+grid_save_dir = os.path.join(save_root, profile_name, "v" + 'x'.join(map(str, res)))

@@ -3,6 +3,7 @@ from utils import bufferPair, Matrix
 from Grid.CellGrid import CellGrid
 import taichi_glsl as ts
 from .FluidGridData import FluidGridData
+import numpy as np
 
 
 @ti.data_oriented
@@ -119,3 +120,17 @@ class collocatedGridData(FluidGridData):
                         mid_point: ti.template()):
         for I in ti.static(to_be_reflected):
             to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
+
+    def grid_info(self):
+        np_v = self.v_pair.cur.field.to_numpy()
+        # print(f'v shape {np_v.shape}')
+        return {
+            'velocity': np_v
+        }
+
+    def dump(self, fn: str, grids: dict):
+        np.savez_compressed(fn,
+                            v=grids['velocity'])
+
+
+

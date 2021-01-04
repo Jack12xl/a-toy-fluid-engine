@@ -28,7 +28,7 @@ class EulerCFG(FluidCFG):
         elif self.v_grid_type == GRIDTYPE.Bimocq_GRID:
             self.grid = BimMocqGridData
 
-        #Bimocq
+        # Bimocq
         self.blend_coefficient = None
         self.vel_remap_threshold = None
         self.sclr_remap_threshold = None
@@ -36,13 +36,12 @@ class EulerCFG(FluidCFG):
         self.sclr_remap_frequency = None
 
         self.run_scheme = cfg.run_scheme
-        #Bimocq
+        # Bimocq
 
         self.fluid_color = cfg.fluid_color
 
         self.Colliders = cfg.Colliders
         self.Emitters = cfg.Emitters
-
 
         self.VisualType = cfg.VisualType
         self.SceneType = cfg.SceneType
@@ -60,6 +59,10 @@ class EulerCFG(FluidCFG):
 
         self.dye_decay = cfg.dye_decay
         self.curl_strength = cfg.curl_strength
+
+        self.grid_save_frequency = None
+        self.grid_save_dir = None
+        self.bool_save_grid = cfg.bool_save_grid if hasattr(cfg, 'bool_save_grid') else False
 
     @property
     def run_scheme(self):
@@ -182,4 +185,14 @@ class EulerCFG(FluidCFG):
             self.PLYwriter = plyWriter(self)
             self.ply_frequency = self.cfg.ply_frequency
             print("When done, plz refer to {}".format(self.PLYwriter.series_prefix))
+        print(">>>>>>")
+
+    @SetterProperty
+    def bool_save_grid(self, save):
+        self.__dict__['bool_save_grid'] = save
+        print(">>>>>>")
+        if save:
+            self.grid_save_frequency = self.cfg.grid_save_frequency
+            self.grid_save_dir = self.cfg.grid_save_dir
+            print("We will save grid info every {} frame!".format(self.grid_save_frequency))
         print(">>>>>>")

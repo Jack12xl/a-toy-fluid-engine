@@ -78,8 +78,8 @@ class EulerScheme(metaclass=ABCMeta):
             # calculate buoyancy
             self.grid.t_ambient[None] = getFieldMeanCpu(self.grid.t_pair.cur.field)
             # self.ApplyBuoyancyForce(dt)
-        if self.cfg.frame_count < 5:
-            self.refill()
+        # if self.cfg.frame_count < 5:
+        self.refill()
 
     @ti.kernel
     def ApplyBuoyancyForceMac(self, dt: ti.f32):
@@ -244,3 +244,8 @@ class EulerScheme(metaclass=ABCMeta):
         d = ti.static(self.grid.density_bffr)
         for I in ti.grouped(d.field):
             d[I] *= self.cfg.dye_decay
+
+    def write_grid(self, fn:str):
+        grids = self.grid.grid_info()
+
+        self.grid.dump(fn, grids)

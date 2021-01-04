@@ -5,6 +5,7 @@ from Engine import AdvectionProjectionEulerScheme, AdvectionReflectionEulerSchem
 import argparse
 from config import EulerCFG
 import utils
+import os
 
 
 def parse_args():
@@ -127,6 +128,11 @@ if __name__ == '__main__':
 
             if m_cfg.bool_save_ply and frame_count % m_cfg.ply_frequency == 0:
                 m_cfg.PLYwriter.save_npy(frame_count, scheme.grid.density_pair.cur)
+
+            if m_cfg.bool_save_grid and frame_count % m_cfg.grid_save_frequency == 0:
+                os.makedirs(m_cfg.grid_save_dir, exist_ok=True)
+                file_name = os.path.join(m_cfg.grid_save_dir, f"{scheme.curFrame:06d}.npz")
+                scheme.write_grid(file_name)
 
             if frame_count >= m_cfg.save_frame_length:
                 break

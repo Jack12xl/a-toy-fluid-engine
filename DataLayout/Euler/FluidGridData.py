@@ -5,6 +5,7 @@ from config import EulerCFG, SimulateType
 from utils import bufferPair, Vector, Matrix
 from Grid.CellGrid import CellGrid
 
+
 @ti.data_oriented
 class FluidGridData(metaclass=ABCMeta):
     """
@@ -72,7 +73,6 @@ class FluidGridData(metaclass=ABCMeta):
     def swap_v(self):
         # Due to design of the pipeline, each grid data V has to be specialized
         pass
-
 
     def calCFL(self):
         pass
@@ -143,6 +143,9 @@ class FluidGridData(metaclass=ABCMeta):
         if self.cfg.SimType == SimulateType.Gas:
             self.t.fill(self.cfg.GasInitAmbientT)
 
-    @abstractmethod
+    # @abstractmethod
     def boundaryZeroVelocity(self):
+        pass
+
+    def grid_info(self) -> dict:
         pass
