@@ -2,7 +2,13 @@
 
 ![](./results/teaser.gif)
 
-A repo that tries to reimplement Euler based fluid simulation, currently target on smoke simulation.
+|                              |                              |                                  |                                  |
+| ---------------------------- | ---------------------------- | -------------------------------- | -------------------------------- |
+| ![](./results/MPM/mpm2d.gif) | ![](./results/MPM/mpm3d.gif) | ![](./results/MPM/mpm2dsand.gif) | ![](./results/MPM/mpm3dsand.gif) |
+
+
+
+A repo that tries to reimplement some fluid-related algorithm, 
 
 The project is based on [Taichi](https://github.com/taichi-dev/taichi), a programming language that embeds both GPU and CPU parralleled computing.
 
@@ -23,18 +29,14 @@ python exp_play_Euler.py --cfg BMcq_jet2d # takes time
 
 #### Feature:
 
-Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by slice.
+Currently, we support 
+
+- [Euler](./Engine)
+- [Material Point Method](./Engine)
+
+In both 2D/3D. The 3D version is rendered with [Taichi Three(Tina)](https://github.com/taichi-dev/taichi_three/tree/master)
 
 
-
-
-
-#### Mumbled Comparison
-
-- [Advection](./advection/)
-- [Projection](./projection/)
-
-- [Euler Solver Scheme](Engine)
 
 #### Reference
 
@@ -56,6 +58,10 @@ Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by 
 - MacCormack
 - Stable fluid
 - Advection-reflection
+
+
+
+
 
 ##### CIS 565 submission
 
