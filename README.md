@@ -25,82 +25,9 @@ python exp_play_Euler.py --cfg BMcq_jet2d # takes time
 
 Recently, we support both 2D/3D simulation. The 3D is temporarily visualized by slice.
 
-- [Euler-based Scheme](Engine/)
-  - Advection-Projection(Stable fluid)
-  - Advection-Reflection(MC + R)
-  - B
-- [Grid](./Grid)
-  - Uniform
-  - Mac( staggered )
-- Advection
-  - Semi-Lagrangian
-  - MacCormack / BFECC
-  - [BiMocq2](Engine)
-- Projection
-  - Jacobian
-  - Gauss-Seidel 
-  - Multi-Grid Preconditioned Conjugate Gradient ( copied from [official](https://github.com/taichi-dev/taichi/blob/master/examples/mgpcg_advanced.py)...)
 
 
 
-
-#### Coupling with moving solids(Incomplete)
-
-<a href="https://github.com/Jack12xl/myFluid/blob/master/exp_my_fluid.py"> <img src="./results/naive_collision.gif" height="384px"></a>
-
-I haven't consider the boundary velocity and pressure change caused by moving objects yet. The coupling feature implementation pauses for now. 
-
-#### Simple Show Case
-
-- AP = advection-projection
-
-- AR = advection-reflection
-
-- SL == Semi-Lagrangian
-
-- MC == MacCormack
-
-- JC == Jacobi Iteration
-
-- GS == Gauss Sedial
-
-- MGPCG == Multi-Grid Preconditioned Conjugate Gradient( copied from [official](https://github.com/taichi-dev/taichi/blob/master/examples/mgpcg_advanced.py)..)
-
-- it == iteration
-
-
-
-The following results shows the density.
-
-| AP + SL(RK2) + JC(30 it)           | AP + SL(RK3) + JC(30 it)           | **AP + MC(RK3) + SD(30 it)**            |
-| ---------------------------------- | ---------------------------------- | --------------------------------------- |
-| ![](results/proj-sl-jc-rk2.gif)    | ![](./results/proj-sl-jc-rk3.gif)  | ![](./results/proj-mc-sd-rk3.gif)       |
-| **AR + MC(RK3) + SD(30 it)**       | **AR + MC(RK3) + SD(30 it)**       | **AR + MC(RK3) + MGPCG**                |
-| ![](results/reflect-sl-sd-rk3.gif) | ![](results/reflect-mc-sd-rk3.gif) | ![](./results/reflect-mc-mgpcg-rk3.gif) |
-
-##### 2D views
-
-Here we simulate a 2D jet by adding **force** from bottom.
-
-| Density                                                  | Divergence ( 0.03 * div + vec3(0.5) )                | Curl( 0.03 * curl + vec3(0.5))                        | Velocity ( 0.01 * v + vec3(0.5))                   | Velocity-Norm( v.norm * 0.004) (Magma colormap)         |
-| -------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------- |
-| ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/density.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/div.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/Curl.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/v.gif) | ![](results/AR-MCS-RBGGSPS-30it-RK3-Curl6.0/v_norm.gif) |
-
-##### 3D views
-
-Here we simulate a 3D jet by harding coding **velocity** and **density** within the bottom area. We visualize this under one slice along one dimension(here **Z**).
-
-- resolution = [512, 512, 32]
-
-- dt = 0.03
-- No vorticity enhancement
-
-| Configure              | Density                                                      | Divergence(0.3 * div + ve3(0.5))                             | Curl(0.03 * curl + vec3(0.5))                                | Velocity(0.04 * abs(v))                                      | Velocity-Norm( v.norm *0.02) (Magma colormap)                |
-| ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| AP-SLS-JPS-64it-RK3    | ![](./results/3D/3D-512x512x32-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03/density-1.0.gif) | ![](./results/3D/3D-512x512x32-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03/div.gif) | ![](./results/3D/3D-512x512x32-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03/curl.gif) | ![](./results/3D/3D-512x512x32-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03/velocity.gif) | ![](./results/3D/3D-512x512x32-AP-SLS-JPS-64it-RK3-curl0.0-dt-0.03/velocity-norm.gif) |
-| AR-MCS-RBGSPS-64it-RK3 | ![density](./results/3D/3D-512x512x32-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/density-1.0.gif) | ![divergence](./results/3D/3D-512x512x32-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/divergence.gif) | ![curl](./results/3D/3D-512x512x32-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/curl.gif) | ![](./results/3D/3D-512x512x32-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/velocity.gif) | ![](./results/3D/3D-512x512x32-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/velocity-norm.gif) |
-
-From the results, the 3D perspective does have more details than 2D.
 
 #### Mumbled Comparison
 
@@ -135,8 +62,6 @@ From the results, the 3D perspective does have more details than 2D.
 This project is presented in UPenn [CIS 565](https://cis565-fall-2020.github.io/) GPU programming course as a final project.
 
 You can also view other **cool** final project by other students at [here](https://cis565-fall-2020.github.io/projects/)!
-
-Here is the [google drive link](https://drive.google.com/drive/folders/1dK6_DLhjfXc3D2G6hUvjzXfSlGX6axv3?usp=sharing) to my pitch, milestone 1 ~ 3.
 
 
 
