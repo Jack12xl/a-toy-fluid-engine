@@ -4,4 +4,4 @@ from .helper_func import *
 from .basic_types import *
 from .color_map import *
 from .plyWriter import *
-from .inject import inject, ti
+from .taichi_inject import ti
