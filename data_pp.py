@@ -14,10 +14,17 @@ class dataPPer:
     Assume collocated Grid
     """
 
-    def __init__(self, low_path: str, high_path: str):
+    def __init__(self,
+                 low_path: str,
+                 high_path: str,
+                 save_path: str,
+                 dry_run: bool = True):
         # read
         self.low_V_paths = sorted(glob(os.path.join(low_path, '*.npz')))
         self.high_V_paths = sorted(glob(os.path.join(high_path, '*.npz')))
+        self.save_path = save_path
+        self.dry_run = dry_run
+
         assert (len(self.low_V_paths) == len(self.high_V_paths) and len(self.low_V_paths) > 0)
         self.num = len(self.low_V_paths)
         print(f"We have {self.num} pair datasets.")
@@ -69,6 +76,9 @@ class dataPPer:
         Pre process
         :return:
         """
+        fn_root = os.path.join(self.save_path, "dataset")
+        os.makedirs(os.path.join(fn_root, "raw"), exist_ok=True)
+        os.makedirs(os.path.join(fn_root, "visualize"), exist_ok=True)
         for i in range(self.num):
             h_v = np.load(self.high_V_paths[i])['v']
             l_v = np.load(self.low_V_paths[i])['v']
@@ -81,11 +91,30 @@ class dataPPer:
             self.calVorticity(self.h_v)
             center_pos = self.Kai_Sampling()
 
-            # self.vis_v(self.l_field)
+            if not self.dry_run:
+                fn = os.path.join(fn_root, "raw", f"{i:06d}.npz")
+                self.save_results(fn, center_pos)
 
-            # self.gui.set_image(self.clr_bffr)
+            self.gui.set_image(self.clr_bffr)
             self.gui.circles(center_pos / 512, radius=1.0, color=0xED553B)
-            self.gui.show()
+
+            vis_fn = os.path.join(fn_root, "visualize", f"{i:06d}.png")
+            self.gui.show(vis_fn if not self.dry_run else None)
+
+    def save_results(self, fn: str, patch_centers: np.array):
+        """
+        Save upsampling results, selected patch_centers
+
+        :return:
+        """
+        np_high_v = self.h_v.field.to_numpy()
+        np_up_v = self.l_up_v.field.to_numpy()
+
+        np.savez_compressed(fn,
+                            up_v=np_up_v,
+                            h_v=np_high_v,
+                            c_pos=patch_centers
+                            )
 
     @ti.kernel
     def l2h(self, l2h_f: Wrapper, l_f: Wrapper):
@@ -156,14 +185,20 @@ class dataPPer:
         curl_weight = curl_weight.reshape([-1])
 
         idx_num = size // pow(5, self.dim)
+        fluid_idx_num = int(0.95 * idx_num)
+        non_fluid_idx_num = idx_num - fluid_idx_num
         # sample without repetition
-        res = np.random.choice(idx, idx_num, replace=False, p=curl_weight)
+        fluid_res = np.random.choice(idx, fluid_idx_num, replace=False, p=curl_weight)
+
+        non_fluid_idx = np.delete(idx, fluid_res)
+        non_fluid_res = np.random.choice(non_fluid_idx, non_fluid_idx_num, replace=False, p=None)
 
         def unravel(idx):
             return np.unravel_index(idx, self.high_res)
 
         unravel_vec = np.vectorize(unravel)
 
+        res = np.concatenate((fluid_res, non_fluid_res))
         res = unravel_vec(res)
         res = np.swapaxes(res, 0, 1)
 
@@ -179,5 +214,6 @@ if __name__ == "__main__":
     ti.init(ti.gpu)
     h_path = "./tmp_result/01-04-18-10-07-Euler2D-512x512-UniformGrid-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/v512x512"
     l_path = "./tmp_result/01-04-17-39-21-Euler2D-128x128-UniformGrid-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03/v128x128"
-    pper = dataPPer(l_path, h_path)
+    save_path = "./tmp_result/01-04-17-39-21-Euler2D-128x128-UniformGrid-AR-MCS-RBGSPS-64it-RK3-curl0.0-dt-0.03"
+    pper = dataPPer(l_path, h_path, save_path, False)
     pper.pp()
