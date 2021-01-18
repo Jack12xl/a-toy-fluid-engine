@@ -140,7 +140,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,
@@ -155,6 +155,6 @@ save_path = os.path.join(save_root, profile_name)
 
 bool_save_ply = False
 
-bool_save_grid = True
+bool_save_grid = False
 grid_save_frequency = 1
 grid_save_dir = os.path.join(save_root, profile_name, "v" + 'x'.join(map(str, res)))
