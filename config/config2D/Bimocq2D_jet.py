@@ -43,11 +43,11 @@ sclr_remap_frequency = 20
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
 
-projection_solver = ConjugateGradientProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 128
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
@@ -103,7 +103,9 @@ Emitters.append(SquareEmitter(
 )
 )
 
-profile_name = '2D' + '-' \
+from datetime import datetime
+t = str(datetime.now())[5:-7].replace(' ', '-').replace(':', "-")
+profile_name = t + '-2D' + '-' \
                + 'x'.join(map(str, res)) + '-' \
                + "CFL-" + str(CFL) + "-" \
                + str(run_scheme) + '-' + "velRemap-" + str(vel_remap_threshold) + '-' + str(vel_remap_frequency) \

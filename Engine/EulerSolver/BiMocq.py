@@ -208,15 +208,15 @@ class Bimocq_Scheme(EulerScheme):
 
     @ti.kernel
     def doubleAdvect_kernel(self,
-                           f: Wrapper,
-                           f_n: Wrapper,
-                           f_orig: Wrapper,
-                           f_init: Wrapper,
-                           d_f: Wrapper,
-                           d_f_prev: Wrapper,
-                           BM: Wrapper,
-                           p_BM: Wrapper
-                           ):
+                            f: Wrapper,
+                            f_n: Wrapper,
+                            f_orig: Wrapper,
+                            f_init: Wrapper,
+                            d_f: Wrapper,
+                            d_f_prev: Wrapper,
+                            BM: Wrapper,
+                            p_BM: Wrapper
+                            ):
         """
         advect twice
         :param p_BM: previous backward mapper
@@ -371,12 +371,19 @@ class Bimocq_Scheme(EulerScheme):
         t = 0
         # back_step = ti.ceil(dt / substep)
         # DMC
-        while t < T:
-            if t + substep > T:
-                substep = T - t
+        n_substep = int(T // substep) + 1
+        substep = T / n_substep
+
+        for _ in range(n_substep):
             self.BackwardIter(M, substep)
             M.copy(self.grid.tmp_map)
-            t += substep
+
+        # while t < T:
+        #     if t + substep > T:
+        #         substep = T - t
+        #     self.BackwardIter(M, substep)
+        #     M.copy(self.grid.tmp_map)
+        #     t += substep
         # comment this if not need to visualize BM
         if self.save_Distortion:
             self.saveBM(M)
@@ -756,16 +763,24 @@ class Bimocq_Scheme(EulerScheme):
             emitter.stepEmitHardCode(self.grid.v_origin, self.grid.rho_origin, self.grid.T_origin)
 
     def schemeStep(self, ext_input: np.array):
-        T = 0.0
+        # T = 0.0
         substep = self.cfg.CFL * self.cfg.dx / self.getMaxVel(self.grid.v_pair.cur)
 
-        while T < self.cfg.dt:
-            if T + substep > self.cfg.dt:
-                substep = self.cfg.dt - T
+        n_substep = int(self.cfg.dt // substep) + 1
+        substep = self.cfg.dt / n_substep
+        for _ in range(n_substep):
             print("cur CFL: {}".format(substep * self.getMaxVel(self.grid.v_pair.cur) / self.cfg.dx))
             print("cur dt: {}".format(substep))
             self.substep(ext_input, substep)
-            T += substep
+
+        # # this method is not cool for taichi compilation
+        # while T < self.cfg.dt:
+        #     if T + substep > self.cfg.dt:
+        #         substep = self.cfg.dt - T
+        #     print("cur CFL: {}".format(substep * self.getMaxVel(self.grid.v_pair.cur) / self.cfg.dx))
+        #     print("cur dt: {}".format(substep))
+        #     self.substep(ext_input, substep)
+        #     T += substep
 
     def substep(self, ext_input, subdt):
         """
@@ -819,9 +834,9 @@ class Bimocq_Scheme(EulerScheme):
         # print("After project Max abs Velocity : {}".format(max_vel))
 
         vel_remapping = VelocityDistortion > self.cfg.vel_remap_threshold or (
-                    self.curFrame - self.LastVelRemeshFrame >= self.cfg.vel_remap_frequency)
+                self.curFrame - self.LastVelRemeshFrame >= self.cfg.vel_remap_frequency)
         sca_remapping = ScalarDistortion > self.cfg.sclr_remap_threshold or (
-                    self.curFrame - self.LastScalarRemeshFrame >= self.cfg.sclr_remap_frequency)
+                self.curFrame - self.LastScalarRemeshFrame >= self.cfg.sclr_remap_frequency)
 
         # substract
         self.grid.d_v_proj.subself(self.grid.v_pair.cur)
