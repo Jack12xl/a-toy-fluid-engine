@@ -14,8 +14,8 @@ set_attribute_from_cfg(config.euler_config, sys.modules[__name__], FILTER_TYPE, 
 set_attribute_from_cfg(scene_cfg, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 # set_attribute_from_cfg(config.config3D.basic_config3D, sys.modules[__name__], FILTER_TYPE, _if_print=False)
 dim = 3
-res = [192, 192, 192]
-screen_res = [192, 192]
+res = [256, 256, 256]
+screen_res = [256, 256]
 
 dx = 0.5
 dt = 0.03
@@ -45,11 +45,11 @@ Colliders = []
 
 from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
-advection_solver = SemiLagrangeSolver
+advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
 
-projection_solver = JacobiProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 1.0
 semi_order = RK_Order.RK_3
