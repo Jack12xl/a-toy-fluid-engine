@@ -284,15 +284,16 @@ class Bimocq_Scheme(EulerScheme):
         pos2 = self.traceFunc(vf, pos, ddt)
         pos2 = self.traceFunc(vf, pos2, ddt)
 
-        iter = 0
-        while ts.distance(pos2, pos1) > (err * self.cfg.dx) and iter < 6:
-            pos1 = pos2
-            ddt /= 2.0
-            substeps *= 2
-            pos2 = pos
-            for _ in range(substeps):
-                pos2 = self.traceFunc(vf, pos2, ddt)
-            iter += 1
+        # uncomment this to get more accurate results(takes much more time)
+        # iter = 0
+        # while ts.distance(pos2, pos1) > (err * self.cfg.dx) and iter < 6:
+        #     pos1 = pos2
+        #     ddt /= 2.0
+        #     substeps *= 2
+        #     pos2 = pos
+        #     for _ in range(substeps):
+        #         pos2 = self.traceFunc(vf, pos2, ddt)
+        #     iter += 1
         return pos2
 
     @ti.func
