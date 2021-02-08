@@ -277,12 +277,14 @@ class Bimocq_Scheme(EulerScheme):
     def solveODE(self, pos, dt):
         vf = ti.static(self.grid.v_pair.cur)
 
-        ddt = dt
-        pos1 = self.traceFunc(vf, pos, ddt)
-        ddt /= 2.0
-        substeps = 2
-        pos2 = self.traceFunc(vf, pos, ddt)
-        pos2 = self.traceFunc(vf, pos2, ddt)
+        pos2 = self.traceFunc(vf, pos, dt)
+        return pos2
+        # ddt = dt
+        # pos1 = self.traceFunc(vf, pos, ddt)
+        # ddt /= 2.0
+        # substeps = 2
+        # pos2 = self.traceFunc(vf, pos, ddt)
+        # pos2 = self.traceFunc(vf, pos2, ddt)
 
         # uncomment this to get more accurate results(takes much more time)
         # iter = 0
@@ -294,7 +296,7 @@ class Bimocq_Scheme(EulerScheme):
         #     for _ in range(substeps):
         #         pos2 = self.traceFunc(vf, pos2, ddt)
         #     iter += 1
-        return pos2
+        # return pos2
 
     @ti.func
     def solveODE_DMC(self, pos, dt):
