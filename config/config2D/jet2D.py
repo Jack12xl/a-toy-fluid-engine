@@ -42,9 +42,9 @@ from advection import MacCormackSolver, RK_Order, SemiLagrangeSolver
 
 advection_solver = MacCormackSolver
 
-from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver
+from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
 
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = ConjugateGradientProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
@@ -140,7 +140,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,
