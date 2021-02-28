@@ -22,16 +22,15 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                    beta: Float):
 
         for I in ti.grouped(pf.field):
-            if ts.summation(I) % 2 == 0:
+            if I.sum() & 1 == 0:
                 div = p_divs[I]
                 ret = 0.0
                 for d in ti.static(range(self.cfg.dim)):
                     D = ti.Vector.unit(self.cfg.dim, d)
-
-                    p0 = pf.sample(I + D)
-                    p1 = pf.sample(I - D)
-
-                    ret += p0 + p1
+                    # p0 = pf.sample(I + D)
+                    # p1 = pf.sample(I - D)
+                    # ret += p0 + p1
+                    ret += pf.sample(I + D) + pf.sample(I - D)
                 new_pf[I] = (ret + alpha * div) * beta
                 # pl = pf.sample(I + ts.D.zy)
                 # pr = pf.sample(I + ts.D.xy)
@@ -41,16 +40,17 @@ class RedBlackGaussSedialProjectionSolver(ProjectionSolver):
                 # new_pf[I] = (pl + pr + pb + pt + alpha * div) * beta
 
         for I in ti.grouped(pf.field):
-            if ts.summation(I) % 2 == 1:
+            if I.sum() & 1 == 1:
                 div = p_divs[I]
                 ret = 0.0
                 for d in ti.static(range(self.cfg.dim)):
                     D = ti.Vector.unit(self.cfg.dim, d)
 
-                    p0 = pf.sample(I + D)
-                    p1 = pf.sample(I - D)
+                    # p0 = pf.sample(I + D)
+                    # p1 = pf.sample(I - D)
+                    # ret += p0 + p1
+                    ret += pf.sample(I + D) + pf.sample(I - D)
 
-                    ret += p0 + p1
                 new_pf[I] = (ret + alpha * div) * beta
                 # pl = new_pf.sample(I + ts.D.zy)
                 # pr = new_pf.sample(I + ts.D.xy)

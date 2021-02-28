@@ -147,6 +147,7 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
                     self.z[l], I)) / (2 * self.dim)
 
     def apply_preconditioner(self):
+        # v_cycle
         self.z[0].fill(0)
         for l in range(self.n_mg_levels - 1):
             for i in range(self.pre_and_post_smoothing << l):
