@@ -184,7 +184,9 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
         self.reduce(self.r[0], self.r[0])
         initial_rTr = self.sum[None]
 
-        tol = max(abs_tol, initial_rTr * rel_tol)
+        tol = min(abs_tol, initial_rTr * rel_tol)
+        if verbose:
+            print(f"tol: {tol}")
 
         # self.r = b - Ax = b    since self.x = 0
         # self.p = self.r = self.r + 0 self.p

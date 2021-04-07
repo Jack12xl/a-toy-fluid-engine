@@ -189,6 +189,10 @@ class EulerScheme(metaclass=ABCMeta):
         # do advection projection here
         self.schemeStep(ext_input)
 
+        # TODO print divergence
+        self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
+        div_s = np.sum(self.grid.v_divs.field.to_numpy())
+        print(f'divergence={div_s}')
         self.boundarySolver.ApplyBoundaryCondition()
 
         self.dye_fade()

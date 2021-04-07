@@ -10,7 +10,6 @@ class AdvectionReflectionEulerScheme(EulerScheme):
         super().__init__(cfg)
 
     def schemeStep(self, ext_input: np.array):
-        # ref: https://github.com/ShaneFX/GAMES201/blob/master/HW01/Smoke3d/smoke_3D.py
         self.advect(self.cfg.half_dt)
         self.externalForce(ext_input, self.cfg.half_dt)
         # utils.copy_ti_field(self.grid.tmp_v, self.grid.v_pair.cur)

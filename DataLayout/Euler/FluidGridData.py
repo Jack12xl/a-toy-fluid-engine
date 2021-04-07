@@ -48,7 +48,7 @@ class FluidGridData(metaclass=ABCMeta):
                           o=ts.vecND(self.dim, 0.5))
         self.new_p = CellGrid(ti.field(dtype=ti.f32, shape=cfg.res), cfg.dim, dx=ts.vecND(self.dim, self.cfg.dx),
                               o=ts.vecND(self.dim, 0.5))
-        # here density is just for visualization, which does not involve in calculation
+        # for visualization and buoyancy
         self.density_bffr = CellGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim,
                                      dx=ts.vecND(self.dim, self.cfg.dx), o=ts.vecND(self.dim, 0.5))
         self.new_density_bffr = CellGrid(ti.Vector.field(3, dtype=ti.f32, shape=cfg.res), cfg.dim,

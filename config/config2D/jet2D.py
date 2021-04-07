@@ -34,7 +34,7 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Engine
-run_scheme = SchemeType.Advection_Reflection
+run_scheme = SchemeType.Advection_Projection
 
 CFL = None
 
@@ -44,7 +44,7 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
 
-projection_solver = ConjugateGradientProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
@@ -68,7 +68,7 @@ Colliders = []
 #     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
-dt = 0.03
+dt = 0.001
 dx = 1.0 / res[0]
 
 Emitters = []
@@ -145,7 +145,7 @@ save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,
     # VisualizeEnum.Vorticity,
-    # VisualizeEnum.Divergence,
+    VisualizeEnum.Divergence,
 ]
 
 save_frame_length = 320
