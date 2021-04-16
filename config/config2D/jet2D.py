@@ -68,8 +68,8 @@ Colliders = []
 #     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
-dt = 0.001
-dx = 1.0 / res[0]
+dt = 0.03
+dx = 1.0
 
 Emitters = []
 # Emitters.append(ForceEmitter2(
@@ -91,7 +91,7 @@ Emitters.append(SquareEmitter(
         orientation=math.pi / 2.0
     ),
     v=Velocity2(),
-    jet_v=ts.vec2(0.0, 0.5),
+    jet_v=ts.vec2(0.0, 256.0),
     jet_t=GasMaxT,
     fluid_color=fluid_color,
     v_grid_type=v_grid_type
