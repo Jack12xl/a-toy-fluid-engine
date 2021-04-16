@@ -24,7 +24,7 @@ from advection import MacCormackSolver, SemiLagrangeSolver, SemiLagrangeOrder
 advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
-projection_solver = RedBlackGaussSedialProjectionSolver
+projection_solver = ConjugateGradientProjectionSolver
 p_jacobi_iters = 30
 dye_decay = 0.99
 semi_order = SemiLagrangeOrder.RK_3

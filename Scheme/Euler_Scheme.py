@@ -42,7 +42,7 @@ class EulerScheme():
 
         if self.cfg.curl_strength:
             self.grid.calVorticity(self.grid.v_pair.cur)
-            self.enhance_vorticity()
+            # self.enhance_vorticity()
 
         self.projection_solver.runPressure()
         self.projection_solver.runViscosity()

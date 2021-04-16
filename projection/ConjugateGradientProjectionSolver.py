@@ -13,7 +13,7 @@ class ConjugateGradientProjectionSolver(ProjectionSolver):
 
     def runPressure(self):
         self.core.init(self.grid.v_divs, -1)
-        self.core.solve(max_iters=8)
+        self.core.solve(max_iters=-1)
         self.core.get_result(self.grid.p_pair.cur)
 
     def runViscosity(self):

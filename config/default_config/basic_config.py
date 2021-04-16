@@ -1,8 +1,8 @@
 m_dim = 2
 # resolution for the simulation grid
-m_res = [600, 600]
+m_res = [512, 512]
 # resolution for the screen space
-m_screen_res = [600, 600]
+m_screen_res = [512, 512]
 
 m_dx = 1.0
 m_inv_dx = 1.0 / m_dx
