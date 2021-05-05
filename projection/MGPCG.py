@@ -4,6 +4,8 @@ import time
 import math
 
 # Jack12 copy from official code
+# TODO support MAC grid
+# TODO support dx
 
 @ti.data_oriented
 class MGPCG:
