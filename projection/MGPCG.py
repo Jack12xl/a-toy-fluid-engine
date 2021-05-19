@@ -3,6 +3,7 @@ import taichi as ti
 import time
 import math
 
+
 # Jack12 copy from official code
 # TODO support MAC grid
 # TODO support dx
@@ -16,7 +17,8 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
     This solver only runs on CPU and CUDA backends since it requires the
     ``pointer`` SNode.
     """
-    def __init__(self, dim=2, N=512, n_mg_levels=6, real=float):
+
+    def __init__(self, dx, dim=2, N=512, n_mg_levels=6, real=float):
         """
         :parameter dim: Dimensionality of the fields.
         :parameter N: Grid resolution.
@@ -32,6 +34,9 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
         self.bottom_smoothing = 50
         self.dim = dim
         self.real = real
+
+        self.dx = dx  # a grid length in physical
+        self.poisson_pressure_alpha = ti.static(- self.dx * self.dx)
 
         self.N_ext = self.N // 2  # number of ext cells set so that that total grid size is still power of 2
         self.N_tot = 2 * self.N
@@ -54,9 +59,9 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
 
         for l in range(self.n_mg_levels):
             self.grid = ti.root.pointer(indices,
-                                        [self.N_tot // (4 * 2**l)]).dense(
-                                            indices,
-                                            4).place(self.r[l], self.z[l])
+                                        [self.N_tot // (4 * 2 ** l)]).dense(
+                indices,
+                4).place(self.r[l], self.z[l])
 
         ti.root.place(self.alpha, self.beta, self.sum)
 
@@ -186,7 +191,7 @@ See `examples/stable_fluid.py <https://github.com/taichi-dev/taichi/blob/master/
         self.reduce(self.r[0], self.r[0])
         initial_rTr = self.sum[None]
 
-        tol = min(abs_tol, initial_rTr * rel_tol)
+        tol = max(abs_tol, initial_rTr * rel_tol)
         if verbose:
             print(f"tol: {tol}")
 

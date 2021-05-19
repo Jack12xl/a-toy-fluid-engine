@@ -122,10 +122,11 @@ class EulerCFG(FluidCFG):
     @projection_solver.setter
     def projection_solver(self, solver):
         self._projection_solver = solver
+        self.poisson_pressure_alpha = ti.static(- self.dx * self.dx)
         if self._projection_solver != ConjugateGradientProjectionSolver:
 
             self.p_jacobi_iters = self.cfg.p_jacobi_iters
-            self.poisson_pressure_alpha = ti.static(- self.dx * self.dx)
+
             # 1 / 4 for 2D, 1 / 6 for 3D
             self.poisson_pressure_beta = ti.static(1.0 / (2 * self.dim))
 
@@ -138,6 +139,7 @@ class EulerCFG(FluidCFG):
 
         else:
             # TODO MGPCG
+            self.grid.dx = 1
             pass
 
     @property

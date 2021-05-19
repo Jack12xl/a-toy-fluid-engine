@@ -98,6 +98,7 @@ class collocatedGridData(FluidGridData):
 
                 ret[d] = p0 - p1
             vf[I] -= self.inv_d * ret
+            # vf[I] -= ret
             # pl = pf.sample(I + ts.D.zy)
             # pr = pf.sample(I + ts.D.xy)
             # pb = pf.sample(I + ts.D.yz)
