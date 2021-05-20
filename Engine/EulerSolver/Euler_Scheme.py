@@ -190,10 +190,10 @@ class EulerScheme(metaclass=ABCMeta):
         self.schemeStep(ext_input)
 
         # TODO print divergence
-        self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
-        div_s = np.sum(self.grid.v_divs.field.to_numpy())
-        print(f'divergence_sum={div_s}')
-        print('')
+        # self.grid.calDivergence(self.grid.v_pair.cur, self.grid.v_divs)
+        # div_s = np.sum(self.grid.v_divs.field.to_numpy())
+        # print(f'divergence_sum={div_s}')
+        # print('')
         self.boundarySolver.ApplyBoundaryCondition()
 
         self.dye_fade()

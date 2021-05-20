@@ -18,8 +18,8 @@ def parse_args():
         import config.config2D.stable_fluid_mouse
         cfg = config.config2D.stable_fluid_mouse
     elif args.cfg == "jet2d":
-        import config.config2D.jet2D
-        cfg = config.config2D.jet2D
+        import config.config2D.jet2D as cfg
+        # cfg = config.config2D.jet2D
     elif args.cfg == "jet3d":
         import config.config3D.jet3D
         cfg = config.config3D.jet3D
@@ -139,7 +139,8 @@ if __name__ == '__main__':
 
         frame_count += 1
         m_cfg.frame_count += 1
+        ti.kernel_profiler_print()
 
         # print("frame", frame_count)
 
-    ti.kernel_profiler_print()
+
