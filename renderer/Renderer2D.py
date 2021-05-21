@@ -9,7 +9,8 @@ from utils import cmapper, Vector, Matrix, Wrapper
 class renderer2D(renderer):
     def __init__(self, cfg, grid):
         super(renderer2D, self).__init__(cfg, grid)
-        self.mapper = cmapper()
+        # self.mapper = cmapper()
+        self.mapper = None
 
     @ti.kernel
     def render_collider(self, bdrySolver: ti.template()):
