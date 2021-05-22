@@ -57,6 +57,8 @@ if __name__ == '__main__':
             solver.step(mouse_data)
             GUIs[i].set_image(solver.renderer.clr_bffr)
             GUIs[i].show()
+            # where the network module insert
+
 
 
             m_cfgs[i].frame_count += 1
