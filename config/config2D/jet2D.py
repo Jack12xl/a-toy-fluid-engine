@@ -69,7 +69,7 @@ Colliders = []
 #     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
 
 dt = 0.03
-dx = 1.0
+dx = 2.0
 
 Emitters = []
 # Emitters.append(ForceEmitter2(

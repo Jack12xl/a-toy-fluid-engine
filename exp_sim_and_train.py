@@ -33,7 +33,13 @@ def get_scheme(cfg):
 
 
 if __name__ == '__main__':
+    ti.init(arch=ti.gpu,
+            device_memory_GB=1.0,
+            kernel_profiler=True
+            )
     m_cfgs = parse_args()
+    assert(m_cfgs[0])
+    assert(m_cfgs[1])
 
     solvers = [get_scheme(cfg) for cfg in m_cfgs]
 
@@ -51,7 +57,9 @@ if __name__ == '__main__':
             solver.step(mouse_data)
             GUIs[i].set_image(solver.renderer.clr_bffr)
             GUIs[i].show()
+
+
             m_cfgs[i].frame_count += 1
-            if frame_count >= m_cfgs[i].save_frame_length:
-                break
+        if frame_count >= 324:
+            break
         frame_count += 1

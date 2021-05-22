@@ -55,7 +55,6 @@ curl_strength = 0.0
 # collider
 from geometry import Transform2, Velocity2
 
-ti.init(arch=ti.gpu, debug=debug, kernel_profiler=True)
 # init should put before init ti.field
 
 from geometry import RigidBodyCollider, Ball
@@ -72,17 +71,6 @@ dt = 0.03
 dx = 2.0
 
 Emitters = []
-# Emitters.append(ForceEmitter2(
-#     t=Transform2(
-#         translation=ti.Vector([300.0, 0.0]),
-#         localscale=10000.0,
-#         orientation=math.pi / 2.0
-#     ),
-#     v=Velocity2(),
-#     fluid_color=fluid_color,
-#     force_radius=res[0] / 3.0,
-#     )
-# )
 
 Emitters.append(SquareEmitter(
     t=Transform2(
@@ -97,29 +85,6 @@ Emitters.append(SquareEmitter(
     v_grid_type=v_grid_type
 )
 )
-# Emitters.append(ForceEmitter(
-#     sys.modules[__name__],
-#     t=Transform2(
-#         translation=ti.Vector([305, 0]),
-#         localscale=10000.0,
-#         orientation=math.pi / 2.0
-#     ),
-#     v=Velocity2(),
-#     force_radius=res[0] / 3.0
-#     )
-# )
-#
-# Emitters.append(ForceEmitter(
-#     sys.modules[__name__],
-#     t=Transform2(
-#         translation=ti.Vector([295, 0]),
-#         localscale=10000.0,
-#         orientation=math.pi / 2.0
-#     ),
-#     v=Velocity2(),
-#     force_radius=res[0] / 3.0
-#     )
-# )
 
 from datetime import datetime
 
@@ -140,7 +105,7 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 save_what = [
     VisualizeEnum.Density,
     VisualizeEnum.Velocity,

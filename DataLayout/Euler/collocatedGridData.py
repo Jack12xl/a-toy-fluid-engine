@@ -119,6 +119,12 @@ class collocatedGridData(FluidGridData):
     def reflect_v_field(self,
                         to_be_reflected: ti.template(),
                         mid_point: ti.template()):
+        """
+
+        :param to_be_reflected:
+        :param mid_point: divergence free value
+        :return:
+        """
         for I in ti.static(to_be_reflected):
             to_be_reflected[I] = 2.0 * mid_point[I] - to_be_reflected[I]
 
