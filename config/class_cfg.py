@@ -38,10 +38,11 @@ class SchemeType(Enum):
     Advection_Projection = 0
     Advection_Reflection = 1
     Bimocq = 2
+    AdvectV = 3
 
     def __init__(self, *args):
         super().__init__()
-        self.map = ['AP', 'AR', 'BMcq']
+        self.map = ['AP', 'AR', 'BMcq', 'Vonly']
 
     def __str__(self):
         return self.map[self.value]

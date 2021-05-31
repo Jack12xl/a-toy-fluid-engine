@@ -44,7 +44,7 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
 
-projection_solver = JacobiProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
@@ -60,13 +60,6 @@ from geometry import Transform2, Velocity2
 from geometry import RigidBodyCollider, Ball
 
 Colliders = []
-# Colliders.append(RigidBodyCollider(Ball(
-#     transform=Transform2(translation=ti.Vector([300, 250]), localscale=16),
-#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, -10.0]),angular_velocity_to_centroid=15.0))))
-# Colliders.append(RigidBodyCollider(Ball(
-#     transform=Transform2(translation=ti.Vector([150, 150]), localscale=8),
-#     velocity=Velocity2(velocity_to_world=ti.Vector([0.0, 0.0]), angular_velocity_to_centroid=-5.0))))
-
 dt = 0.03
 dx = 2.0
 
@@ -105,21 +98,21 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = False
+bool_save = True
 save_what = [
     VisualizeEnum.Density,
-    VisualizeEnum.Velocity,
+    # VisualizeEnum.Velocity,
     # VisualizeEnum.Vorticity,
-    VisualizeEnum.Divergence,
+    # VisualizeEnum.Divergence,
 ]
 
-save_frame_length = 320
+save_frame_length = 324
 save_root = './tmp_result'
 frame_rate = int(1.0 / dt)
 save_path = os.path.join(save_root, profile_name)
 
 bool_save_ply = False
 
-bool_save_grid = False
+bool_save_grid = True
 grid_save_frequency = 1
 grid_save_dir = os.path.join(save_root, profile_name, "v" + 'x'.join(map(str, res)))

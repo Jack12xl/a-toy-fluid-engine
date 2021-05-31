@@ -1,24 +1,26 @@
 import taichi as ti
 import argparse
-import importlib.util
 from config.CFG_wrapper.eulerCFG import EulerCFG
 import os
 from importlib import import_module
 from config.class_cfg import SchemeType
-from Engine import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme
+from Engine import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme, AdvectV
+import numpy as np
+from glob import glob
 
+args = None
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Main file ")
 
     parser.add_argument("-L", "--LowCfg", help="low resolution cfg path", type=str)
-    parser.add_argument("-H", "--HighCfg", help="high resolution cfg path", type=str)
+    parser.add_argument("-V", "--vpath", help="path to low resolution field", type=str)
+    global args
     args = parser.parse_args()
 
     low_cfg = import_module(args.LowCfg)
-    high_cfg = import_module(args.HighCfg)
 
-    return [EulerCFG(low_cfg), EulerCFG(high_cfg)]
+    return [EulerCFG(low_cfg)]
 
 
 def get_scheme(cfg):
@@ -29,6 +31,8 @@ def get_scheme(cfg):
         scheme = AdvectionReflectionEulerScheme(cfg)
     elif cfg.run_scheme == SchemeType.Bimocq:
         scheme = Bimocq_Scheme(cfg)
+    elif cfg.run_scheme == SchemeType.AdvectV:
+        scheme = AdvectV(cfg)
     return scheme
 
 
@@ -38,8 +42,7 @@ if __name__ == '__main__':
             kernel_profiler=True
             )
     m_cfgs = parse_args()
-    assert(m_cfgs[0])
-    assert(m_cfgs[1])
+    assert (m_cfgs[0])
 
     solvers = [get_scheme(cfg) for cfg in m_cfgs]
 
@@ -50,14 +53,18 @@ if __name__ == '__main__':
     for i, solver in enumerate(solvers):
         solver.materialize()
 
+    # prepare the field paths
+    v_f_paths = sorted(glob(os.path.join(args.vpath, '*.npz')))
+
     frame_count = 0
     while all([GUI.running for GUI in GUIs]):
         for i, solver in enumerate(solvers):
-            mouse_data = None
-            solver.step(mouse_data)
+            # load the input velocity field
+            v_field = np.load(v_f_paths[frame_count])['dn_v']
+
+            solver.step(v_field)
             GUIs[i].set_image(solver.renderer.clr_bffr)
             GUIs[i].show()
-            # where the network module insert
 
             if m_cfgs[i].bool_save:
                 for save_what, video_manager in zip(m_cfgs[i].save_what, m_cfgs[i].video_managers):

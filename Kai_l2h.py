@@ -6,7 +6,7 @@ import os
 from glob import glob
 from utils import Float, Matrix
 from Grid import CellGrid, Wrapper
-
+# data preparation for Kai Tog 2020
 
 @ti.data_oriented
 class dataPPer:
