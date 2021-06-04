@@ -2,6 +2,7 @@ from .Euler_Scheme import EulerScheme
 import taichi as ti
 import numpy as np
 
+
 # for super resolution
 # input velocity field and advect
 @ti.data_oriented
@@ -17,3 +18,4 @@ class AdvectV(EulerScheme):
         """
         self.grid.v_pair.cur.field.from_numpy(ext_input)
         self.advect(self.cfg.dt)
+        self.externalForce(ext_input, self.cfg.dt)

@@ -34,7 +34,7 @@ GasInitAmbientT = 23.33
 GasMaxT = 85.0
 
 # run Engine
-run_scheme = SchemeType.Advection_Projection
+run_scheme = SchemeType.AdvectV
 
 CFL = None
 
@@ -46,7 +46,7 @@ from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolv
 
 projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
-dye_decay = 0.99
+dye_decay = 1.0
 semi_order = RK_Order.RK_3
 
 # vorticity enhancement

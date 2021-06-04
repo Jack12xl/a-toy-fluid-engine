@@ -1,12 +1,13 @@
 import taichi as ti
 import argparse
-import importlib.util
 from config.CFG_wrapper.eulerCFG import EulerCFG
 import os
 from importlib import import_module
 from config.class_cfg import SchemeType
 from Engine import AdvectionProjectionEulerScheme, AdvectionReflectionEulerScheme, Bimocq_Scheme
 
+import torch
+import torch.nn as nn
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Main file ")
@@ -31,6 +32,26 @@ def get_scheme(cfg):
         scheme = Bimocq_Scheme(cfg)
     return scheme
 
+class NN_0(torch.nn):
+    """
+    first lstm in experiment
+    """
+    def __init__(self, dim, hidden_size):
+        self.hidden_size = hidden_size
+        if dim == 2:
+            self.blk = nn.Sequential(
+                nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=(3, 3), padding=(1, 1)),
+                nn.Tanh()
+            )
+            self.blkend = nn.Sequential(
+                self.nn.Conv2d(in_channels=dim, out_channels=dim, kernel_size=(3, 3), padding=(1, 1))
+            )
+        else:
+            raise NotImplementedError
+
+    def forward(self, x):
+        for _ in self.hidden_size:
+            x = self.blk()
 
 if __name__ == '__main__':
     ti.init(arch=ti.gpu,
