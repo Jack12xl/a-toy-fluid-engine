@@ -50,8 +50,9 @@ class NN_0(torch.nn):
             raise NotImplementedError
 
     def forward(self, x):
-        for _ in self.hidden_size:
-            x = self.blk()
+        x = self.blk(x)
+        return self.blkend(x)
+
 
 if __name__ == '__main__':
     ti.init(arch=ti.gpu,
