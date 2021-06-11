@@ -44,7 +44,7 @@ advection_solver = MacCormackSolver
 
 from projection import RedBlackGaussSedialProjectionSolver, JacobiProjectionSolver, ConjugateGradientProjectionSolver
 
-projection_solver = JacobiProjectionSolver
+projection_solver = RedBlackGaussSedialProjectionSolver
 p_jacobi_iters = 64
 dye_decay = 0.99
 semi_order = RK_Order.RK_3
@@ -104,10 +104,10 @@ if Colliders:
 print(profile_name)
 
 # save to video(gif)
-bool_save = True
+bool_save = False
 save_what = [
     VisualizeEnum.Density,
-    # VisualizeEnum.Velocity,
+    VisualizeEnum.Velocity,
     # VisualizeEnum.Vorticity,
     # VisualizeEnum.Divergence,
 ]
@@ -119,6 +119,6 @@ save_path = os.path.join(save_root, profile_name)
 
 bool_save_ply = False
 
-bool_save_grid = True
+bool_save_grid = False
 grid_save_frequency = 1
 grid_save_dir = os.path.join(save_root, profile_name, "v" + 'x'.join(map(str, res)))

@@ -109,7 +109,6 @@ class dataPPer:
             # to low resolution grid
             # interpolate
             h2l_f[I_h] = h_f.interpolate(W)
-            # print("W: ", W, " I_l: ", I_l, " I_h: ", I_h, " v: ", l2h_f[I_h])
             self.clr_bffr[I_h] = ts.vec3(h2l_f[I_h].x, h2l_f[I_h].y, 0.0) + ts.vec3(0.5)
 
     @ti.kernel

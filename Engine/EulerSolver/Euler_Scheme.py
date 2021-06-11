@@ -254,3 +254,19 @@ class EulerScheme(metaclass=ABCMeta):
         grids = self.grid.grid_info()
 
         self.grid.dump(fn, grids)
+
+    def copy_state(self, target_solver):
+        self.curFrame = target_solver.curFrame
+        self.kern_copy_state(target_solver)
+
+    @ti.kernel
+    def kern_copy_state(self, target_solver: ti.template()):
+        """
+        copy target solver(Euler solver) state to self
+        should copy density, velocity field
+        :param target_solver:
+        :return:
+        """
+        for I in ti.static(target_solver.grid.v_pair.cur):
+            self.grid.v_pair.cur[I] = target_solver.grid.v_pair.cur[I]
+            self.grid.density_pair.cur[I] = target_solver.grid.density_pair.cur[I]
